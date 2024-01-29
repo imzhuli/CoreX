@@ -58,7 +58,6 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
 	link_directories("/usr/local/lib/")
 endif()
 
-
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 		set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/.local" CACHE PATH "..." FORCE)
@@ -75,6 +74,9 @@ set(CMAKE_BUILD_RPATH_USE_ORIGIN               TRUE)
 set(CMAKE_INSTALL_REMOVE_ENVIRONMENT_RPATH     TRUE)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH          FALSE)
 set(CMAKE_INSTALL_RPATH                        "\$ORIGIN")
+
+set(THIRD_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/./_3rd_installed/include")
+set(THIRD_LIB_DIRS     "${PROJECT_SOURCE_DIR}/./_3rd_installed/lib")
 
 add_subdirectory(src)
 add_subdirectory(src_test)

@@ -21,6 +21,6 @@ except:
     print("failed to check and remove install target")
 
 os.system(
-    f'cmake -Wno-dev -DCMAKE_INSTALL_PREFIX={full_install_path!r} -B {build_path} .')
+    f'cmake -DX_OPTION_STATIC=true -Wno-dev -DCMAKE_INSTALL_PREFIX={full_install_path!r} -B {build_path} .')
 os.system(f"cmake --build {build_path} -- all")
 os.system(f"cmake --build {build_path} -- install")

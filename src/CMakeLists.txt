@@ -5,15 +5,10 @@ set(libname xel)
 find_package(Vulkan REQUIRED)
 
 
-set(THIRD_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/../_3rd_installed/include")
-set(THIRD_LIB_DIRS     "${PROJECT_SOURCE_DIR}/../_3rd_installed/lib")
+# set(THIRD_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/../_3rd_installed/include")
+# set(THIRD_LIB_DIRS     "${PROJECT_SOURCE_DIR}/../_3rd_installed/lib")
+
 set(THIRD_LIBRARIES    everest glfw3 mbedcrypto mbedtls mbedx509 p256m)
-
-# message(STATUS ${GLFW3_FOUND})
-# message(STATUS ${GLFW3_INCLUDE_DIRS})
-# message(STATUS ${GLFW3_LIBRARY_DIRS})
-# message(STATUS ${GLFW3_LIBRARIES})
-
 message(STATUS ${THIRD_LIB_DIRS})
 
 include_directories(

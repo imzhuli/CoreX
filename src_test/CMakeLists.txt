@@ -6,6 +6,18 @@ include_directories(
 	../src
 )
 
+include_directories(
+	${THIRD_INCLUDE_DIRS}
+)
+
+link_directories(
+	${THIRD_LIB_DIRS}
+)
+
+set(shared_lib_dependency_private
+	${THIRD_LIBRARIES}
+)
+
 # enable specific macors by system type:
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	set(PLATFORM_LIBRARIES ws2_32 Mswsock)
@@ -55,6 +67,7 @@ endfunction()
 
 build_app(cpp)
 build_app(env_check)
-build_app(string)
+build_app(rsa)
 
-test_sub(string)
+build_app(test_string)
+test_sub(test_string)

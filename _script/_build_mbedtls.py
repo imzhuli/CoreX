@@ -19,7 +19,9 @@ def build():
     try:
         os.chdir(unzipped_src_dir)
         os.system(
-            f'cmake -Wno-dev -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX={install_dir!r} -B build .')
+            'cmake '
+            '-Wno-dev -DBUILD_SHARED_LIBS=OFF '
+            f'-DCMAKE_INSTALL_PREFIX={install_dir!r} -B build .')
         os.system(f"cmake --build build -- all")
         os.system(f"cmake --build build -- install")
     except Exception as e:
