@@ -42,6 +42,7 @@ set(shared_lib_dependency_public
 	${cpp})
 
 aux_source_directory(./core/       X_SRC)
+aux_source_directory(./crypto/     X_SRC)
 aux_source_directory(./locale/     X_SRC)
 aux_source_directory(./network/    X_SRC)
 aux_source_directory(./object/     X_SRC)
