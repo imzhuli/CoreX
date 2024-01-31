@@ -14,6 +14,7 @@ int main(int argc, char * argv[]) {
 		argc, argv,
 		{
 			{ 'k', "pri-keyfile", "pri-keyfile", true },
+			{ 'v', "validator-keyfile", "validator-keyfile", true },
 		}
 	);
 
@@ -45,6 +46,15 @@ int main(int argc, char * argv[]) {
 
 	auto Validate2 = Signer.Validate(Source.data(), Source.length(), Decoded.data());
 	cout << "Validate2: " << Validate2 << endl;
+
+	auto OptValidatorKey = CL["validator-keyfile"];
+	if (OptValidatorKey()) {
+		auto Validator      = xSha256WithRsaValidator();
+		auto ValidatorGuard = xResourceGuard(Validator, *OptValidatorKey);
+
+		auto ValidateResult = Validator(Source.data(), Source.length(), Decoded.data());
+		cout << "Validator: " << ValidateResult << endl;
+	}
 
 	return 0;
 }

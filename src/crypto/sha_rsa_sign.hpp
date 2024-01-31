@@ -15,11 +15,23 @@ public:
 	X_API_MEMBER void Clean();
 
 	X_API_MEMBER xView<ubyte> operator()(const void * Data, size_t Size);
-	X_API_MEMBER bool         Validate(const void * Data, size_t Size, const void * Sha256Hash);
+	X_API_MEMBER bool         Validate(const void * Data, size_t Size, const void * Signature);
 
 private:
 	ubyte                    _SignResult[128];
 	mbedtls_pk_context       _PriKeyContext = {};
+	mbedtls_ctr_drbg_context _CtrDrbg       = {};
+};
+
+class xSha256WithRsaValidator {
+public:
+	X_API_MEMBER bool Init(const std::filesystem::path & PubKeyPath);
+	X_API_MEMBER void Clean();
+
+	X_API_MEMBER bool operator()(const void * Data, size_t Size, const void * Signature);
+
+private:
+	mbedtls_pk_context       _PubKeyContext = {};
 	mbedtls_ctr_drbg_context _CtrDrbg       = {};
 };
 
