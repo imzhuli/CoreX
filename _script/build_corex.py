@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import _check_env as ce
 import os
 import shutil

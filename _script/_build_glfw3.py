@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import _unzip_source as us
 import os
 

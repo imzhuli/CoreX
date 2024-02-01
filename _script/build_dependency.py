@@ -1,6 +1,10 @@
+#!/usr/bin/env python3
+
 import _prepared_3rd as p3
 import _build_glfw3 as bglfw3
 import _build_mbedtls as bmbedtls
+import os
+import shutil
 
 if __name__ != "__main__":
     print("not valid entry, name=%s" % (__name__))
@@ -14,3 +18,8 @@ if not bglfw3.build():
 
 if not bmbedtls.build():
     exit
+
+# remove temp dir
+cwd = os.getcwd()
+dependency_unzip_dir = f"{cwd}/_3rd_build"
+shutil.rmtree(dependency_unzip_dir)
