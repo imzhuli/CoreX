@@ -18,14 +18,10 @@ class xIndexedStorage;
  * @brief an 64 bit integer, with lower 32 bits representing an Index
  *        and the higher 32 bit with random value as a check key
  * @note
- *    for pooled use,
- *      the highest 2 bits in Index part and is always zero,
- *      the second highest bit in Key part is always one (aka: KeyInUseBitmask == 0x4000'0000u),
- *      so the id pool could use one 32bit integer to store an index to next free node in chain
- *      while the index itself is free, or a key value with KeyInUseBitmask set while the index is in use;
- *    Especially, since all allocated index has KeyInUseBitmask set to 1, a valid index id is never zero;
- *    The highest bit of Key is always zero, so that a valid key is never satisfy (key & 0x8000'000), which NoFreeIndex indicator does in id
- * pool,
+ *    The highest bit in Index part and is always zero, so that an index is always positive,
+ *    The highest bit in Key part and is always zero, so that an Key is always positive,
+ *    The second highest bit in Key part is always one (aka: KeyInUseBitmask == 0x4000'0000u),
+ *    Since all allocated index has KeyInUseBitmask set to 1, a valid index id is never zero;
  * */
 class xIndexId final {
 public:
@@ -55,10 +51,10 @@ private:
 	friend class xIndexedStorage;
 
 	X_API_STATIC_MEMBER uint32_t    TimeSeed();
-	static constexpr const uint32_t MaxIndexValue   = ((uint32_t)0x3FFF'FFFFu);
-	static constexpr const uint32_t KeyInUseBitmask = ((uint32_t)0x4000'0000u);
-	static constexpr const uint32_t KeyMask         = ((uint32_t)0x7FFF'FFFFu);
+	static constexpr const uint32_t MaxIndexSize    = ((uint32_t)0x7FFF'FFFFu);
 	static constexpr const uint32_t NoFreeIndex     = ((uint32_t)0x8000'0000u);
+	static constexpr const uint32_t KeyInUseBitmask = ((uint32_t)0x4000'0000u);
+	static constexpr const uint32_t KeyMask         = ((uint32_t)0x7FFF'FFFFu);  // ensure Id(Key) always positive
 	X_STATIC_INLINE bool            IsSafeKey(uint32_t Key) {
         return X_LIKELY(Key & KeyInUseBitmask);
 	}
@@ -68,7 +64,7 @@ template <bool RandomKey>
 class xIndexIdPool final : xNonCopyable {
 public:
 	bool Init(size_t Size) {
-		assert(Size <= xIndexId::MaxIndexValue);
+		assert(Size <= xIndexId::MaxIndexSize);
 		assert(_IdPoolPtr == nullptr);
 		assert(_NextFreeIdIndex == xIndexId::NoFreeIndex);
 		assert(_InitedId == 0);
@@ -169,7 +165,7 @@ class xIndexedStorage final : xNonCopyable {
 
 public:
 	X_INLINE bool Init(size_t Size) {
-		assert(Size <= xIndexId::MaxIndexValue);
+		assert(Size <= xIndexId::MaxIndexSize);
 		assert(_IdPoolPtr == nullptr);
 		assert(_NextFreeIdIndex == xIndexId::NoFreeIndex);
 		assert(_InitedId == 0);
