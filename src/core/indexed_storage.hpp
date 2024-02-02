@@ -24,17 +24,27 @@ class xIndexedStorage;
  *      so the id pool could use one 32bit integer to store an index to next free node in chain
  *      while the index itself is free, or a key value with KeyInUseBitmask set while the index is in use;
  *    Especially, since all allocated index has KeyInUseBitmask set to 1, a valid index id is never zero;
- *    The highest bit of Key is always zero, so that a valid key is never satisfy (key & 0x8000'000), which NoFreeIndex indicator does in id pool,
+ *    The highest bit of Key is always zero, so that a valid key is never satisfy (key & 0x8000'000), which NoFreeIndex indicator does in id
+ * pool,
  * */
 class xIndexId final {
 public:
 	X_INLINE xIndexId() = default;
-	X_INLINE constexpr xIndexId(uint64_t Value) : _Value(Value){};
-	X_INLINE constexpr			operator uint64_t() const { return _Value; }
-	X_INLINE constexpr uint64_t operator()() const { return _Value; }
+	X_INLINE constexpr xIndexId(uint64_t Value)
+		: _Value(Value){};
+	X_INLINE constexpr operator uint64_t() const {
+		return _Value;
+	}
+	X_INLINE constexpr uint64_t operator()() const {
+		return _Value;
+	}
 
-	X_INLINE uint32_t GetIndex() const { return static_cast<uint32_t>(_Value); }
-	X_INLINE uint32_t GetKey() const { return static_cast<uint32_t>(_Value >> 32); }
+	X_INLINE uint32_t GetIndex() const {
+		return static_cast<uint32_t>(_Value);
+	}
+	X_INLINE uint32_t GetKey() const {
+		return static_cast<uint32_t>(_Value >> 32);
+	}
 
 private:
 	uint64_t _Value;
@@ -44,12 +54,14 @@ private:
 	template <typename tValue, bool RandomKey>
 	friend class xIndexedStorage;
 
-	X_API_STATIC_MEMBER uint32_t	TimeSeed();
-	static constexpr const uint32_t MaxIndexValue = ((uint32_t)0x3FFF'FFFFu);
+	X_API_STATIC_MEMBER uint32_t    TimeSeed();
+	static constexpr const uint32_t MaxIndexValue   = ((uint32_t)0x3FFF'FFFFu);
 	static constexpr const uint32_t KeyInUseBitmask = ((uint32_t)0x4000'0000u);
-	static constexpr const uint32_t KeyMask = ((uint32_t)0x7FFF'FFFFu);
-	static constexpr const uint32_t NoFreeIndex = ((uint32_t)0x8000'0000u);
-	X_STATIC_INLINE bool			IsSafeKey(uint32_t Key) { return X_LIKELY(Key & KeyInUseBitmask); }
+	static constexpr const uint32_t KeyMask         = ((uint32_t)0x7FFF'FFFFu);
+	static constexpr const uint32_t NoFreeIndex     = ((uint32_t)0x8000'0000u);
+	X_STATIC_INLINE bool            IsSafeKey(uint32_t Key) {
+        return X_LIKELY(Key & KeyInUseBitmask);
+	}
 };
 
 template <bool RandomKey>
@@ -65,8 +77,8 @@ public:
 		if (!_IdPoolPtr) {
 			return false;
 		}
-		_IdPoolSize = (size32_t)Size;
-		_InitedId = 0;
+		_IdPoolSize      = (size32_t)Size;
+		_InitedId        = 0;
 		_NextFreeIdIndex = xIndexId::NoFreeIndex;
 
 		_Counter = xIndexId::TimeSeed();
@@ -100,15 +112,15 @@ public:
 		} else {
 			Index = Steal(_NextFreeIdIndex, _IdPoolPtr[_NextFreeIdIndex]);
 		}
-		uint32_t Rand = RandomKey ? _Random32() : (_Counter += CounterStep);
-		Rand |= xIndexId::KeyInUseBitmask;
-		Rand &= xIndexId::KeyMask;
+		uint32_t Rand     = RandomKey ? _Random32() : (_Counter += CounterStep);
+		Rand             |= xIndexId::KeyInUseBitmask;
+		Rand             &= xIndexId::KeyMask;
 		_IdPoolPtr[Index] = Rand;
 		return { (static_cast<uint64_t>(Rand) << 32) + Index };
 	}
 
 	X_INLINE void Release(const xIndexId & Id) {
-		uint32_t Index = Id.GetIndex();
+		uint32_t Index    = Id.GetIndex();
 		_IdPoolPtr[Index] = Steal(_NextFreeIdIndex, Index);
 	}
 
@@ -135,12 +147,12 @@ public:
 	}
 
 private:
-	size32_t						_InitedId = 0;
-	size32_t						_IdPoolSize = 0;
-	uint32_t *						_IdPoolPtr = nullptr;
-	uint32_t						_NextFreeIdIndex = xIndexId::NoFreeIndex;
-	uint32_t						_Counter = 0;
-	std::mt19937					_Random32;
+	size32_t                        _InitedId        = 0;
+	size32_t                        _IdPoolSize      = 0;
+	uint32_t *                      _IdPoolPtr       = nullptr;
+	uint32_t                        _NextFreeIdIndex = xIndexId::NoFreeIndex;
+	uint32_t                        _Counter         = 0;
+	std::mt19937                    _Random32;
 	static constexpr const uint32_t CounterStep = 1;
 };
 
@@ -166,8 +178,8 @@ public:
 		if (!_IdPoolPtr) {
 			return false;
 		}
-		_IdPoolSize = (size32_t)Size;
-		_InitedId = 0;
+		_IdPoolSize      = (size32_t)Size;
+		_InitedId        = 0;
 		_NextFreeIdIndex = xIndexId::NoFreeIndex;
 
 		_Counter = xIndexId::TimeSeed();
@@ -185,22 +197,24 @@ public:
 
 	X_INLINE void Clean() {
 		assert(_IdPoolPtr);
-		for (size_t Index = 0; Index < _InitedId; ++Index) {
-			auto & Node = _IdPoolPtr[Index];
-			if (!(Node.Key & xIndexId::KeyInUseBitmask)) {
-				continue;
+		if constexpr (!std::is_trivially_destructible_v<tValue>) {
+			for (size_t Index = 0; Index < _InitedId; ++Index) {
+				auto & Node = _IdPoolPtr[Index];
+				if (!(Node.Key & xIndexId::KeyInUseBitmask)) {
+					continue;
+				}
+				Node.ValueHolder.Destroy();
 			}
-			Node.ValueHolder.Destroy();
 		}
 		delete[] Steal(_IdPoolPtr);
-		_InitedId = 0;
-		_IdPoolSize = 0;
+		_InitedId        = 0;
+		_IdPoolSize      = 0;
 		_NextFreeIdIndex = xIndexId::NoFreeIndex;
 	}
 
 	X_INLINE xIndexId Acquire() {
 		uint32_t Index;
-		xNode *	 NodePtr;
+		xNode *  NodePtr;
 		if (_NextFreeIdIndex == xIndexId::NoFreeIndex) {
 			if (_InitedId >= _IdPoolSize) {
 				return {};
@@ -210,9 +224,9 @@ public:
 			NodePtr = &_IdPoolPtr[Index = Steal(_NextFreeIdIndex, _IdPoolPtr[_NextFreeIdIndex].NextFreeIdIndex)];
 		}
 		uint32_t Rand = RandomKey ? _Random32() : (_Counter += CounterStep);
-		Rand |= xIndexId::KeyInUseBitmask;
-		Rand &= xIndexId::KeyMask;
-		NodePtr->Key = Rand;
+		Rand         |= xIndexId::KeyInUseBitmask;
+		Rand         &= xIndexId::KeyMask;
+		NodePtr->Key  = Rand;
 		try {
 			NodePtr->ValueHolder.Create();
 		} catch (...) {
@@ -224,7 +238,7 @@ public:
 
 	X_INLINE xIndexId Acquire(const tValue & Value) {
 		uint32_t Index;
-		xNode *	 NodePtr;
+		xNode *  NodePtr;
 		if (_NextFreeIdIndex == xIndexId::NoFreeIndex) {
 			if (_InitedId >= _IdPoolSize) {
 				return {};
@@ -234,9 +248,9 @@ public:
 			NodePtr = &_IdPoolPtr[Index = Steal(_NextFreeIdIndex, _IdPoolPtr[_NextFreeIdIndex].NextFreeIdIndex)];
 		}
 		uint32_t Rand = RandomKey ? _Random32() : (_Counter += CounterStep);
-		Rand |= xIndexId::KeyInUseBitmask;
-		Rand &= xIndexId::KeyMask;
-		NodePtr->Key = Rand;
+		Rand         |= xIndexId::KeyInUseBitmask;
+		Rand         &= xIndexId::KeyMask;
+		NodePtr->Key  = Rand;
 		try {
 			NodePtr->ValueHolder.CreateValue(Value);
 		} catch (...) {
@@ -248,7 +262,7 @@ public:
 
 	X_INLINE xIndexId Acquire(tValue && Value) {
 		uint32_t Index;
-		xNode *	 NodePtr;
+		xNode *  NodePtr;
 		if (_NextFreeIdIndex == xIndexId::NoFreeIndex) {
 			if (_InitedId >= _IdPoolSize) {
 				return {};
@@ -258,9 +272,9 @@ public:
 			NodePtr = &_IdPoolPtr[Index = Steal(_NextFreeIdIndex, _IdPoolPtr[_NextFreeIdIndex].NextFreeIdIndex)];
 		}
 		uint32_t Rand = RandomKey ? _Random32() : (_Counter += CounterStep);
-		Rand |= xIndexId::KeyInUseBitmask;
-		Rand &= xIndexId::KeyMask;
-		NodePtr->Key = Rand;
+		Rand         |= xIndexId::KeyInUseBitmask;
+		Rand         &= xIndexId::KeyMask;
+		NodePtr->Key  = Rand;
 		try {
 			NodePtr->ValueHolder.CreateValue(std::move(Value));
 		} catch (...) {
@@ -271,8 +285,8 @@ public:
 	}
 
 	X_INLINE void Release(const xIndexId & Id) {
-		uint32_t Index = Id.GetIndex();
-		auto &	 Node = _IdPoolPtr[Index];
+		uint32_t Index       = Id.GetIndex();
+		auto &   Node        = _IdPoolPtr[Index];
 		Node.NextFreeIdIndex = Steal(_NextFreeIdIndex, Index);
 		Node.ValueHolder.Destroy();
 	}
@@ -282,7 +296,7 @@ public:
 		if (!X_LIKELY(Index < _IdPoolSize)) {
 			return false;
 		}
-		auto   Key = Id.GetKey();
+		auto   Key  = Id.GetKey();
 		auto & Node = _IdPoolPtr[Index];
 		return X_LIKELY(xIndexId::IsSafeKey(Key)) && X_LIKELY(Key == Node.Key);
 	}
@@ -292,7 +306,7 @@ public:
 		if (!X_LIKELY(Index < _IdPoolSize)) {
 			return nullptr;
 		}
-		auto   Key = Id.GetKey();
+		auto   Key  = Id.GetKey();
 		auto & Node = _IdPoolPtr[Index];
 		if (!X_LIKELY(xIndexId::IsSafeKey(Key)) || !X_LIKELY(Key == Node.Key)) {
 			return nullptr;
@@ -305,7 +319,7 @@ public:
 		if (!X_LIKELY(Index < _IdPoolSize)) {
 			return nullptr;
 		}
-		auto   Key = Id.GetKey();
+		auto   Key  = Id.GetKey();
 		auto & Node = _IdPoolPtr[Index];
 		if (!X_LIKELY(xIndexId::IsSafeKey(Key)) || !X_LIKELY(Key == Node.Key)) {
 			return nullptr;
@@ -318,7 +332,7 @@ public:
 		if (!X_LIKELY(Index < _IdPoolSize)) {
 			return false;
 		}
-		auto   Key = Id.GetKey();
+		auto   Key  = Id.GetKey();
 		auto & Node = _IdPoolPtr[Index];
 		if (!X_LIKELY(xIndexId::IsSafeKey(Key)) || !X_LIKELY(Key == Node.Key)) {
 			return false;
@@ -328,18 +342,22 @@ public:
 		return true;
 	}
 
-	X_INLINE tValue & operator[](const xIndexId & Id) { return *_IdPoolPtr[Id.GetIndex()].ValueHolder; }
+	X_INLINE tValue & operator[](const xIndexId & Id) {
+		return *_IdPoolPtr[Id.GetIndex()].ValueHolder;
+	}
 
-	X_INLINE const tValue & operator[](const xIndexId & Id) const { return *_IdPoolPtr[Id.GetIndex()].ValueHolder; }
+	X_INLINE const tValue & operator[](const xIndexId & Id) const {
+		return *_IdPoolPtr[Id.GetIndex()].ValueHolder;
+	}
 
 private:
-	xNode *	 _IdPoolPtr = nullptr;
-	size32_t _IdPoolSize = 0;
-	size32_t _InitedId = 0;
+	xNode *  _IdPoolPtr       = nullptr;
+	size32_t _IdPoolSize      = 0;
+	size32_t _InitedId        = 0;
 	uint32_t _NextFreeIdIndex = xIndexId::NoFreeIndex;
 
-	std::mt19937					_Random32;
-	uint32_t						_Counter = 0;
+	std::mt19937                    _Random32;
+	uint32_t                        _Counter    = 0;
 	static constexpr const uint32_t CounterStep = 1;
 };
 
