@@ -8,8 +8,9 @@ find_package(Vulkan REQUIRED)
 # set(THIRD_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/../_3rd_installed/include")
 # set(THIRD_LIB_DIRS     "${PROJECT_SOURCE_DIR}/../_3rd_installed/lib")
 
-set(THIRD_LIBRARIES    everest glfw3 mbedcrypto mbedtls mbedx509 p256m)
-message(STATUS ${THIRD_LIB_DIRS})
+set(THIRD_LIBRARIES     curl everest freetype glfw3 mbedcrypto mbedtls mbedx509 p256m z)
+# message(STATUS ${THIRD_LIB_DIRS})
+# message(STATUS ${BUILD_SHARED_LIBS})
 
 include_directories(
 	${Vulkan_INCLUDE_DIRS}
@@ -25,6 +26,10 @@ set(shared_lib_dependency_private
 	${Vulkan_LIBRARIES}
 	${THIRD_LIBRARIES}
 )
+if (${BUILD_SHARED_LIBS})
+	set(exposed_lib_dependency ${shared_lib_dependency_private})
+	set(shared_lib_dependency_private)
+endif()
 
 # enable specific macors by system type:
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
@@ -34,10 +39,13 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
 elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 	find_library(COCOA_LIBRARY Cocoa REQUIRED)
 	find_library(IOKIT_LIBRARY IOKit REQUIRED)
-	set(PLATFORM_LIBRARIES dl ${IOKIT_LIBRARY} ${COCOA_LIBRARY})
+	find_library(FUNDATION_LIBRARY Foundation REQUIRED)
+	find_library(SYSTEM_CONFIGURATION_LIBRARY SystemConfiguration REQUIRED)
+	set(PLATFORM_LIBRARIES dl ${SYSTEM_CONFIGURATION_LIBRARY} ${FUNDATION_LIBRARY} ${IOKIT_LIBRARY} ${COCOA_LIBRARY} )
 endif()
 
 set(shared_lib_dependency_public
+	${exposed_lib_dependency}
 	${PLATFORM_LIBRARIES}
 	${cpp})
 
@@ -63,13 +71,14 @@ aux_source_directory(./3rd/tiny_obj_loader   X_3RD_SRC)
 aux_source_directory(./3rd/vk_bootstrap      X_3RD_SRC)
 aux_source_directory(./3rd/vk_mem_alloc      X_3RD_SRC)
 
-if (X_OPTION_STATIC) #static lib:
-	add_library(${libname} ${X_SRC} ${X_3RD_SRC})
-	target_compile_definitions(${libname} PRIVATE X_OPTION_STATIC)
+if (NOT ${BUILD_SHARED_LIBS}) #static lib:
+set(X_OPTION X_OPTION_STATIC)
 else() #dynamic lib:
-	add_library(${libname} SHARED  ${X_SRC} ${X_3RD_SRC})
-	target_compile_definitions(${libname} PRIVATE X_OPTION_EXPORT_API)
+set(X_OPTION X_OPTION_EXPORT_API)
 endif()
+
+add_library(${libname} ${X_SRC} ${X_3RD_SRC})
+target_compile_definitions(${libname} PRIVATE ${X_OPTION})
 set_target_properties(${libname} PROPERTIES VERSION 1.0)
 target_link_libraries(${libname} PRIVATE ${shared_lib_dependency_private})
 target_link_libraries(${libname} PUBLIC ${shared_lib_dependency_public})

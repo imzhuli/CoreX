@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
 import _prepared_3rd as p3
+import _build_freetype as bfreetype
 import _build_glfw3 as bglfw3
 import _build_libcurl as blibcurl
 import _build_mbedtls as bmbedtls
+import _build_zlib as bzlib
 import os
 import shutil
 
@@ -14,13 +16,20 @@ if __name__ != "__main__":
 if not p3.prepare_3rd():
     exit
 
+if not bfreetype.build():
+    exit
+
 if not bglfw3.build():
     exit
 
-if not blibcurl.build():
+if not bmbedtls.build():
     exit
 
-if not bmbedtls.build():
+if not bzlib.build():
+    exit
+
+# build curl after mbedtls
+if not blibcurl.build():
     exit
 
 # remove temp dir

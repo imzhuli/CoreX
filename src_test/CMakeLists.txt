@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
-project (libcorex)
-set(libname xel)
+project (test_corex)
+set(core_libname xel)
 
 include_directories(
 	../src
@@ -15,7 +15,6 @@ link_directories(
 )
 
 set(shared_lib_dependency_private
-	${THIRD_LIBRARIES}
 )
 
 # enable specific macors by system type:
@@ -30,29 +29,19 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 endif()
 
 set(shared_lib_dependency_public
-	${PLATFORM_LIBRARIES}
-	${cpp})
+)
 
-aux_source_directory(./_/ SHARED_SRC)
-
-function(build_shared sub_dir_name)
-	aux_source_directory(${sub_dir_name} LOCAL_SOURCE_CODE)
-	add_library(_${sub_dir_name}  ${LOCAL_SOURCE_CODE} ${SHARED_SRC})
-	target_link_libraries(_${sub_dir_name} PRIVATE ${libname})
-	target_link_libraries(_${sub_dir_name} PRIVATE ${shared_lib_dependency_private})
-if (X_OPTION_STATIC)
-	target_compile_definitions(_${sub_dir_name} PRIVATE X_OPTION_STATIC)
+if (NOT ${BUILD_SHARED_LIBS}) #static lib:
+	set(X_OPTION X_OPTION_STATIC)
 endif()
-endfunction()
 
 function(build_app sub_dir_name)
 	aux_source_directory(${sub_dir_name} LOCAL_SOURCE_CODE)
-	add_executable(_${sub_dir_name}  ${LOCAL_SOURCE_CODE} ${SHARED_SRC})
-	target_link_libraries(_${sub_dir_name} PRIVATE ${libname})
+	add_executable(_${sub_dir_name} ${LOCAL_SOURCE_CODE})
+	target_compile_definitions(_${sub_dir_name} PRIVATE ${X_OPTION})
+	target_link_libraries(_${sub_dir_name} PRIVATE ${core_libname})
 	target_link_libraries(_${sub_dir_name} PRIVATE ${shared_lib_dependency_private})
-if (X_OPTION_STATIC)
-	target_compile_definitions(_${sub_dir_name} PRIVATE X_OPTION_STATIC)
-endif()
+	target_link_libraries(_${sub_dir_name} PRIVATE ${shared_lib_dependency_public})
 endfunction()
 
 function(test_sub sub_dir_name)
@@ -62,8 +51,6 @@ function(test_sub sub_dir_name)
 		WORKING_DIRECTORY  ${CMAKE_SOURCE_DIR}
 		)
 endfunction()
-
-#
 
 build_app(cpp)
 build_app(env_check)

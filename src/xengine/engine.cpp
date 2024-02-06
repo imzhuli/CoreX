@@ -6,6 +6,8 @@
 #include "../vk/vk.hpp"
 #include "../wsi/wsi.hpp"
 
+#include <curl/curl.h>
+
 #include <atomic>
 #include <chrono>
 #include <iostream>
@@ -36,20 +38,32 @@ bool InitXEngine() {
 	auto LogCleaner = MakeResourceCleaner(EngineLogger);
 
 	if (!InitWSI()) {
+		cerr << "Failed to init wsi" << endl;
 		return false;
 	}
 	auto WSICleaner = xScopeGuard([] { CleanWSI(); });
 
 	if (!InitVulkan()) {
+		cerr << "Failed to init vulkan" << endl;
 		return false;
 	}
+	auto VkCleaner = xScopeGuard([] { CleanVulkan(); });
 
-	WSICleaner.Dismiss();
+	if (curl_global_init(CURL_GLOBAL_ALL)) {
+		cerr << "Failed to init curl" << endl;
+		return false;
+	}
+	auto CurlCleaner = xScopeGuard([] { curl_global_cleanup(); });
+
 	LogCleaner.Dismiss();
+	WSICleaner.Dismiss();
+	VkCleaner.Dismiss();
+	CurlCleaner.Dismiss();
 	return true;
 }
 
 void CleanXEngine() {
+	curl_global_cleanup();
 	CleanVulkan();
 	CleanWSI();
 	EngineLogger.Clean();

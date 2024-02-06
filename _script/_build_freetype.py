@@ -7,8 +7,8 @@ cwd = os.getcwd()
 unzip_dir = f"{cwd}/_3rd_build"
 
 libname = "curl"
-src_file = f"{cwd}/_3rd_source/curl-8.6.0.tar.gz"
-unzipped_src_dir = f"{unzip_dir}/curl-8.6.0"
+src_file = f"{cwd}/_3rd_source/freetype-2.13.2.tar.gz"
+unzipped_src_dir = f"{unzip_dir}/freetype-2.13.2"
 install_dir = f"{cwd}/_3rd_installed"
 
 
@@ -23,11 +23,10 @@ def build():
         os.chdir(unzipped_src_dir)
         os.system(
             'cmake '
-            '-Wno-dev -DBUILD_SHARED_LIBS=OFF '
-            '-DBUILD_LIBCURL_DOCS=OFF '
-            '-DCURL_USE_MBEDTLS=ON '
-            '-DCURL_DISABLE_LDAP=ON '
-            f'-DCMAKE_INSTALL_PREFIX={install_dir!r} -B build . ')
+            '-Wno-dev '
+            '-DBUILD_SHARED_LIBS=OFF '
+            '-DFT_DISABLE_HARFBUZZ=TRUE '
+            f'-DCMAKE_INSTALL_PREFIX={install_dir!r} -B build .')
         os.system(f"cmake --build build -- all")
         os.system(f"cmake --build build -- install")
     except Exception as e:
