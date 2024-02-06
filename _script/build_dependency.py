@@ -2,6 +2,7 @@
 
 import _prepared_3rd as p3
 import _build_glfw3 as bglfw3
+import _build_libcurl as blibcurl
 import _build_mbedtls as bmbedtls
 import os
 import shutil
@@ -14,6 +15,9 @@ if not p3.prepare_3rd():
     exit
 
 if not bglfw3.build():
+    exit
+
+if not blibcurl.build():
     exit
 
 if not bmbedtls.build():
