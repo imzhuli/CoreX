@@ -1,5 +1,4 @@
 #pragma once
-
 #include "./core_min.h"
 
 #include <atomic>
@@ -12,6 +11,7 @@
 #include <type_traits>
 #include <utility>
 
+// clang-format off
 X_COMMON_BEGIN
 
 inline namespace numeric {
@@ -66,58 +66,6 @@ union xVariable {
 	} UV2;
 };
 
-struct xPass final {
-	X_INLINE void operator()() const {
-	}
-};
-struct xVBase {
-protected:
-	constexpr xVBase() = default;
-	virtual ~xVBase()  = default;
-};
-struct xAbstract {
-protected:
-	constexpr xAbstract()   = default;
-	virtual ~xAbstract()    = default;
-	xAbstract(xAbstract &&) = delete;
-};
-struct xNonCopyable {
-protected:
-	constexpr xNonCopyable()      = default;
-	~xNonCopyable()               = default;
-	xNonCopyable(xNonCopyable &&) = delete;
-};
-struct xNonCatchable final {
-private:
-	constexpr xNonCatchable() = default;
-	~xNonCatchable()          = default;
-};
-
-constexpr struct xNone final {
-} None;
-constexpr struct xNoInit final {
-} NoInit{};
-constexpr struct xZeroInit final {
-} ZeroInit{};
-constexpr struct xDefaultInit final {
-} DefaultInit{};
-constexpr struct xGeneratorInit final {
-} GeneratorInit{};
-constexpr struct xSizeInit final {
-	size_t value;
-} ZeroSizeInit{};
-constexpr struct xCapacityInit final {
-	size_t value;
-} ZeroCapacityInit{};
-
-template <typename T>  // std::in_place_type_t
-struct xInPlaceType final {
-	explicit constexpr xInPlaceType() = default;
-};
-
-template <typename T>
-inline constexpr xInPlaceType<T> const Type{};
-
 struct xVersion {
 	uint16_t Major;
 	uint16_t Minor;
@@ -125,168 +73,103 @@ struct xVersion {
 	uint16_t Revision;
 };
 
+struct xPass final { X_INLINE void operator()() const {} };
+struct xVBase { protected: constexpr xVBase() = default; virtual ~xVBase()  = default; };
+struct xAbstract { protected: constexpr xAbstract() = default; virtual ~xAbstract() = default; xAbstract(xAbstract &&) = delete; };
+struct xNonCopyable { protected: constexpr xNonCopyable() = default; ~xNonCopyable() = default; xNonCopyable(xNonCopyable &&) = delete; };
+struct xNonCatchable final { private: constexpr xNonCatchable() = default; ~xNonCatchable() = default; };
+
+constexpr struct xNone final {} None;
+constexpr struct xNoInit final {} NoInit{};
+constexpr struct xZeroInit final {} ZeroInit{};
+constexpr struct xDefaultInit final {} DefaultInit{};
+constexpr struct xGeneratorInit final {} GeneratorInit{};
+constexpr struct xSizeInit final { size_t value; } ZeroSizeInit{};
+constexpr struct xCapacityInit final { size_t value; } ZeroCapacityInit{};
+
+template <typename T>  // std::in_place_type_t
+struct xInPlaceType final { explicit constexpr xInPlaceType() = default;};
 template <typename T>
-[[nodiscard]] X_STATIC_INLINE std::remove_reference_t<T> & X2Ref(T && ref) {
-	return ref;
-}
+inline constexpr xInPlaceType<T> const Type{};
 
 template <typename T>
-[[nodiscard]] X_STATIC_INLINE std::remove_reference_t<T> * X2Ptr(T && ref) {
-	return &ref;
-}
+[[nodiscard]] X_STATIC_INLINE std::remove_reference_t<T> & X2Ref(T && ref) { return ref; }
+template <typename T>
+[[nodiscard]] X_STATIC_INLINE std::remove_reference_t<T> * X2Ptr(T && ref) { return &ref; }
 
 template <typename T>
 [[nodiscard]] X_STATIC_INLINE constexpr std::conditional_t<std::is_const_v<T>, const void *, void *> AddressOf(T & obj) {
 	return &reinterpret_cast<std::conditional_t<std::is_const_v<T>, const unsigned char, unsigned char> &>(obj);
 }
-
 template <typename T, size_t L>
-[[nodiscard]] X_STATIC_INLINE constexpr size_t Length(const T (&)[L]) {
-	return L;
-}
-
+[[nodiscard]] X_STATIC_INLINE constexpr size_t Length(const T (&)[L]) { return L; }
 template <typename T, size_t L>
-[[nodiscard]] X_STATIC_INLINE constexpr size_t SafeLength(const T (&)[L]) {
-	return L ? L - 1 : 0;
-}
-
+[[nodiscard]] X_STATIC_INLINE constexpr size_t SafeLength(const T (&)[L]) { return L ? L - 1 : 0; }
 template <typename... Args>
-[[nodiscard]] X_STATIC_INLINE constexpr size_t Count(const Args &... args) {
-	return sizeof...(args);
-}
-X_STATIC_INLINE constexpr const char * YN(bool y) {
-	return y ? "yes" : "no";
-}
-X_STATIC_INLINE constexpr const char * TF(bool t) {
-	return t ? "true" : "false";
-}
-[[noreturn]] X_STATIC_INLINE void Error(const char * message = nullptr) {
-	throw message;
-}
-[[noreturn]] X_STATIC_INLINE void Fatal(const char * = nullptr /* reason */) {
-	std::abort();
-}
-[[noreturn]] X_STATIC_INLINE void Todo(const char * info = nullptr) {
-	Fatal(info);
-}
-[[noreturn]] X_STATIC_INLINE void Pure() {
-	Fatal("placeholder of pure function called, which is not expected");
-}
+[[nodiscard]] X_STATIC_INLINE constexpr size_t Count(const Args &... args) { return sizeof...(args); }
 
-X_STATIC_INLINE void Pass(const char * = nullptr /* reason */) {
-}
+[[noreturn]] X_STATIC_INLINE void Error(const char * message = nullptr) { throw message;}
+[[noreturn]] X_STATIC_INLINE void Fatal(const char * = nullptr /* reason */) { std::abort(); }
+[[noreturn]] X_STATIC_INLINE void Todo(const char * info = nullptr) { Fatal(info); }
+[[noreturn]] X_STATIC_INLINE void Pure() { Fatal("placeholder of pure function called, which is not expected"); }
+
+X_STATIC_INLINE void Pass(const char * = nullptr /* reason */) { }
 X_API void Breakpoint();
 
 template <typename T>
-X_STATIC_INLINE constexpr auto MakeSigned(T && Value) {
-	return static_cast<std::make_signed_t<std::remove_cvref_t<T>>>(std::forward<T>(Value));
-}
+X_STATIC_INLINE constexpr auto MakeSigned(T && Value) { return static_cast<std::make_signed_t<std::remove_cvref_t<T>>>(std::forward<T>(Value)); }
 template <typename T>
-X_STATIC_INLINE constexpr auto MakeUnsigned(const T & Value) {
-	return static_cast<std::make_unsigned_t<std::remove_cvref_t<T>>>(std::forward<T>(Value));
-}
+X_STATIC_INLINE constexpr auto MakeUnsigned(const T & Value) { return static_cast<std::make_unsigned_t<std::remove_cvref_t<T>>>(std::forward<T>(Value)); }
 template <typename T1, typename T2>
-X_STATIC_INLINE constexpr auto Diff(T1 && Value, T2 && FromValue) {
-	return std::forward<T1>(Value) - std::forward<T2>(FromValue);
-}
+X_STATIC_INLINE constexpr auto Diff(T1 && Value, T2 && FromValue) { return std::forward<T1>(Value) - std::forward<T2>(FromValue); }
 template <typename T1, typename T2>
-X_STATIC_INLINE constexpr auto SignedDiff(T1 && Value, T2 && FromValue) {
-	return MakeSigned(Diff(std::forward<T1>(Value), std::forward<T2>(FromValue)));
-}
+X_STATIC_INLINE constexpr auto SignedDiff(T1 && Value, T2 && FromValue) { return MakeSigned(Diff(std::forward<T1>(Value), std::forward<T2>(FromValue))); }
 template <typename T1, typename T2>
-X_STATIC_INLINE constexpr auto UnignedDiff(T1 && Value, T2 && FromValue) {
-	return MakeUnsigned(Diff(std::forward<T1>(Value), std::forward<T2>(FromValue)));
-}
+X_STATIC_INLINE constexpr auto UnignedDiff(T1 && Value, T2 && FromValue) { return MakeUnsigned(Diff(std::forward<T1>(Value), std::forward<T2>(FromValue))); }
 
 template <typename T>
-X_STATIC_INLINE constexpr bool IsDefaultValue(const T & Target) {
-	return Target == T{};
-}
+X_STATIC_INLINE constexpr bool IsDefaultValue(const T & Target) { return Target == T{}; }
 
 template <typename T, typename TValue>
-X_STATIC_INLINE constexpr void Assign(T & ExpiringTarget, TValue && value) {
-	ExpiringTarget = std::forward<TValue>(value);
-}
-
+X_STATIC_INLINE constexpr void Assign(T & ExpiringTarget, TValue && value) { ExpiringTarget = std::forward<TValue>(value); }
 template <typename T>
-X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget) {
-	ExpiringTarget = T();
-}
-
+X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget) { ExpiringTarget = T(); }
 template <typename T, typename TValue>
-X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget, TValue && value) {
-	ExpiringTarget = std::forward<TValue>(value);
-}
+X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget, TValue && value) { ExpiringTarget = std::forward<TValue>(value); }
 
 template <typename T>
-X_STATIC_INLINE void Construct(T & ExpiringTarget) {
-	new ((void *)&ExpiringTarget) T;
-}
-
+X_STATIC_INLINE void Construct(T & ExpiringTarget) { new ((void *)&ExpiringTarget) T; }
 template <typename T, typename... tArgs>
-X_STATIC_INLINE void ConstructValue(T & ExpiringTarget, tArgs &&... Args) {
-	new ((void *)&ExpiringTarget) T(std::forward<tArgs>(Args)...);
-}
-
+X_STATIC_INLINE void ConstructValue(T & ExpiringTarget, tArgs &&... Args) { new ((void *)&ExpiringTarget) T(std::forward<tArgs>(Args)...); }
 template <typename T, typename... tArgs>
-X_STATIC_INLINE void ConstructValueWithList(T & ExpiringTarget, tArgs &&... Args) {
-	new ((void *)&ExpiringTarget) T{ std::forward<tArgs>(Args)... };
-}
+X_STATIC_INLINE void ConstructValueWithList(T & ExpiringTarget, tArgs &&... Args) { new ((void *)&ExpiringTarget) T{ std::forward<tArgs>(Args)... }; }
+template <typename T>
+X_STATIC_INLINE void Destruct(T & ExpiringTarget) { ExpiringTarget.~T(); }
 
 template <typename T>
-X_STATIC_INLINE void Destruct(T & ExpiringTarget) {
-	ExpiringTarget.~T();
-}
+X_STATIC_INLINE void Renew(T & ExpiringTarget) { ExpiringTarget.~T(); new ((void *)&ExpiringTarget) T; }
+template <typename T, typename... tArgs>
+X_STATIC_INLINE void RenewValue(T & ExpiringTarget, tArgs &&... Args) { ExpiringTarget.~T(); new ((void *)&ExpiringTarget) T(std::forward<tArgs>(Args)...); }
+template <typename T, typename... tArgs>
+X_STATIC_INLINE void RenewValueWithList(T & ExpiringTarget, tArgs &&... Args) { ExpiringTarget.~T(); new ((void *)&ExpiringTarget) T{ std::forward<tArgs>(Args)... }; }
 
 template <typename T>
-X_STATIC_INLINE void Renew(T & ExpiringTarget) {
-	ExpiringTarget.~T();
-	new ((void *)&ExpiringTarget) T;
-}
-
-template <typename T, typename... tArgs>
-X_STATIC_INLINE void RenewValue(T & ExpiringTarget, tArgs &&... Args) {
-	ExpiringTarget.~T();
-	new ((void *)&ExpiringTarget) T(std::forward<tArgs>(Args)...);
-}
-
-template <typename T, typename... tArgs>
-X_STATIC_INLINE void RenewValueWithList(T & ExpiringTarget, tArgs &&... Args) {
-	ExpiringTarget.~T();
-	new ((void *)&ExpiringTarget) T{ std::forward<tArgs>(Args)... };
-}
-
-template <typename T>
-[[nodiscard]] X_STATIC_INLINE T Steal(T & ExpiringTarget) {
-	T ret          = std::move(ExpiringTarget);
-	ExpiringTarget = T();
-	return ret;
-}
-
+[[nodiscard]] X_STATIC_INLINE T Steal(T & ExpiringTarget) { T ret = std::move(ExpiringTarget); ExpiringTarget = T(); return ret; }
 template <typename T, typename TValue>
-[[nodiscard]] X_STATIC_INLINE T Steal(T & ExpiringTarget, TValue && value) {
-	T ret          = std::move(ExpiringTarget);
-	ExpiringTarget = std::forward<TValue>(value);
-	return ret;
-}
+[[nodiscard]] X_STATIC_INLINE T Steal(T & ExpiringTarget, TValue && value) { T ret = std::move(ExpiringTarget); ExpiringTarget = std::forward<TValue>(value); return ret; }
 
+
+X_STATIC_INLINE constexpr const char * YN(bool y) { return y ? "yes" : "no"; }
+X_STATIC_INLINE constexpr const char * TF(bool t) { return t ? "true" : "false"; }
 template <typename T>
-[[nodiscard]] X_STATIC_INLINE constexpr bool IsPow2(const T x) {
-	static_assert(std::is_unsigned_v<T>);
-	return !(x & (x - 1));
-}
+[[nodiscard]] X_STATIC_INLINE constexpr bool IsPow2(const T x) { static_assert(std::is_unsigned_v<T>); return !(x & (x - 1)); }
 
 template <typename T>
 class xRef final {
 public:
-	[[nodiscard]] constexpr explicit xRef(T & Ref) noexcept
-		: _Ref(&Ref) {
-	}
+	[[nodiscard]] constexpr explicit xRef(T & Ref) noexcept : _Ref(&Ref) {}
 	[[nodiscard]] constexpr xRef(const xRef & RRef) noexcept = default;
-	X_INLINE constexpr T & Get() const noexcept {
-		return *_Ref;
-	}
-
+	X_INLINE constexpr T & Get() const noexcept { return *_Ref; }
 private:
 	T * _Ref;
 };
@@ -295,28 +178,20 @@ template <typename RefedT>
 struct xRefCaster {
 	static_assert(!std::is_reference_v<RefedT>);
 	using Type = RefedT;
-	X_STATIC_INLINE RefedT & Get(RefedT & R) {
-		return R;
-	}
-	X_STATIC_INLINE const RefedT & Get(const RefedT & R) {
-		return R;
-	}
+	X_STATIC_INLINE RefedT & Get(RefedT & R) { return R; }
+	X_STATIC_INLINE const RefedT & Get(const RefedT & R) { return R; }
 };
 
 template <typename RefedT>
 struct xRefCaster<xRef<RefedT>> {
 	static_assert(!std::is_reference_v<RefedT>);
 	using Type = RefedT;
-	X_STATIC_INLINE RefedT & Get(const xRef<RefedT> & RR) {
-		return RR.Get();
-	}
+	X_STATIC_INLINE RefedT & Get(const xRef<RefedT> & RR) { return RR.Get(); }
 };
 
 template <typename tFuncObj, typename... Args>
 struct xInstantRun final : xNonCopyable {
-	X_INLINE xInstantRun(tFuncObj && Func, Args &&... args) {
-		std::forward<tFuncObj>(Func)(std::forward<Args>(args)...);
-	}
+	X_INLINE xInstantRun(tFuncObj && Func, Args &&... args) { std::forward<tFuncObj>(Func)(std::forward<Args>(args)...); }
 };
 
 template <typename T>
@@ -330,35 +205,14 @@ private:
 	bool     _DismissExit = false;
 
 public:
-	xValueGuard(T & Ref)
-		: _Ref(Ref) {
-		_OldValue = _Ref;
-	}
-	xValueGuard(T & Ref, const T & NewValue)
-		: _Ref(Ref) {
-		_OldValue = _Ref;
-		_Ref      = NewValue;
-	}
-	xValueGuard(T & Ref, T && NewValue)
-		: _Ref(Ref) {
-		_OldValue = _Ref;
-		_Ref      = std::move(NewValue);
-	}
-	X_INLINE xValueGuard(xValueGuard && Other)
-		: _Ref(Other._Ref), _OldValue(std::move(Other._OldValue)), _DismissExit(Steal(Other._DismissExit, true)) {
-	}
-	X_INLINE ~xValueGuard() {
-		if (_DismissExit) {
-			return;
-		}
-		_Ref = _OldValue;
-	}
-	X_INLINE const xStorage & operator()() const {
-		return _OldValue;
-	}
-	X_INLINE void Dismiss() {
-		_DismissExit = true;
-	}
+	X_INLINE xValueGuard(T & Ref) : _Ref(Ref) { _OldValue = _Ref; }
+	X_INLINE xValueGuard(T & Ref, const T & NewValue) : _Ref(Ref) { _OldValue = _Ref; _Ref = NewValue; }
+	X_INLINE xValueGuard(T & Ref, T && NewValue) : _Ref(Ref) { _OldValue = _Ref; _Ref = std::move(NewValue); }
+	X_INLINE xValueGuard(xValueGuard && Other) : _Ref(Other._Ref), _OldValue(std::move(Other._OldValue)), _DismissExit(Steal(Other._DismissExit, true)) { }
+	X_INLINE ~xValueGuard() { if (_DismissExit) { return; } _Ref = _OldValue; }
+
+	X_INLINE const xStorage & operator()() const { return _OldValue; }
+	X_INLINE void Dismiss() { _DismissExit = true; }
 };
 
 template <typename tEntry, typename tExit>
@@ -378,25 +232,11 @@ private:
 	bool  _DismissExit = false;
 
 public:
-	[[nodiscard]] X_INLINE xScopeGuard(const tEntry & Entry, const tExit & Exit)
-		: _ExitCallback(Exit) {
-		Entry();
-	}
-	[[nodiscard]] X_INLINE xScopeGuard(const tExit & Exit)
-		: _ExitCallback(Exit) {
-	}
-	[[nodiscard]] X_INLINE xScopeGuard(xScopeGuard && Other)
-		: _ExitCallback(Other._ExitCallback), _DismissExit(Steal(Other._DismissExit, true)) {
-	}
-	X_INLINE void Dismiss() {
-		_DismissExit = true;
-	}
-	X_INLINE ~xScopeGuard() {
-		if (_DismissExit) {
-			return;
-		}
-		xRefCaster<tExit>::Get(_ExitCallback)();
-	}
+	[[nodiscard]] X_INLINE xScopeGuard(const tEntry & Entry, const tExit & Exit) : _ExitCallback(Exit) { Entry(); }
+	[[nodiscard]] X_INLINE xScopeGuard(const tExit & Exit) : _ExitCallback(Exit) { }
+	[[nodiscard]] X_INLINE xScopeGuard(xScopeGuard && Other) : _ExitCallback(Other._ExitCallback), _DismissExit(Steal(Other._DismissExit, true)) { }
+	X_INLINE ~xScopeGuard() { if (_DismissExit) { return; } xRefCaster<tExit>::Get(_ExitCallback)(); }
+	X_INLINE void Dismiss() { _DismissExit = true; }
 };
 template <typename tEntry, typename tExit>
 xScopeGuard(const tEntry & Entry, const tExit & Exit) -> xScopeGuard<std::decay_t<tEntry>, std::decay_t<tExit>>;
@@ -437,14 +277,16 @@ namespace __common_detail__ {
 }  // namespace __common_detail__
 
 template <typename T>
-struct xResourceGuard final : __common_detail__::xResourceGuardBase<T, false> {
+struct xResourceGuard final 
+: __common_detail__::xResourceGuardBase<T, false> {
 	using __common_detail__::xResourceGuardBase<T, false>::xResourceGuardBase;
 };
 template <typename T, typename... tArgs>
 xResourceGuard(T & Resource, tArgs &&... Args) -> xResourceGuard<T>;
 
 template <typename T>
-struct xResourceGuardThrowable final : __common_detail__::xResourceGuardBase<T, true> {
+struct xResourceGuardThrowable final 
+: __common_detail__::xResourceGuardBase<T, true> {
 	using __common_detail__::xResourceGuardBase<T, true>::xResourceGuardBase;
 };
 template <typename T, typename... tArgs>

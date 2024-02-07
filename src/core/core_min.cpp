@@ -1,3 +1,4 @@
+
 #include "./core_min.hpp"
 
 #include <filesystem>
@@ -9,13 +10,14 @@
 #include <android/log.h>
 #endif
 
+// clang-format off
 X_COMMON_BEGIN
 
+static_assert(sizeof(xVariable) == sizeof(xVariable::B));
+
+void Breakpoint() {}
+
 static auto DebugPrintMutex = std::mutex();
-
-void Breakpoint() {
-}
-
 void DebugPrintf(const char * Path, size_t Line, const char * FunctionName, const char * Fmt, ...) {
 	auto SS = std::ostringstream();
 
