@@ -3,8 +3,10 @@
 import _prepared_3rd as p3
 import _build_freetype as bfreetype
 import _build_glfw3 as bglfw3
+import _build_glm as bglm
 import _build_libcurl as blibcurl
 import _build_mbedtls as bmbedtls
+import _build_rapidjson as brapidjson
 import _build_zlib as bzlib
 import os
 import shutil
@@ -22,7 +24,13 @@ if not bfreetype.build():
 if not bglfw3.build():
     exit
 
+if not bglm.build() or not bglm.build():
+    exit
+
 if not bmbedtls.build():
+    exit
+
+if not brapidjson.build():
     exit
 
 if not bzlib.build():

@@ -2,7 +2,6 @@
 
 import _unzip_source as us
 import os
-import shutil
 
 cwd = os.getcwd()
 unzip_dir = f"{cwd}/_3rd_build"
