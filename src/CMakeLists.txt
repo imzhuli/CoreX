@@ -64,8 +64,6 @@ aux_source_directory(./wsi/darwin  X_SRC)
 endif()
 
 # add 3rd lib files
-aux_source_directory(./3rd/glm               X_3RD_SRC)
-aux_source_directory(./3rd/rapidjson         X_3RD_SRC)
 aux_source_directory(./3rd/stb_image         X_3RD_SRC)
 aux_source_directory(./3rd/tiny_obj_loader   X_3RD_SRC)
 aux_source_directory(./3rd/vk_bootstrap      X_3RD_SRC)
