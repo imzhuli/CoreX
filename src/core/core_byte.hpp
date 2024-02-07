@@ -1,6 +1,7 @@
 #pragma once
 #include "./core_min.hpp"
 
+// clang-format off
 #include <cstring>
 #if defined(__APPLE__)
 #include <architecture/byte_order.h>
@@ -42,7 +43,6 @@ X_NS {
 #if BYTE_ORDER == LITTLE_ENDIAN
 #define X_IS_CONSIST_LITTLE_ENDIAN true
 #define X_IS_CONSIST_BIG_ENDIAN false
-
 	X_STATIC_INLINE uint8_t	 XelLE8(const uint8_t s) { return s; }
 	X_STATIC_INLINE uint16_t XelLE16(const uint16_t s) { return s; }
 	X_STATIC_INLINE uint32_t XelLE32(const uint32_t s) { return s; }
@@ -52,11 +52,9 @@ X_NS {
 	X_STATIC_INLINE uint16_t XelBE16(const uint16_t s) { return XelByteSwap16(s); }
 	X_STATIC_INLINE uint32_t XelBE32(const uint32_t s) { return XelByteSwap32(s); }
 	X_STATIC_INLINE uint64_t XelBE64(const uint64_t s) { return XelByteSwap64(s); }
-
 #elif BYTE_ORDER == BIG_ENDIAN
 #define X_IS_CONSIST_LITTLE_ENDIAN false
 #define X_IS_CONSIST_BIG_ENDIAN true
-
 	X_STATIC_INLINE uint8_t	 XelLE8(const uint8_t s) { return s; }
 	X_STATIC_INLINE uint16_t XelLE16(const uint16_t s) { return XelByteSwap16(s); }
 	X_STATIC_INLINE uint32_t XelLE32(const uint32_t s) { return XelByteSwap32(s); }
@@ -143,51 +141,29 @@ X_NS {
 		X_INLINE xStreamWriter(void * p) { Reset(p); }
 
 		X_INLINE void W(ubyte c) { *(_curr++) = c; }
-		X_INLINE void W(const void * s, ptrdiff_t len) {
-			::memcpy(_curr, s, len);
-			_curr += len;
-		}
-		X_INLINE void W0(ptrdiff_t len) {
-			::memset(_curr, 0, len);
-			_curr += len;
-		}
+		X_INLINE void W(const void * s, ptrdiff_t len) { ::memcpy(_curr, s, len); _curr += len; }
+		X_INLINE void W0(ptrdiff_t len) { ::memset(_curr, 0, len); _curr += len; }
 
 		X_INLINE void W1(uint8_t u) { *(_curr++) = u; }
 		X_INLINE void W2(uint16_t u) { iter::write16(_curr, XelBE16(u)); }
 		X_INLINE void W4(uint32_t u) { iter::write32(_curr, XelBE32(u)); }
 		X_INLINE void W8(uint64_t u) { iter::write64(_curr, XelBE64(u)); }
-		X_INLINE void Wf(float f) {
-			__detail__::__raw__::UF uf{ .f = f };
-			W4(uf.u);
-		}
-		X_INLINE void Wd(double d) {
-			__detail__::__raw__::UD ud{ .d = d };
-			W8(ud.u);
-		}
+		X_INLINE void WF(float f) { __detail__::__raw__::UF uf{ .f = f }; W4(uf.u); }
+		X_INLINE void WD(double d) { __detail__::__raw__::UD ud{ .d = d }; W8(ud.u); }
 
 		X_INLINE void W1L(uint8_t u) { *(_curr++) = u; }
 		X_INLINE void W2L(uint16_t u) { iter::write16(_curr, XelLE16(u)); }
 		X_INLINE void W4L(uint32_t u) { iter::write32(_curr, XelLE32(u)); }
 		X_INLINE void W8L(uint64_t u) { iter::write64(_curr, XelLE64(u)); }
-		X_INLINE void WFL(float f) {
-			__detail__::__raw__::UF uf{ .f = f };
-			W4L(uf.u);
-		}
-		X_INLINE void WDL(double d) {
-			__detail__::__raw__::UD ud{ .d = d };
-			W8L(ud.u);
-		}
+		X_INLINE void WFL(float f) { __detail__::__raw__::UF uf{ .f = f }; W4L(uf.u); }
+		X_INLINE void WDL(double d) { __detail__::__raw__::UD ud{ .d = d }; W8L(ud.u); }
 
 		X_INLINE void *	   operator()() const { return _curr; }
 		X_INLINE		   operator ubyte *() const { return _curr; }
 		X_INLINE void *	   Origin() const { return _start; }
 		X_INLINE ptrdiff_t Offset() const { return _curr - _start; }
 		X_INLINE void	   Offset(ptrdiff_t offset) { _curr = _start + offset; }
-		X_INLINE void *	   Skip(ptrdiff_t len) {
-			   ubyte * from = _curr;
-			   _curr += len;
-			   return from;
-		}
+		X_INLINE void *	   Skip(ptrdiff_t len) { ubyte * from = _curr; _curr += len; return from; }
 
 		X_INLINE void Reset() { _curr = _start; }
 		X_INLINE void Reset(void * s) { _curr = _start = static_cast<ubyte *>(s); }
@@ -214,38 +190,22 @@ X_NS {
 		X_INLINE uint16_t R2() { return XelBE16(iter::read16(_curr)); }
 		X_INLINE uint32_t R4() { return XelBE32(iter::read32(_curr)); }
 		X_INLINE uint64_t R8() { return XelBE64(iter::read64(_curr)); }
-		X_INLINE float	  RF() {
-			   __detail__::__raw__::UF uf{ .u = R4() };
-			   return uf.f;
-		}
-		X_INLINE double RD() {
-			__detail__::__raw__::UD ud{ .u = R8() };
-			return ud.d;
-		}
+		X_INLINE float	  RF() { __detail__::__raw__::UF uf{ .u = R4() }; return uf.f; }
+		X_INLINE double   RD() { __detail__::__raw__::UD ud{ .u = R8() }; return ud.d; }
 
 		X_INLINE uint8_t  R1L() { return *(_curr++); }
 		X_INLINE uint16_t R2L() { return XelLE16(iter::read16(_curr)); }
 		X_INLINE uint32_t R4L() { return XelLE32(iter::read32(_curr)); }
 		X_INLINE uint64_t R8L() { return XelLE64(iter::read64(_curr)); }
-		X_INLINE float	  RFL() {
-			   __detail__::__raw__::UF uf{ .u = R4L() };
-			   return uf.f;
-		}
-		X_INLINE double RDL() {
-			__detail__::__raw__::UD ud{ .u = R8L() };
-			return ud.d;
-		}
+		X_INLINE float	  RFL() { __detail__::__raw__::UF uf{ .u = R4L() }; return uf.f; }
+		X_INLINE double   RDL() { __detail__::__raw__::UD ud{ .u = R8L() }; return ud.d; }
 
 		X_INLINE const void * operator()() const { return _curr; }
 		X_INLINE			  operator const ubyte *() const { return _curr; }
 		X_INLINE const void * Origin() const { return _start; }
 		X_INLINE ptrdiff_t	  Offset() const { return _curr - _start; }
 		X_INLINE void		  Offset(ptrdiff_t offset) { _curr = _start + offset; }
-		X_INLINE const void * Skip(ptrdiff_t len) {
-			const ubyte * from = _curr;
-			_curr += len;
-			return from;
-		}
+		X_INLINE const void * Skip(ptrdiff_t len) { const ubyte * from = _curr; _curr += len; return from; }
 
 		X_INLINE void Reset() { _curr = _start; }
 		X_INLINE void Reset(const void * s) { _curr = _start = static_cast<const ubyte *>(s); }
