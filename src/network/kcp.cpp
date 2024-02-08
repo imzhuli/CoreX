@@ -12,38 +12,42 @@ static_assert(sizeof(ssize_t) >= sizeof(uint32_t));
 //=====================================================================
 // KCP BASIC
 //=====================================================================
-[[maybe_unused]] static constexpr const uint32_t IKCP_RTO_NDL = 30;	  // no delay min rto
-[[maybe_unused]] static constexpr const uint32_t IKCP_RTO_MIN = 100;  // normal min rto
-[[maybe_unused]] static constexpr const uint32_t IKCP_RTO_DEF = 200;
-[[maybe_unused]] static constexpr const uint32_t IKCP_RTO_MAX = 60000;
-[[maybe_unused]] static constexpr const uint32_t IKCP_CMD_PUSH = 81;  // cmd: push data
-[[maybe_unused]] static constexpr const uint32_t IKCP_CMD_ACK = 82;	  // cmd: ack
-[[maybe_unused]] static constexpr const uint32_t IKCP_CMD_WASK = 83;  // cmd: window probe (ask)
-[[maybe_unused]] static constexpr const uint32_t IKCP_CMD_WINS = 84;  // cmd: window size (tell)
-[[maybe_unused]] static constexpr const uint32_t IKCP_ASK_SEND = 1;	  // need to send IKCP_CMD_WASK
-[[maybe_unused]] static constexpr const uint32_t IKCP_ASK_TELL = 2;	  // need to send IKCP_CMD_WINS
-[[maybe_unused]] static constexpr const uint32_t IKCP_WND_SND = 32;
-[[maybe_unused]] static constexpr const uint32_t IKCP_WND_RCV = 128;  // must >= max fragment size
-[[maybe_unused]] static constexpr const uint32_t IKCP_MTU_DEF = 1400;
-[[maybe_unused]] static constexpr const uint32_t IKCP_ACK_FAST = 3;
-[[maybe_unused]] static constexpr const uint32_t IKCP_INTERVAL = 100;
-[[maybe_unused]] static constexpr const uint32_t IKCP_OVERHEAD = 24;
-[[maybe_unused]] static constexpr const uint32_t IKCP_DEADLINK = 20;
-[[maybe_unused]] static constexpr const uint32_t IKCP_THRESH_INIT = 2;
-[[maybe_unused]] static constexpr const uint32_t IKCP_THRESH_MIN = 2;
-[[maybe_unused]] static constexpr const uint32_t IKCP_PROBE_INIT = 7000;	 // 7 secs to probe window size
-[[maybe_unused]] static constexpr const uint32_t IKCP_PROBE_LIMIT = 120000;	 // up to 120 secs to probe window
-[[maybe_unused]] static constexpr const uint32_t IKCP_FASTACK_LIMIT = 5;	 // max times to trigger fastack
+[[maybe_unused]] static constexpr const uint32_t IKCP_RTO_NDL       = 30;   // no delay min rto
+[[maybe_unused]] static constexpr const uint32_t IKCP_RTO_MIN       = 100;  // normal min rto
+[[maybe_unused]] static constexpr const uint32_t IKCP_RTO_DEF       = 200;
+[[maybe_unused]] static constexpr const uint32_t IKCP_RTO_MAX       = 60000;
+[[maybe_unused]] static constexpr const uint32_t IKCP_CMD_PUSH      = 81;  // cmd: push data
+[[maybe_unused]] static constexpr const uint32_t IKCP_CMD_ACK       = 82;  // cmd: ack
+[[maybe_unused]] static constexpr const uint32_t IKCP_CMD_WASK      = 83;  // cmd: window probe (ask)
+[[maybe_unused]] static constexpr const uint32_t IKCP_CMD_WINS      = 84;  // cmd: window size (tell)
+[[maybe_unused]] static constexpr const uint32_t IKCP_ASK_SEND      = 1;   // need to send IKCP_CMD_WASK
+[[maybe_unused]] static constexpr const uint32_t IKCP_ASK_TELL      = 2;   // need to send IKCP_CMD_WINS
+[[maybe_unused]] static constexpr const uint32_t IKCP_WND_SND       = 32;
+[[maybe_unused]] static constexpr const uint32_t IKCP_WND_RCV       = 128;  // must >= max fragment size
+[[maybe_unused]] static constexpr const uint32_t IKCP_MTU_DEF       = 1400;
+[[maybe_unused]] static constexpr const uint32_t IKCP_ACK_FAST      = 3;
+[[maybe_unused]] static constexpr const uint32_t IKCP_INTERVAL      = 100;
+[[maybe_unused]] static constexpr const uint32_t IKCP_OVERHEAD      = 24;
+[[maybe_unused]] static constexpr const uint32_t IKCP_DEADLINK      = 20;
+[[maybe_unused]] static constexpr const uint32_t IKCP_THRESH_INIT   = 2;
+[[maybe_unused]] static constexpr const uint32_t IKCP_THRESH_MIN    = 2;
+[[maybe_unused]] static constexpr const uint32_t IKCP_PROBE_INIT    = 7000;    // 7 secs to probe window size
+[[maybe_unused]] static constexpr const uint32_t IKCP_PROBE_LIMIT   = 120000;  // up to 120 secs to probe window
+[[maybe_unused]] static constexpr const uint32_t IKCP_FASTACK_LIMIT = 5;       // max times to trigger fastack
 
 //---------------------------------------------------------------------
 // encode / decode
 //---------------------------------------------------------------------
-[[maybe_unused]] static inline uint32_t _ibound_(uint32_t lower, uint32_t middle, uint32_t upper) { return std::min(std::max(lower, middle), upper); }
+[[maybe_unused]] static inline uint32_t _ibound_(uint32_t lower, uint32_t middle, uint32_t upper) {
+	return std::min(std::max(lower, middle), upper);
+}
 
-[[maybe_unused]] static inline int32_t _itimediff(uint32_t later, uint32_t earlier) { return ((int32_t)(later - earlier)); }
+[[maybe_unused]] static inline int32_t _itimediff(uint32_t later, uint32_t earlier) {
+	return ((int32_t)(later - earlier));
+}
 
 [[maybe_unused]] static void * (*ikcp_malloc_hook)(size_t) = nullptr;
-[[maybe_unused]] static void (*ikcp_free_hook)(void *) = nullptr;
+[[maybe_unused]] static void (*ikcp_free_hook)(void *)     = nullptr;
 
 // internal malloc
 static void * ikcp_malloc(size_t size) {
@@ -65,18 +69,22 @@ static void ikcp_free(void * ptr) {
 // redefine allocator
 void KcpSetAllocator(void * (*new_malloc)(size_t), void (*new_free)(void *)) {
 	ikcp_malloc_hook = new_malloc;
-	ikcp_free_hook = new_free;
+	ikcp_free_hook   = new_free;
 }
 
 // allocate a new kcp segment
-static xKcpSegment * ikcp_segment_new(xKcpControlBlock * kcp, size_t size) { return (xKcpSegment *)ikcp_malloc(sizeof(xKcpSegment) + size); }
+static xKcpSegment * ikcp_segment_new(xKcpControlBlock * kcp, size_t size) {
+	return (xKcpSegment *)ikcp_malloc(sizeof(xKcpSegment) + size);
+}
 
 // delete a segment
-static void ikcp_segment_delete(xKcpControlBlock * kcp, xKcpSegment * seg) { ikcp_free(seg); }
+static void ikcp_segment_delete(xKcpControlBlock * kcp, xKcpSegment * seg) {
+	ikcp_free(seg);
+}
 
 // write log
 static void ikcp_log(xKcpControlBlock * kcp, int mask, const char * fmt, ...) {
-	char	buffer[1024];
+	char    buffer[1024];
 	va_list argptr;
 	if ((mask & kcp->logmask) == 0 || kcp->writelog == 0) return;
 	va_start(argptr, fmt);
@@ -113,24 +121,24 @@ xKcpControlBlock * KcpCreate(uint32_t conv, void * user) {
 	if (kcp == nullptr) {
 		return nullptr;
 	}
-	kcp->conv = conv;
-	kcp->user = user;
-	kcp->snd_una = 0;
-	kcp->snd_nxt = 0;
-	kcp->rcv_nxt = 0;
-	kcp->ts_recent = 0;
+	kcp->conv       = conv;
+	kcp->user       = user;
+	kcp->snd_una    = 0;
+	kcp->snd_nxt    = 0;
+	kcp->rcv_nxt    = 0;
+	kcp->ts_recent  = 0;
 	kcp->ts_lastack = 0;
-	kcp->ts_probe = 0;
+	kcp->ts_probe   = 0;
 	kcp->probe_wait = 0;
-	kcp->snd_wnd = IKCP_WND_SND;
-	kcp->rcv_wnd = IKCP_WND_RCV;
-	kcp->rmt_wnd = IKCP_WND_RCV;
-	kcp->cwnd = 0;
-	kcp->incr = 0;
-	kcp->probe = 0;
-	kcp->mtu = IKCP_MTU_DEF;
-	kcp->mss = kcp->mtu - IKCP_OVERHEAD;
-	kcp->stream = 0;
+	kcp->snd_wnd    = IKCP_WND_SND;
+	kcp->rcv_wnd    = IKCP_WND_RCV;
+	kcp->rmt_wnd    = IKCP_WND_RCV;
+	kcp->cwnd       = 0;
+	kcp->incr       = 0;
+	kcp->probe      = 0;
+	kcp->mtu        = IKCP_MTU_DEF;
+	kcp->mss        = kcp->mtu - IKCP_OVERHEAD;
+	kcp->stream     = 0;
 
 	kcp->buffer = (ubyte *)ikcp_malloc((kcp->mtu + IKCP_OVERHEAD) * 3);
 	if (kcp->buffer == NULL) {
@@ -143,32 +151,32 @@ xKcpControlBlock * KcpCreate(uint32_t conv, void * user) {
 	Construct(kcp->snd_buf);
 	Construct(kcp->rcv_buf);
 
-	kcp->nrcv_buf = 0;
-	kcp->nsnd_buf = 0;
-	kcp->nrcv_que = 0;
-	kcp->nsnd_que = 0;
-	kcp->state = 0;
-	kcp->acklist = NULL;
-	kcp->ackblock = 0;
-	kcp->ackcount = 0;
-	kcp->rx_srtt = 0;
-	kcp->rx_rttval = 0;
-	kcp->rx_rto = IKCP_RTO_DEF;
-	kcp->rx_minrto = IKCP_RTO_MIN;
-	kcp->current = 0;
-	kcp->interval = IKCP_INTERVAL;
-	kcp->ts_flush = IKCP_INTERVAL;
-	kcp->nodelay = 0;
-	kcp->updated = 0;
-	kcp->logmask = 0;
-	kcp->ssthresh = IKCP_THRESH_INIT;
+	kcp->nrcv_buf   = 0;
+	kcp->nsnd_buf   = 0;
+	kcp->nrcv_que   = 0;
+	kcp->nsnd_que   = 0;
+	kcp->state      = 0;
+	kcp->acklist    = NULL;
+	kcp->ackblock   = 0;
+	kcp->ackcount   = 0;
+	kcp->rx_srtt    = 0;
+	kcp->rx_rttval  = 0;
+	kcp->rx_rto     = IKCP_RTO_DEF;
+	kcp->rx_minrto  = IKCP_RTO_MIN;
+	kcp->current    = 0;
+	kcp->interval   = IKCP_INTERVAL;
+	kcp->ts_flush   = IKCP_INTERVAL;
+	kcp->nodelay    = 0;
+	kcp->updated    = 0;
+	kcp->logmask    = 0;
+	kcp->ssthresh   = IKCP_THRESH_INIT;
 	kcp->fastresend = 0;
-	kcp->fastlimit = IKCP_FASTACK_LIMIT;
-	kcp->nocwnd = 0;
-	kcp->xmit = 0;
-	kcp->dead_link = IKCP_DEADLINK;
-	kcp->output = NULL;
-	kcp->writelog = NULL;
+	kcp->fastlimit  = IKCP_FASTACK_LIMIT;
+	kcp->nocwnd     = 0;
+	kcp->xmit       = 0;
+	kcp->dead_link  = IKCP_DEADLINK;
+	kcp->output     = NULL;
+	kcp->writelog   = NULL;
 
 	return kcp;
 }
@@ -203,8 +211,8 @@ void KcpDestroy(xKcpControlBlock * kcp) {
 		kcp->nrcv_que = 0;
 		kcp->nsnd_que = 0;
 		kcp->ackcount = 0;
-		kcp->buffer = NULL;
-		kcp->acklist = NULL;
+		kcp->buffer   = NULL;
+		kcp->acklist  = NULL;
 		ikcp_free(kcp);
 	}
 }
@@ -238,7 +246,7 @@ ssize_t KcpPeekSize(xKcpControlBlock * kcp) {
 	ssize_t length = 0;
 	for (const auto & Node : kcp->rcv_queue) {
 		auto SegNode = static_cast<const xKcpSegment &>(Node);
-		length += SegNode.len;
+		length      += SegNode.len;
 		if (SegNode.frg == 0) {
 			break;
 		}
@@ -252,8 +260,8 @@ ssize_t KcpPeekSize(xKcpControlBlock * kcp) {
 ssize_t KcpRecv(xKcpControlBlock * kcp, void * buffer_, ssize_t len) {
 	assert(kcp);
 
-	auto buffer = static_cast<ubyte *>(buffer_);
-	bool ispeek = len < 0;
+	auto buffer  = static_cast<ubyte *>(buffer_);
+	bool ispeek  = len < 0;
 	bool recover = false;
 
 	if (kcp->rcv_queue.IsEmpty()) {
@@ -283,7 +291,7 @@ ssize_t KcpRecv(xKcpControlBlock * kcp, void * buffer_, ssize_t len) {
 			memcpy(buffer, seg.data, seg.len);
 			buffer += seg.len;
 		}
-		len += seg.len;
+		len          += seg.len;
 		auto fragment = seg.frg;
 
 		if (ikcp_canlog(kcp, IKCP_LOG_RECV)) {
@@ -342,7 +350,7 @@ ssize_t KcpSend(xKcpControlBlock * kcp, const ubyte * buffer, ssize_t len) {
 		if (auto old = static_cast<xKcpSegment *>(kcp->snd_queue.Head())) {
 			if (old->len < kcp->mss) {
 				auto capacity = kcp->mss - old->len;
-				auto extend = (len < capacity) ? len : capacity;
+				auto extend   = (len < capacity) ? len : capacity;
 
 				auto seg = ikcp_segment_new(kcp, old->len + extend);
 				if (!seg) {
@@ -356,7 +364,7 @@ ssize_t KcpSend(xKcpControlBlock * kcp, const ubyte * buffer, ssize_t len) {
 				}
 				seg->len = old->len + extend;
 				seg->frg = 0;
-				len -= extend;
+				len     -= extend;
 
 				xKcpSegmentList::Remove(*old);
 				ikcp_segment_delete(kcp, old);
@@ -388,7 +396,7 @@ ssize_t KcpSend(xKcpControlBlock * kcp, const ubyte * buffer, ssize_t len) {
 	// fragment
 	for (decltype(count) i = 0; i < count; i++) {
 		ssize_t size = (len > kcp->mss) ? kcp->mss : len;
-		auto	seg = ikcp_segment_new(kcp, size);
+		auto    seg  = ikcp_segment_new(kcp, size);
 		if (!seg) {
 			return -2;
 		}
@@ -402,7 +410,7 @@ ssize_t KcpSend(xKcpControlBlock * kcp, const ubyte * buffer, ssize_t len) {
 		if (buffer) {
 			buffer += size;
 		}
-		len -= size;
+		len  -= size;
 		sent += size;
 	}
 
@@ -415,16 +423,18 @@ ssize_t KcpSend(xKcpControlBlock * kcp, const ubyte * buffer, ssize_t len) {
 static void ikcp_update_ack(xKcpControlBlock * kcp, uint32_t rtt) {
 	uint32_t rto = 0;
 	if (kcp->rx_srtt == 0) {
-		kcp->rx_srtt = rtt;
+		kcp->rx_srtt   = rtt;
 		kcp->rx_rttval = rtt / 2;
 	} else {
-		long delta = rtt - kcp->rx_srtt;
-		if (delta < 0) delta = -delta;
+		auto delta = SignedDiff(rtt, kcp->rx_srtt);
+		if (delta < 0) {
+			delta = -delta;
+		}
 		kcp->rx_rttval = (3 * kcp->rx_rttval + delta) / 4;
-		kcp->rx_srtt = (7 * kcp->rx_srtt + rtt) / 8;
+		kcp->rx_srtt   = (7 * kcp->rx_srtt + rtt) / 8;
 		if (kcp->rx_srtt < 1) kcp->rx_srtt = 1;
 	}
-	rto = kcp->rx_srtt + std::max(kcp->interval, 4 * kcp->rx_rttval);
+	rto         = kcp->rx_srtt + std::max(kcp->interval, 4 * kcp->rx_rttval);
 	kcp->rx_rto = _ibound_(kcp->rx_minrto, rto, IKCP_RTO_MAX);
 }
 
@@ -512,11 +522,11 @@ static void ikcp_parse_fastack(xKcpControlBlock * kcp, uint32_t sn, uint32_t ts)
 			ikcp_free(kcp->acklist);
 		}
 
-		kcp->acklist = acklist;
+		kcp->acklist  = acklist;
 		kcp->ackblock = newblock;
 	}
 
-	ptr = &kcp->acklist[kcp->ackcount * 2];
+	ptr    = &kcp->acklist[kcp->ackcount * 2];
 	ptr[0] = sn;
 	ptr[1] = ts;
 	kcp->ackcount++;
@@ -531,8 +541,8 @@ static void ikcp_parse_fastack(xKcpControlBlock * kcp, uint32_t sn, uint32_t ts)
 // parse data
 //---------------------------------------------------------------------
 void ikcp_parse_data(xKcpControlBlock * kcp, xKcpSegment * newseg) {
-	uint32_t sn = newseg->sn;
-	ssize_t	 repeat = 0;
+	uint32_t sn     = newseg->sn;
+	ssize_t  repeat = 0;
 
 	if (_itimediff(sn, kcp->rcv_nxt + kcp->rcv_wnd) >= 0 || _itimediff(sn, kcp->rcv_nxt) < 0) {
 		ikcp_segment_delete(kcp, newseg);
@@ -593,9 +603,9 @@ ssize_t KcpInput(xKcpControlBlock * kcp, const void * data, ssize_t size) {
 	}
 
 	while (true) {
-		uint32_t	  conv, ts, sn, una, len;
-		uint16_t	  wnd;
-		uint8_t		  cmd, frg;
+		uint32_t      conv, ts, sn, una, len;
+		uint16_t      wnd;
+		uint8_t       cmd, frg;
 		xKcpSegment * seg;
 
 		if (size < (ssize_t)IKCP_OVERHEAD) {
@@ -603,15 +613,15 @@ ssize_t KcpInput(xKcpControlBlock * kcp, const void * data, ssize_t size) {
 		}
 
 		auto R = xStreamReader(data);
-		conv = R.R4L();
+		conv   = R.R4L();
 		if (conv != kcp->conv) {
 			return -1;
 		}
 		cmd = R.R1L();
 		frg = R.R1L();
 		wnd = R.R2L();
-		ts = R.R4L();
-		sn = R.R4L();
+		ts  = R.R4L();
+		sn  = R.R4L();
 		una = R.R4L();
 		len = R.R4L();
 
@@ -636,24 +646,27 @@ ssize_t KcpInput(xKcpControlBlock * kcp, const void * data, ssize_t size) {
 			ikcp_parse_ack(kcp, sn);
 			ikcp_shrink_buf(kcp);
 			if (!flag) {
-				flag = true;
-				maxack = sn;
+				flag      = true;
+				maxack    = sn;
 				latest_ts = ts;
 			} else {
 				if (_itimediff(sn, maxack) > 0) {
 #ifndef IKCP_FASTACK_CONSERVE
-					maxack = sn;
+					maxack    = sn;
 					latest_ts = ts;
 #else
 					if (_itimediff(ts, latest_ts) > 0) {
-						maxack = sn;
+						maxack    = sn;
 						latest_ts = ts;
 					}
 #endif
 				}
 			}
 			if (ikcp_canlog(kcp, IKCP_LOG_IN_ACK)) {
-				ikcp_log(kcp, IKCP_LOG_IN_ACK, "input ack: sn=%lu rtt=%ld rto=%ld", (unsigned long)sn, (long)_itimediff(kcp->current, ts), (long)kcp->rx_rto);
+				ikcp_log(
+					kcp, IKCP_LOG_IN_ACK, "input ack: sn=%lu rtt=%ld rto=%ld", (unsigned long)sn, (long)_itimediff(kcp->current, ts),
+					(long)kcp->rx_rto
+				);
 			}
 		} else if (cmd == IKCP_CMD_PUSH) {
 			if (ikcp_canlog(kcp, IKCP_LOG_IN_DATA)) {
@@ -662,15 +675,15 @@ ssize_t KcpInput(xKcpControlBlock * kcp, const void * data, ssize_t size) {
 			if (_itimediff(sn, kcp->rcv_nxt + kcp->rcv_wnd) < 0) {
 				ikcp_ack_push(kcp, sn, ts);
 				if (_itimediff(sn, kcp->rcv_nxt) >= 0) {
-					seg = ikcp_segment_new(kcp, len);
+					seg       = ikcp_segment_new(kcp, len);
 					seg->conv = conv;
-					seg->cmd = cmd;
-					seg->frg = frg;
-					seg->wnd = wnd;
-					seg->ts = ts;
-					seg->sn = sn;
-					seg->una = una;
-					seg->len = len;
+					seg->cmd  = cmd;
+					seg->frg  = frg;
+					seg->wnd  = wnd;
+					seg->ts   = ts;
+					seg->sn   = sn;
+					seg->una  = una;
+					seg->len  = len;
 
 					if (len > 0) {
 						R.R(seg->data, len);
@@ -695,7 +708,7 @@ ssize_t KcpInput(xKcpControlBlock * kcp, const void * data, ssize_t size) {
 			return -3;
 		}
 
-		data = R();
+		data  = R();
 		size -= len;
 	}
 
@@ -753,14 +766,14 @@ ssize_t KcpInput(xKcpControlBlock * kcp, const void * data, ssize_t size) {
 // ikcp_flush
 //---------------------------------------------------------------------
 void KcpFlush(xKcpControlBlock * kcp) {
-	uint32_t	current = kcp->current;
-	ubyte *		buffer = kcp->buffer;
-	ubyte *		ptr = buffer;
-	int			count, size, i;
-	uint32_t	resent, cwnd;
-	uint32_t	rtomin;
-	int			change = 0;
-	int			lost = 0;
+	uint32_t    current = kcp->current;
+	ubyte *     buffer  = kcp->buffer;
+	ubyte *     ptr     = buffer;
+	int         count, size, i;
+	uint32_t    resent, cwnd;
+	uint32_t    rtomin;
+	int         change = 0;
+	int         lost   = 0;
 	xKcpSegment seg;
 
 	// 'ikcp_update' haven't been called.
@@ -769,13 +782,13 @@ void KcpFlush(xKcpControlBlock * kcp) {
 	}
 
 	seg.conv = kcp->conv;
-	seg.cmd = IKCP_CMD_ACK;
-	seg.frg = 0;
-	seg.wnd = ikcp_wnd_unused(kcp);
-	seg.una = kcp->rcv_nxt;
-	seg.len = 0;
-	seg.sn = 0;
-	seg.ts = 0;
+	seg.cmd  = IKCP_CMD_ACK;
+	seg.frg  = 0;
+	seg.wnd  = ikcp_wnd_unused(kcp);
+	seg.una  = kcp->rcv_nxt;
+	seg.len  = 0;
+	seg.sn   = 0;
+	seg.ts   = 0;
 
 	// flush acknowledges
 	count = kcp->ackcount;
@@ -795,25 +808,25 @@ void KcpFlush(xKcpControlBlock * kcp) {
 	if (kcp->rmt_wnd == 0) {
 		if (kcp->probe_wait == 0) {
 			kcp->probe_wait = IKCP_PROBE_INIT;
-			kcp->ts_probe = kcp->current + kcp->probe_wait;
+			kcp->ts_probe   = kcp->current + kcp->probe_wait;
 		} else {
 			if (_itimediff(kcp->current, kcp->ts_probe) >= 0) {
 				if (kcp->probe_wait < IKCP_PROBE_INIT) kcp->probe_wait = IKCP_PROBE_INIT;
 				kcp->probe_wait += kcp->probe_wait / 2;
 				if (kcp->probe_wait > IKCP_PROBE_LIMIT) kcp->probe_wait = IKCP_PROBE_LIMIT;
 				kcp->ts_probe = kcp->current + kcp->probe_wait;
-				kcp->probe |= IKCP_ASK_SEND;
+				kcp->probe   |= IKCP_ASK_SEND;
 			}
 		}
 	} else {
-		kcp->ts_probe = 0;
+		kcp->ts_probe   = 0;
 		kcp->probe_wait = 0;
 	}
 
 	// flush window probing commands
 	if (kcp->probe & IKCP_ASK_SEND) {
 		seg.cmd = IKCP_CMD_WASK;
-		size = (int)(ptr - buffer);
+		size    = (int)(ptr - buffer);
 		if (size + (int)IKCP_OVERHEAD > (int)kcp->mtu) {
 			ikcp_output(kcp, buffer, size);
 			ptr = buffer;
@@ -824,7 +837,7 @@ void KcpFlush(xKcpControlBlock * kcp) {
 	// flush window probing commands
 	if (kcp->probe & IKCP_ASK_TELL) {
 		seg.cmd = IKCP_CMD_WINS;
-		size = (int)(ptr - buffer);
+		size    = (int)(ptr - buffer);
 		if (size + (int)IKCP_OVERHEAD > (int)kcp->mtu) {
 			ikcp_output(kcp, buffer, size);
 			ptr = buffer;
@@ -849,16 +862,16 @@ void KcpFlush(xKcpControlBlock * kcp) {
 		kcp->nsnd_que--;
 		kcp->nsnd_buf++;
 
-		newseg->conv = kcp->conv;
-		newseg->cmd = IKCP_CMD_PUSH;
-		newseg->wnd = seg.wnd;
-		newseg->ts = current;
-		newseg->sn = kcp->snd_nxt++;
-		newseg->una = kcp->rcv_nxt;
+		newseg->conv     = kcp->conv;
+		newseg->cmd      = IKCP_CMD_PUSH;
+		newseg->wnd      = seg.wnd;
+		newseg->ts       = current;
+		newseg->sn       = kcp->snd_nxt++;
+		newseg->una      = kcp->rcv_nxt;
 		newseg->resendts = current;
-		newseg->rto = kcp->rx_rto;
-		newseg->fastack = 0;
-		newseg->xmit = 0;
+		newseg->rto      = kcp->rx_rto;
+		newseg->fastack  = 0;
+		newseg->xmit     = 0;
 	}
 
 	// calculate resent
@@ -868,12 +881,12 @@ void KcpFlush(xKcpControlBlock * kcp) {
 	// flush data segments
 	// for (p = kcp->snd_buf.next; p != &kcp->snd_buf; p = p->next) {
 	for (auto & Node : kcp->snd_buf) {
-		auto segment = static_cast<xKcpSegment *>(&Node);
+		auto segment  = static_cast<xKcpSegment *>(&Node);
 		bool needsend = false;
 		if (segment->xmit == 0) {
 			needsend = true;
 			segment->xmit++;
-			segment->rto = kcp->rx_rto;
+			segment->rto      = kcp->rx_rto;
 			segment->resendts = current + segment->rto + rtomin;
 		} else if (_itimediff(current, segment->resendts) >= 0) {
 			needsend = true;
@@ -886,12 +899,12 @@ void KcpFlush(xKcpControlBlock * kcp) {
 				segment->rto += step / 2;
 			}
 			segment->resendts = current + segment->rto;
-			lost = 1;
+			lost              = 1;
 		} else if (segment->fastack >= resent) {
 			if ((int)segment->xmit <= kcp->fastlimit || kcp->fastlimit <= 0) {
 				needsend = 1;
 				segment->xmit++;
-				segment->fastack = 0;
+				segment->fastack  = 0;
 				segment->resendts = current + segment->rto;
 				change++;
 			}
@@ -899,7 +912,7 @@ void KcpFlush(xKcpControlBlock * kcp) {
 
 		if (needsend) {
 			int need;
-			segment->ts = current;
+			segment->ts  = current;
 			segment->wnd = seg.wnd;
 			segment->una = kcp->rcv_nxt;
 
@@ -933,7 +946,7 @@ void KcpFlush(xKcpControlBlock * kcp) {
 	// update ssthresh
 	if (change) {
 		uint32_t inflight = kcp->snd_nxt - kcp->snd_una;
-		kcp->ssthresh = inflight / 2;
+		kcp->ssthresh     = inflight / 2;
 		if (kcp->ssthresh < IKCP_THRESH_MIN) kcp->ssthresh = IKCP_THRESH_MIN;
 		kcp->cwnd = kcp->ssthresh + resent;
 		kcp->incr = kcp->cwnd * kcp->mss;
@@ -961,7 +974,7 @@ void KcpUpdate(xKcpControlBlock * kcp, uint32_t current) {
 	kcp->current = current;
 
 	if (kcp->updated == 0) {
-		kcp->updated = 1;
+		kcp->updated  = 1;
 		kcp->ts_flush = kcp->current;
 	}
 
@@ -969,7 +982,7 @@ void KcpUpdate(xKcpControlBlock * kcp, uint32_t current) {
 
 	if (slap >= 10000 || slap < -10000) {
 		kcp->ts_flush = kcp->current;
-		slap = 0;
+		slap          = 0;
 	}
 
 	if (slap >= 0) {
@@ -1005,10 +1018,10 @@ uint32_t KcpCheck(const xKcpControlBlock * kcp, uint32_t current) {
 		return current;
 	}
 
-	auto tm_flush = _itimediff(ts_flush, current);
+	auto tm_flush  = _itimediff(ts_flush, current);
 	auto tm_packet = std::numeric_limits<decltype(tm_flush)>::min();
 	for (const auto & Node : kcp->snd_buf) {
-		auto seg = static_cast<const xKcpSegment *>(&Node);
+		auto seg  = static_cast<const xKcpSegment *>(&Node);
 		auto diff = _itimediff(seg->resendts, current);
 		if (diff <= 0) {
 			return current;

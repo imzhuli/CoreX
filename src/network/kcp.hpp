@@ -33,7 +33,7 @@ struct xKcpControlBlock {
 	uint32_t conv, mtu, mss, state;
 	uint32_t snd_una, snd_nxt, rcv_nxt;
 	uint32_t ts_recent, ts_lastack, ssthresh;
-	uint32_t rx_rttval, rx_srtt, rx_rto, rx_minrto;
+	uint32_t rx_rttval, rx_srtt, rx_rto, rx_minrto;  // signed
 	uint32_t snd_wnd, rcv_wnd, rmt_wnd, cwnd, probe;
 	uint32_t current, interval, ts_flush, xmit;
 	uint32_t nrcv_buf, nsnd_buf;
