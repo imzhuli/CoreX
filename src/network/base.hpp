@@ -11,14 +11,14 @@
 #include <ws2def.h>
 
 X_NS {
-	typedef SSIZE_T			 ssize_t;
-	typedef int				 send_len_t;
-	typedef int				 recv_len_t;
-	typedef HANDLE			 xEventPoller;
-	typedef xVariable		 xNativeEventType;
-	typedef SOCKET			 xSocket;
-	X_API const xEventPoller InvalidEventPoller;  // INVALID_HANDLE_VALUE
-	constexpr xSocket		 InvalidSocket = INVALID_SOCKET;
+	typedef SSIZE_T              ssize_t;
+	typedef int                  send_len_t;
+	typedef int                  recv_len_t;
+	typedef HANDLE               xEventPoller;
+	typedef xVariable            xNativeEventType;
+	typedef SOCKET               xSocket;
+	constexpr const xEventPoller InvalidEventPoller = reinterpret_cast<xEventPoller>(INVALID_HANDLE_VALUE);
+	constexpr const xSocket      InvalidSocket      = INVALID_SOCKET;
 #define XelCloseSocket(sockfd) closesocket((sockfd))
 }
 
@@ -33,15 +33,15 @@ X_NS {
 X_NS {
 	typedef size_t send_len_t;
 	typedef size_t recv_len_t;
-	typedef int	   xEventPoller;  // epoll
+	typedef int    xEventPoller;  // epoll
 #ifdef X_SYSTEM_ANDROID
 	typedef uint32_t xNativeEventType;
 #else
-	typedef enum EPOLL_EVENTS xNativeEventType;	 // EPOLLIN EPOLLOUT EPOLLERR ...
+	typedef enum EPOLL_EVENTS xNativeEventType;  // EPOLLIN EPOLLOUT EPOLLERR ...
 #endif
-	typedef int			   xSocket;
-	constexpr xEventPoller InvalidEventPoller = ((xEventPoller)-1);
-	constexpr xSocket	   InvalidSocket = ((xSocket)-1);
+	typedef int                  xSocket;
+	constexpr const xEventPoller InvalidEventPoller = ((xEventPoller)-1);
+	constexpr const xSocket      InvalidSocket      = ((xSocket)-1);
 #define XelCloseSocket(sockfd) close((sockfd))
 }
 
@@ -55,12 +55,12 @@ X_NS {
 
 X_BEGIN
 
-typedef size_t		   send_len_t;
-typedef size_t		   recv_len_t;
-typedef int			   xEventPoller;  // kqueue
-typedef int			   xSocket;
-constexpr xEventPoller InvalidEventPoller = ((xEventPoller)-1);
-constexpr xSocket	   InvalidSocket = ((xSocket)-1);
+typedef size_t               send_len_t;
+typedef size_t               recv_len_t;
+typedef int                  xEventPoller;  // kqueue
+typedef int                  xSocket;
+constexpr const xEventPoller InvalidEventPoller = ((xEventPoller)-1);
+constexpr const xSocket      InvalidSocket      = ((xSocket)-1);
 #define XelCloseSocket(sockfd) close((sockfd))
 
 X_END
