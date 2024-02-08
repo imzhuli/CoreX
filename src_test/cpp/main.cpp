@@ -5,9 +5,16 @@
 using namespace std;
 using namespace xel;
 
+int foo() {
+	return 100;
+}
+
 int main(int argc, char ** argv) {
 
 	int i = 100;
+
+	cout << MakeSigned(100U) << endl;
+	cout << MakeUnsigned(-100) << endl;
 	do {
 		auto IGuard  = xValueGuard(i);
 		i            = 1000;

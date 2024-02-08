@@ -26,7 +26,7 @@ struct xKcpSegment : xKcpSegmentNode {
 	uint32_t rto;
 	uint32_t fastack;
 	uint32_t xmit;
-	ubyte	 data[1];
+	ubyte    data[1];
 };
 
 struct xKcpControlBlock {
@@ -50,23 +50,23 @@ struct xKcpControlBlock {
 	uint32_t * acklist;
 	uint32_t   ackcount;
 	uint32_t   ackblock;
-	void *	   user;
-	ubyte *	   buffer;
-	ssize_t	   fastresend;
-	ssize_t	   fastlimit;
-	ssize_t	   nocwnd, stream;
+	void *     user;
+	ubyte *    buffer;
+	ssize_t    fastresend;
+	ssize_t    fastlimit;
+	ssize_t    nocwnd, stream;
 	uint32_t   logmask;
 
 	ssize_t (*output)(const ubyte * buf, ssize_t len, xKcpControlBlock * kcp, void * user);
 	void (*writelog)(const char * log, xKcpControlBlock * kcp, void * user);
 };
 
-#define IKCP_LOG_OUTPUT	   (uint32_t(1))
-#define IKCP_LOG_INPUT	   (uint32_t(2))
-#define IKCP_LOG_SEND	   (uint32_t(4))
-#define IKCP_LOG_RECV	   (uint32_t(8))
+#define IKCP_LOG_OUTPUT    (uint32_t(1))
+#define IKCP_LOG_INPUT     (uint32_t(2))
+#define IKCP_LOG_SEND      (uint32_t(4))
+#define IKCP_LOG_RECV      (uint32_t(8))
 #define IKCP_LOG_IN_DATA   (uint32_t(16))
-#define IKCP_LOG_IN_ACK	   (uint32_t(32))
+#define IKCP_LOG_IN_ACK    (uint32_t(32))
 #define IKCP_LOG_IN_PROBE  (uint32_t(64))
 #define IKCP_LOG_IN_WINS   (uint32_t(128))
 #define IKCP_LOG_OUT_DATA  (uint32_t(256))
