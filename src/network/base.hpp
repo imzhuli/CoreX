@@ -25,6 +25,7 @@ X_NS {
 #elif defined(X_SYSTEM_LINUX)
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -48,6 +49,7 @@ X_NS {
 #elif defined(X_SYSTEM_DARWIN)
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <sys/event.h>
 #include <sys/socket.h>
 #include <sys/types.h>

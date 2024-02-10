@@ -139,6 +139,11 @@ xNetAddress xTcpConnection::GetLocalAddress() const {
 	return xNetAddress::Parse(&SockAddr);
 }
 
+void xTcpConnection::SetNoDelay(bool EnableNoDelay) {
+	int one = EnableNoDelay ? 1 : 0;
+	setsockopt(_Socket, IPPROTO_TCP, TCP_NODELAY, (char *)&one, sizeof(one));
+}
+
 void xTcpConnection::ResizeSendBuffer(size_t Size) {
 	assert(Size < INT_MAX);
 	if (_Socket == InvalidSocket) {
@@ -154,4 +159,5 @@ void xTcpConnection::ResizeReceiveBuffer(size_t Size) {
 	}
 	setsockopt(_Socket, SOL_SOCKET, SO_RCVBUF, (char *)X2Ptr(int(Size)), sizeof(int));
 }
-}
+
+X_END

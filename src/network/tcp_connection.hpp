@@ -78,6 +78,7 @@ public:
 	X_API_MEMBER xNetAddress GetRemoteAddress() const;
 	X_API_MEMBER xNetAddress GetLocalAddress() const;
 
+	X_API_MEMBER void SetNoDelay(bool EnableNoDelay = true);
 	X_API_MEMBER void ResizeSendBuffer(size_t Size);
 	X_API_MEMBER void ResizeReceiveBuffer(size_t Size);
 
