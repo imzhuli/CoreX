@@ -331,7 +331,7 @@ using xReentryFlag       = __common_detail__::xReentryFlag<false>;
 using xAtomicReentryFlag = __common_detail__::xReentryFlag<true>;
 
 template <typename xTarget>
-auto MakeResourceCleaner(xTarget & Target) {
+[[no_discard]] auto MakeResourceCleaner(xTarget & Target) {
 	return xScopeGuard([&Target] { Target.Clean(); });
 }
 

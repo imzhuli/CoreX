@@ -135,7 +135,7 @@ enum struct eIoEventType {
 
 class iBufferedIoReactor : public iIoReactor {
 protected:
-	static constexpr const size_t InternalReadBufferSizeForTcp = 2 * MaxPacketSize;
+	static constexpr const size_t InternalReadBufferSizeForTcp = 8 * MaxPacketSize;
 	static constexpr const size_t InternalReadBufferSizeForUdp = 8192;
 	static constexpr const size_t InternalReadBufferSize =
 		(InternalReadBufferSizeForTcp > InternalReadBufferSizeForUdp) ? InternalReadBufferSizeForTcp : InternalReadBufferSizeForUdp;

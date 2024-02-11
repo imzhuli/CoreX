@@ -1,0 +1,50 @@
+#include <iostream>
+#include <network/io_context.hpp>
+#include <server_arch/client.hpp>
+
+using namespace std;
+using namespace xel;
+
+struct xHelloWorldClient : xClient {};
+
+static xIoContext        IoCtx;
+static xHelloWorldClient Client;
+static xNetAddress       ServerAddress = xNetAddress::Parse("0.0.0.0", 10000);
+
+int main(int argc, char * argv[]) {
+	auto IR = xResourceGuard(IoCtx);
+	if (!IR) {
+		cerr << "Invalid IR" << endl;
+		return -1;
+	}
+	auto CR = xResourceGuard(Client, &IoCtx, ServerAddress);
+	if (!CR) {
+		cerr << "Invalid CR" << endl;
+		return -1;
+	}
+
+	ubyte Buffer[128];
+	auto  Size = xPacketHeader::MakeKeepAlive(Buffer);
+	auto  Data = std::string();
+	Data.append((const char *)Buffer, Size);
+	Data.append((const char *)Buffer, Size);
+	Data.append((const char *)Buffer, Size);
+	Data.append((const char *)Buffer, Size);
+
+	xTimer Timer;
+	while (true) {
+		auto NowMS = GetTimestampMS();
+
+		IoCtx.LoopOnce();
+		Client.Tick(NowMS);
+
+		if (Timer.TestAndTag(5s)) {
+			if (!Client.IsConnected()) {
+				X_DEBUG_PRINTF("Wait for reconnect");
+				continue;
+			}
+			Client.PostData(Data.data(), Data.size());
+		}
+	}
+	return 0;
+}

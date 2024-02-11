@@ -17,10 +17,10 @@ class xServerInfoServiceSmall
 	: public iServerInfoService
 	, xNonCopyable {
 public:
-	bool AddServerInfo(const xServerInfo & ServerInfo) override;
-	void RemoveServerInfo(const xServerId & ServerId) override;
-	auto Get() const -> const xServerInfo * override;
-	void Clear() override;
+	X_PRIVATE_MEMBER bool AddServerInfo(const xServerInfo & ServerInfo) override;
+	X_PRIVATE_MEMBER void RemoveServerInfo(const xServerId & ServerId) override;
+	X_PRIVATE_MEMBER auto Get() const -> const xServerInfo * override;
+	X_PRIVATE_MEMBER void Clear() override;
 
 private:
 	std::vector<xServerInfo> ServerList;

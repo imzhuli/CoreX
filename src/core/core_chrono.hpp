@@ -6,18 +6,18 @@
 
 X_NS {
 
-	using xHiResxClock	   = std::chrono::high_resolution_clock;
+	using xHiResxClock     = std::chrono::high_resolution_clock;
 	using xHiResxTimePoint = xHiResxClock::time_point;
 	using xHiResDuration   = xHiResxClock::duration;
 
-	using xSteadyxClock		= std::conditional<xHiResxClock::is_steady, xHiResxClock, std::chrono::steady_clock>::type;
+	using xSteadyxClock     = std::conditional<xHiResxClock::is_steady, xHiResxClock, std::chrono::steady_clock>::type;
 	using xSteadyxTimePoint = xSteadyxClock::time_point;
-	using xSteadyDuration	= xSteadyxClock::duration;
+	using xSteadyDuration   = xSteadyxClock::duration;
 
-	using xSeconds		= std::chrono::seconds;
+	using xSeconds      = std::chrono::seconds;
 	using xMilliSeconds = std::chrono::milliseconds;
 	using xMicroSeconds = std::chrono::microseconds;
-	using xNanoSeconds	= std::chrono::nanoseconds;
+	using xNanoSeconds  = std::chrono::nanoseconds;
 
 #if __cplusplus < 202002L && !defined(X_SYSTEM_WINDOWS)
 	X_API uint64_t GetTimestampUS();
@@ -35,29 +35,43 @@ X_NS {
 
 	class xTimer {
 	public:
-		using xClock	 = xSteadyxClock;
+		using xClock     = xSteadyxClock;
 		using xTimePoint = xSteadyxTimePoint;
-		using xDuration	 = xSteadyDuration;
+		using xDuration  = xSteadyDuration;
 		static_assert(std::is_signed_v<xDuration::rep>);
 
-		X_STATIC_INLINE xTimePoint Now() { return xClock::now(); }
+		X_STATIC_INLINE xTimePoint Now() {
+			return xClock::now();
+		}
 
 	private:
 		xTimePoint _LastTagTime;
 
 	public:
-		X_INLINE xTimer() { _LastTagTime = Now(); }
+		X_INLINE xTimer() {
+			_LastTagTime = Now();
+		}
 
-		X_INLINE xDuration Elapsed() { return Now() - _LastTagTime; }
+		X_INLINE xTimer(const xZeroInit &) {
+			_LastTagTime = xTimePoint();
+		}
+
+		X_INLINE xDuration Elapsed() {
+			return Now() - _LastTagTime;
+		}
 
 		X_INLINE xDuration Skip(const xDuration & duration) {
 			_LastTagTime += duration;
 			return duration;
 		}
 
-		X_INLINE void Tag() { Tag(Now()); }
+		X_INLINE void Tag() {
+			Tag(Now());
+		}
 
-		X_INLINE void Tag(xTimePoint tp) { _LastTagTime = tp; }
+		X_INLINE void Tag(xTimePoint tp) {
+			_LastTagTime = tp;
+		}
 
 		X_INLINE xTimePoint TagAndGet() {
 			auto N = Now();
@@ -81,7 +95,9 @@ X_NS {
 			return false;
 		}
 
-		X_INLINE xTimePoint GetAndTag() { return Steal(_LastTagTime, Now()); }
+		X_INLINE xTimePoint GetAndTag() {
+			return Steal(_LastTagTime, Now());
+		}
 
 		/**
 		 * @brief Consume:
