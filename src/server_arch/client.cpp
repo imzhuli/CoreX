@@ -45,6 +45,7 @@ void xClient::Tick(uint64_t NowMS) {
 	if (!Connection.Init(IoContextPtr, TargetAddress, this)) {
 		return;
 	} else {
+		Connection.SetMaxWriteBufferSize(MaxWriteBufferLimitForEachConnection);
 		Connected = true;
 	}
 }

@@ -31,14 +31,16 @@ public:
 	X_PRIVATE_MEMBER void Clean();
 
 public:
-	void PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
-	void PostData(xServiceConnection & Connection, const void * DataPtr, size_t DataSize);
+	X_PRIVATE_MEMBER void PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
+	X_PRIVATE_MEMBER void PostData(xServiceConnection & Connection, const void * DataPtr, size_t DataSize);
+
+	X_INLINE void SetMaxWriteBuffer(size_t Size) {
+		MaxWriteBufferLimitForEachConnection = (Size / sizeof(xPacketBuffer::Buffer)) + 1;
+	}
 
 protected:
-	X_PRIVATE_MEMBER virtual bool OnPacket(
-		xServiceConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize
-	);
-
+	X_PRIVATE_MEMBER
+	virtual bool  OnPacket(xServiceConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
 	X_INLINE void KeepAlive(xServiceConnection & Connection) {
 		Connection.TimestampMS = NowMS;
 		ServiceConnectionTimeoutList.GrabTail(Connection);
@@ -63,6 +65,10 @@ private:
 	};
 
 private:
+	// config
+	size_t MaxWriteBufferLimitForEachConnection = 50'000'000 / sizeof(xPacketBuffer::Buffer);
+
+	//
 	uint64_t                              NowMS;
 	xTcpServer                            TcpServer;
 	xIndexedStorage<xServiceConnection *> ConnectionIdPool;

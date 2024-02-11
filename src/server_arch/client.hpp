@@ -17,6 +17,10 @@ public:
 	}
 	X_PRIVATE_MEMBER void PostData(const void * DataPtr, size_t DataSize);
 
+	X_INLINE void SetMaxWriteBuffer(size_t Size) {
+		MaxWriteBufferLimitForEachConnection = (Size / sizeof(xPacketBuffer::Buffer)) + 1;
+	}
+
 protected:
 	X_PRIVATE_MEMBER bool OnPacket(const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
 
@@ -30,6 +34,9 @@ private:
 	}
 
 private:
+	// config
+	size_t MaxWriteBufferLimitForEachConnection = 10'000'000 / sizeof(xPacketBuffer::Buffer);
+
 	xIoContext *   IoContextPtr = {};
 	xNetAddress    TargetAddress;
 	xTcpConnection Connection;
