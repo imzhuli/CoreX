@@ -9,7 +9,7 @@
 
 X_BEGIN
 
-static constexpr const uint64_t KeepAliveTimeoutMS     = 90'000;
+static constexpr const uint64_t KeepAliveTimeoutMS     = 105'000;
 static constexpr const size_t   DefaultMinConnectionId = 1024;
 static constexpr const size_t   DefaultMaxConnectionId = 50'000;
 
