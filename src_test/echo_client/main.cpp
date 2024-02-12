@@ -22,29 +22,13 @@ int main(int argc, char * argv[]) {
 		cerr << "Invalid CR" << endl;
 		return -1;
 	}
-
-	ubyte Buffer[128];
-	auto  Size = xPacketHeader::MakeKeepAlive(Buffer);
-	auto  Data = std::string();
-	Data.append((const char *)Buffer, Size);
-	Data.append((const char *)Buffer, Size);
-	Data.append((const char *)Buffer, Size);
-	Data.append((const char *)Buffer, Size);
+	Client.SetKeepAliveTimeout(60'000);
 
 	xTimer Timer;
 	while (true) {
 		auto NowMS = GetTimestampMS();
-
 		IoCtx.LoopOnce();
 		Client.Tick(NowMS);
-
-		if (Timer.TestAndTag(5s)) {
-			if (!Client.IsConnected()) {
-				X_DEBUG_PRINTF("Wait for reconnect");
-				continue;
-			}
-			Client.PostData(Data.data(), Data.size());
-		}
 	}
 	return 0;
 }

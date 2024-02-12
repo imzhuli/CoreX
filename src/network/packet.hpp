@@ -78,7 +78,7 @@ struct xPacketHeader final {
 		return PacketHeaderSize;
 	}
 
-	X_STATIC_INLINE size_t MakeCheckKeepAlive(void * PackageHeaderBuffer) {
+	X_STATIC_INLINE size_t MakeRequestKeepAlive(void * PackageHeaderBuffer) {
 		xPacketHeader Header;
 		Header.CommandId  = CmdId_InnernalRequest;
 		Header.RequestId  = InternalRequest_RequestKeepAlive;

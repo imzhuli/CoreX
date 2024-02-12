@@ -6,15 +6,27 @@
 
 X_BEGIN
 
-static constexpr const int64_t ReconnectTimeoutMS = 15'000;
+static constexpr const uint64_t MaxKeepAliveTimeoutMS     = 60'000;
+static constexpr const uint64_t IdleTimeoutMS             = 30'000 + MaxKeepAliveTimeoutMS;
+static constexpr const int64_t  ReconnectTimeoutMS        = 15'000;
+static constexpr const int64_t  RequestKeepAliveTimeoutMS = 5'000;
+
+static ubyte  RequestKeepAliveBuffer[128];
+static size_t RequestKeepAliveSize = xPacketHeader::MakeRequestKeepAlive(RequestKeepAliveBuffer);
 
 bool xClient::Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress) {
 	assert(IoContextPtr);
 	assert(TargetAddress);
 
-	this->IoContextPtr         = IoContextPtr;
-	this->TargetAddress        = TargetAddress;
-	this->ReconnectTimestampMS = 0;
+	this->IoContextPtr                    = IoContextPtr;
+	this->TargetAddress                   = TargetAddress;
+	this->NowMS                           = 0;
+	this->ReconnectTimestampMS            = 0;
+	this->KeepAliveTimeoutMS              = 0;
+	this->LastKeepAliveTimestampMS        = 0;
+	this->LastRequestKeepAliveTimestampMS = 0;
+	this->Connected                       = false;
+	this->KillConnection                  = false;
 	return true;
 }
 
@@ -30,14 +42,34 @@ void xClient::Clean() {
 void xClient::Tick(uint64_t NowMS) {
 	this->NowMS = NowMS;
 	if (Steal(KillConnection)) {
+		X_DEBUG_PRINTF("KillConnection");
 		assert(Connected);
 		Connection.Clean();
-		Connected = false;
+		Connected                       = false;
+		LastKeepAliveTimestampMS        = 0;
+		LastRequestKeepAliveTimestampMS = 0;
 		return;
 	}
 	if (Connected) {
+		auto IdleTime = SignedDiff(NowMS, LastKeepAliveTimestampMS);
+		if (IdleTime > IdleTimeoutMS) {
+			KillConnection = true;
+			return;
+		}
+		// force keepalive:
+		if (KeepAliveTimeoutMS && IdleTime > KeepAliveTimeoutMS) {
+			assert(KeepAliveTimeoutMS < IdleTimeoutMS);
+			if (SignedDiff(NowMS, LastRequestKeepAliveTimestampMS) < RequestKeepAliveTimeoutMS) {
+				// prevent continuously send request_keepalive
+				return;
+			}
+			PostData(RequestKeepAliveBuffer, RequestKeepAliveSize);
+			LastRequestKeepAliveTimestampMS = NowMS;
+		}
 		return;
 	}
+
+	// try reconnect
 	if (SignedDiff(NowMS, ReconnectTimestampMS) < ReconnectTimeoutMS) {
 		return;
 	}
@@ -46,7 +78,9 @@ void xClient::Tick(uint64_t NowMS) {
 		return;
 	} else {
 		Connection.SetMaxWriteBufferSize(MaxWriteBufferLimitForEachConnection);
-		Connected = true;
+		Connected                       = true;
+		LastKeepAliveTimestampMS        = NowMS;
+		LastRequestKeepAliveTimestampMS = NowMS;
 	}
 }
 
@@ -63,10 +97,15 @@ size_t xClient::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, s
 		if (RemainSize < PacketSize) {        // wait for data
 			break;
 		}
-		auto PayloadPtr  = xPacket::GetPayload(DataPtr);
-		auto PayloadSize = Header.GetPayloadSize();
-		if (!OnPacket(Header, PayloadPtr, PayloadSize)) { /* packet error */
-			return InvalidPacketSize;
+		if (Header.IsKeepAlive()) {
+			X_DEBUG_PRINTF("KeepAlive");
+			LastKeepAliveTimestampMS = NowMS;
+		} else {
+			auto PayloadPtr  = xPacket::GetPayload(DataPtr);
+			auto PayloadSize = Header.GetPayloadSize();
+			if (!OnPacket(Header, PayloadPtr, PayloadSize)) { /* packet error */
+				return InvalidPacketSize;
+			}
 		}
 		DataPtr    += PacketSize;
 		RemainSize -= PacketSize;
@@ -79,6 +118,14 @@ bool xClient::OnPacket(const xPacketHeader & Header, ubyte * PayloadPtr, size_t 
 		"CommandId: %" PRIu32 ", RequestId:%" PRIu64 ": %s", Header.CommandId, Header.RequestId, HexShow(PayloadPtr, PayloadSize).c_str()
 	);
 	return true;
+}
+
+void xClient::SetKeepAliveTimeout(uint64_t TimeoutMS) {
+	KeepAliveTimeoutMS = std::min(TimeoutMS, MaxKeepAliveTimeoutMS);
+}
+
+void xClient::SetMaxWriteBuffer(size_t Size) {
+	MaxWriteBufferLimitForEachConnection = (Size / sizeof(xPacketBuffer::Buffer)) + 1;
 }
 
 void xClient::PostData(const void * DataPtr, size_t DataSize) {

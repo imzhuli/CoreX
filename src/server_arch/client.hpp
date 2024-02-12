@@ -15,11 +15,9 @@ public:
 	X_INLINE bool IsConnected() const {
 		return Connected;
 	}
+	X_PRIVATE_MEMBER void SetKeepAliveTimeout(uint64_t TimeoutMS);
+	X_PRIVATE_MEMBER void SetMaxWriteBuffer(size_t Size);
 	X_PRIVATE_MEMBER void PostData(const void * DataPtr, size_t DataSize);
-
-	X_INLINE void SetMaxWriteBuffer(size_t Size) {
-		MaxWriteBufferLimitForEachConnection = (Size / sizeof(xPacketBuffer::Buffer)) + 1;
-	}
 
 protected:
 	X_PRIVATE_MEMBER bool OnPacket(const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
@@ -30,6 +28,7 @@ private:
 	}
 	X_API_MEMBER size_t OnData(xTcpConnection * TcpConnectionPtr, void * DataPtr, size_t DataSize) override;
 	X_API_MEMBER void   OnPeerClose(xTcpConnection * TcpConnectionPtr) override {
+        X_DEBUG_PRINTF("");
         KillConnection = true;
 	}
 
@@ -41,10 +40,13 @@ private:
 	xNetAddress    TargetAddress;
 	xTcpConnection Connection;
 
-	uint64_t NowMS                = 0;
-	uint64_t ReconnectTimestampMS = 0;
-	bool     Connected            = false;
-	bool     KillConnection       = false;
+	uint64_t NowMS                           = 0;
+	uint64_t ReconnectTimestampMS            = 0;
+	uint64_t KeepAliveTimeoutMS              = 0;
+	uint64_t LastKeepAliveTimestampMS        = 0;
+	uint64_t LastRequestKeepAliveTimestampMS = 0;
+	bool     Connected                       = false;
+	bool     KillConnection                  = false;
 };
 
 X_END

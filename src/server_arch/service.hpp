@@ -31,12 +31,9 @@ public:
 	X_PRIVATE_MEMBER void Clean();
 
 public:
-	X_PRIVATE_MEMBER void PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
-	X_PRIVATE_MEMBER void PostData(xServiceConnection & Connection, const void * DataPtr, size_t DataSize);
-
-	X_INLINE void SetMaxWriteBuffer(size_t Size) {
-		MaxWriteBufferLimitForEachConnection = (Size / sizeof(xPacketBuffer::Buffer)) + 1;
-	}
+	X_PRIVATE_MEMBER void SetMaxWriteBuffer(size_t Size);
+	X_PRIVATE_MEMBER bool PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
+	X_PRIVATE_MEMBER bool PostData(xServiceConnection & Connection, const void * DataPtr, size_t DataSize);
 
 protected:
 	X_PRIVATE_MEMBER

@@ -13,6 +13,9 @@ static constexpr const uint64_t KeepAliveTimeoutMS     = 90'000;
 static constexpr const size_t   DefaultMinConnectionId = 1024;
 static constexpr const size_t   DefaultMaxConnectionId = 50'000;
 
+static ubyte  KeepAliveBuffer[128];
+static size_t KeepAliveSize = xPacketHeader::MakeKeepAlive(KeepAliveBuffer);
+
 bool xService::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, bool ReusePort) {
 	return Init(IoContextPtr, BindAddress, DefaultMaxConnectionId, ReusePort);
 }
@@ -93,9 +96,10 @@ void xService::OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandl
 	Cleaner.Dismiss();
 	IdReleaser.Dismiss();
 
-	Connection->TimestampMS = NowMS;
-	ServiceConnectionTimeoutList.AddTail(*Connection);
 	Connection->ConnectionId = ConnectionId;
+	Connection->TimestampMS  = NowMS;
+	ServiceConnectionTimeoutList.AddTail(*Connection);
+	X_DEBUG_PRINTF("Success");
 }
 
 void xService::OnPeerClose(xTcpConnection * TcpConnectionPtr) {
@@ -117,10 +121,17 @@ size_t xService::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, 
 		if (RemainSize < PacketSize) {        // wait for data
 			break;
 		}
-		auto PayloadPtr  = xPacket::GetPayload(DataPtr);
-		auto PayloadSize = Header.GetPayloadSize();
-		if (!OnPacket(Connection, Header, PayloadPtr, PayloadSize)) { /* packet error */
-			return InvalidPacketSize;
+		if (Header.IsRequestKeepAlive()) {
+			X_DEBUG_PRINTF("RequestKeepAlive: %" PRIu64 "", Connection.ConnectionId());
+			if (!PostData(Connection, KeepAliveBuffer, KeepAliveSize)) {
+				return InvalidPacketSize;
+			}
+		} else {
+			auto PayloadPtr  = xPacket::GetPayload(DataPtr);
+			auto PayloadSize = Header.GetPayloadSize();
+			if (!OnPacket(Connection, Header, PayloadPtr, PayloadSize)) { /* packet error */
+				return InvalidPacketSize;
+			}
 		}
 		DataPtr    += PacketSize;
 		RemainSize -= PacketSize;
@@ -131,27 +142,30 @@ size_t xService::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, 
 
 bool xService::OnPacket(xServiceConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) {
 	X_DEBUG_PRINTF(
-		"CommandId: %" PRIu32 ", RequestId:%" PRIu64 ": %s", Header.CommandId, Header.RequestId, HexShow(PayloadPtr, PayloadSize).c_str()
+		"CommandId: %" PRIx32 ", RequestId:%" PRIx64 ": %s", Header.CommandId, Header.RequestId, HexShow(PayloadPtr, PayloadSize).c_str()
 	);
 	return true;
 }
-
-void xService::PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize) {
-	auto HolderPtr = ConnectionIdPool.CheckAndGet(ConnectionId);
-	if (!HolderPtr) {
-		return;
-	}
-	auto ConnectionPtr = *HolderPtr;
-	PostData(*ConnectionPtr, DataPtr, DataSize);
+void xService::SetMaxWriteBuffer(size_t Size) {
+	MaxWriteBufferLimitForEachConnection = (Size / sizeof(xPacketBuffer::Buffer)) + 1;
 }
 
-void xService::PostData(xServiceConnection & Connection, const void * DataPtr, size_t DataSize) {
+bool xService::PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize) {
+	auto HolderPtr = ConnectionIdPool.CheckAndGet(ConnectionId);
+	if (!HolderPtr) {
+		return false;
+	}
+	auto ConnectionPtr = *HolderPtr;
+	return PostData(*ConnectionPtr, DataPtr, DataSize);
+}
+
+bool xService::PostData(xServiceConnection & Connection, const void * DataPtr, size_t DataSize) {
 	auto Posted = Connection.PostData(DataPtr, DataSize);
 	if (Posted != DataSize) {
 		DeferKillConnection(Connection);
-		return;
+		return false;
 	}
-	return;
+	return true;
 }
 
 X_END
