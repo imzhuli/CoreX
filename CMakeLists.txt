@@ -79,5 +79,6 @@ set(THIRD_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/./_3rd_installed/include")
 set(THIRD_LIB_DIRS     "${PROJECT_SOURCE_DIR}/./_3rd_installed/lib")
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+option(SERVER_SIDE_LIB_ONLY "Build server side lib only, no rendering involved" OFF)
 add_subdirectory(src)
 add_subdirectory(src_test)

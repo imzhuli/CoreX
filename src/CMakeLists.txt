@@ -4,13 +4,7 @@ set(libname xel)
 
 find_package(Vulkan REQUIRED)
 
-
-# set(THIRD_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/../_3rd_installed/include")
-# set(THIRD_LIB_DIRS     "${PROJECT_SOURCE_DIR}/../_3rd_installed/lib")
-
 set(THIRD_LIBRARIES     curl everest freetype glfw3 mbedcrypto mbedtls mbedx509 p256m z)
-# message(STATUS ${THIRD_LIB_DIRS})
-# message(STATUS ${BUILD_SHARED_LIBS})
 
 include_directories(
 	${Vulkan_INCLUDE_DIRS}
@@ -58,20 +52,22 @@ aux_source_directory(./network/       X_SRC)
 aux_source_directory(./object/        X_SRC)
 aux_source_directory(./server_arch/   X_SRC)
 
-aux_source_directory(./renderer/      X_SRC)
-aux_source_directory(./vk/            X_SRC)
-aux_source_directory(./wsi/           X_SRC)
-aux_source_directory(./xengine/       X_SRC)
+if (NOT ${SERVER_SIDE_LIB_ONLY})
+	aux_source_directory(./renderer/      X_SRC)
+	aux_source_directory(./vk/            X_SRC)
+	aux_source_directory(./wsi/           X_SRC)
+	aux_source_directory(./xengine/       X_SRC)
 
-if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-aux_source_directory(./wsi/darwin  X_SRC)
+	if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+	aux_source_directory(./wsi/darwin  X_SRC)
+	endif()
+
+	# add 3rd lib files
+	aux_source_directory(./3rd/stb_image         X_3RD_SRC)
+	aux_source_directory(./3rd/tiny_obj_loader   X_3RD_SRC)
+	aux_source_directory(./3rd/vk_bootstrap      X_3RD_SRC)
+	aux_source_directory(./3rd/vk_mem_alloc      X_3RD_SRC)
 endif()
-
-# add 3rd lib files
-aux_source_directory(./3rd/stb_image         X_3RD_SRC)
-aux_source_directory(./3rd/tiny_obj_loader   X_3RD_SRC)
-aux_source_directory(./3rd/vk_bootstrap      X_3RD_SRC)
-aux_source_directory(./3rd/vk_mem_alloc      X_3RD_SRC)
 
 if (NOT ${BUILD_SHARED_LIBS}) #static lib:
 set(X_OPTION X_OPTION_STATIC)

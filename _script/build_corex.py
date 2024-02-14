@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 import _check_env as ce
+import getopt
 import os
 import shutil
+import sys
 
 if __name__ != "__main__":
     print("not valid entry, name=%s" % (__name__))
@@ -24,9 +26,22 @@ try:
 except:
     print("failed to check and remove install target")
 
+server_side_lib_only = "OFF"
+try:
+    argv = sys.argv[1:]
+    opts, args = getopt.getopt(argv, "s")
+except getopt.GetoptError:
+    sys.exit(2)
+for opt, arg in opts:
+    if opt == "-s":
+        server_side_lib_only = "ON"
+        print("server-side lib only")
+    pass
+
 os.system(
     'cmake -Wno-dev '
     '-DBUILD_SHARED_LIBS=OFF '
+    f'-DSERVER_SIDE_LIB_ONLY={server_side_lib_only} '
     f'-DCMAKE_INSTALL_PREFIX={full_install_path!r} -B {build_path!r} .')
 os.system(f"cmake --build {build_path} -- all")
 os.system(f"cmake --build {build_path} -- install")
