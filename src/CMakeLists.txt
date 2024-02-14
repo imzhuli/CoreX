@@ -49,12 +49,15 @@ set(shared_lib_dependency_public
 	${PLATFORM_LIBRARIES}
 	${cpp})
 
+
+aux_source_directory(./algorithm/ X_SRC)
 aux_source_directory(./core/          X_SRC)
 aux_source_directory(./crypto/        X_SRC)
 aux_source_directory(./locale/        X_SRC)
 aux_source_directory(./network/       X_SRC)
 aux_source_directory(./object/        X_SRC)
 aux_source_directory(./server_arch/   X_SRC)
+
 aux_source_directory(./renderer/      X_SRC)
 aux_source_directory(./vk/            X_SRC)
 aux_source_directory(./wsi/           X_SRC)
