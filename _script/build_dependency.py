@@ -8,12 +8,26 @@ import _build_libcurl as blibcurl
 import _build_mbedtls as bmbedtls
 import _build_rapidjson as brapidjson
 import _build_zlib as bzlib
+import getopt
 import os
 import shutil
+import sys
 
 if __name__ != "__main__":
     print("not valid entry, name=%s" % (__name__))
     exit
+
+server_side_lib_only = "OFF"
+try:
+    argv = sys.argv[1:]
+    opts, args = getopt.getopt(argv, "s")
+except getopt.GetoptError:
+    sys.exit(2)
+for opt, arg in opts:
+    if opt == "-s":
+        server_side_lib_only = "ON"
+        print("server-side lib only")
+    pass
 
 if not p3.prepare_3rd():
     exit
@@ -21,10 +35,11 @@ if not p3.prepare_3rd():
 if not bfreetype.build():
     exit
 
-if not bglfw3.build():
-    exit
+if server_side_lib_only == "OFF":
+    if not bglfw3.build():
+        exit
 
-if not bglm.build() or not bglm.build():
+if not bglm.build() or not bglm.post_build():
     exit
 
 if not bmbedtls.build():
