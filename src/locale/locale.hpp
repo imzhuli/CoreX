@@ -1,4 +1,4 @@
-#pragma once
+#pragma once  // clang-format off
 #include "../core/core_min.hpp"
 
 X_BEGIN
@@ -49,7 +49,7 @@ static constexpr const char * LocaleScripts[][4] = { { "az", "Latn", "", "AZ" },
 // codes. Reference:
 // - https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
 // - https://www.iso.org/obp/ui/#search/code/
-
+[[maybe_unused]]
 static const char * RegionRenames[][2] = { { "BU", "MM" },	// Burma, name changed to Myanmar.
 										   { "KV", "XK" },	// Kosovo (temporary FIPS code to European Commission
 															// code), no official ISO code assigned.
@@ -61,7 +61,7 @@ static const char * RegionRenames[][2] = { { "BU", "MM" },	// Burma, name change
 // Reference:
 // - https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
 // - https://www.iso.org/obp/ui/#search/code/
-
+[[maybe_unused]]
 static const char * RegionNames[][2] = { { "AC", "Ascension Island" },	// Exceptionally reserved.
 										 { "AD", "Andorra" },
 										 { "AE", "United Arab Emirates" },
@@ -331,7 +331,7 @@ static const char * RegionNames[][2] = { { "AC", "Ascension Island" },	// Except
 // - https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 // - https://www.localeplanet.com/icu/index.html
 // - https://lh.2xlibre.net/locales/
-
+[[maybe_unused]]
 static const char * LanguageList[][2] = { { "aa", "Afar" },
 										  { "ab", "Abkhazian" },
 										  { "ace", "Achinese" },
@@ -954,7 +954,7 @@ static const char * LanguageList[][2] = { { "aa", "Afar" },
 
 // Additional regional variants.
 // Variant name, supported languages.
-
+[[maybe_unused]]
 static const char * LocaleVariants[][2] = {
 	{ "valencia", "ca" }, { "iqtelif", "tt" }, { "saaho", "aa" }, { "tradnl", "es" }, { nullptr, nullptr },
 };
@@ -962,7 +962,7 @@ static const char * LocaleVariants[][2] = {
 // Script names and codes (excludes typographic variants, special codes,
 // reserved codes and aliases for combined scripts). Reference:
 // - https://en.wikipedia.org/wiki/ISO_15924
-
+[[maybe_unused]]
 static const char * ScriptList[][2] = { { "Adlam", "Adlm" },
 										{ "Afaka", "Afak" },
 										{ "Caucasian Albanian", "Aghb" },

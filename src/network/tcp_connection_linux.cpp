@@ -23,7 +23,7 @@
 X_BEGIN
 
 bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeHandle, iListener * ListenerPtr) {
-	auto FailSafe = xScopeGuard{ [=] {
+	auto FailSafe = xScopeGuard{ [this, NativeHandle] {
 		XelCloseSocket(NativeHandle);
 		X_DEBUG_RESET(_IoContextPtr);
 		X_DEBUG_RESET(_ListenerPtr);

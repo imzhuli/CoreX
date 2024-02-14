@@ -2,9 +2,12 @@ cmake_minimum_required(VERSION 3.14)
 project (libcorex)
 set(libname xel)
 
-find_package(Vulkan REQUIRED)
+if (NOT ${SERVER_SIDE_LIB_ONLY})
+	find_package(Vulkan REQUIRED)
+	set(THIRD_LIBRARIES ${THIRD_LIBRARIES} glfw3)
+endif()
 
-set(THIRD_LIBRARIES     curl everest freetype glfw3 mbedcrypto mbedtls mbedx509 p256m z)
+set(THIRD_LIBRARIES   ${THIRD_LIBRARIES} curl everest freetype mbedcrypto mbedtls mbedx509 p256m z)
 
 include_directories(
 	${Vulkan_INCLUDE_DIRS}

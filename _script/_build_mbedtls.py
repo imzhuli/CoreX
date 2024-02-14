@@ -21,7 +21,9 @@ def build():
         os.chdir(unzipped_src_dir)
         os.system(
             'cmake '
-            '-Wno-dev -DBUILD_SHARED_LIBS=OFF '
+            '-Wno-dev '
+            '-DBUILD_SHARED_LIBS=OFF '
+            '-DENABLE_TESTING=OFF '
             f'-DCMAKE_INSTALL_PREFIX={install_dir!r} -B build . ')
         os.system(f"cmake --build build -- all")
         os.system(f"cmake --build build -- install")

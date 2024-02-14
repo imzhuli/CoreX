@@ -12,13 +12,14 @@ unzipped_src_dir = f"{unzip_dir}/rapidjson-1.1.0"
 install_dir = f"{cwd}/_3rd_installed"
 
 cpp_flags = """
--Wno-zero-as-null-pointer-constant
+-Wno-class-memaccess
 -Wno-deprecated-declarations
+-Wno-implicit-fallthrough
 -Wno-shadow 
 -Wno-suggest-override
 -Wno-suggest-destructor-override
+-Wno-zero-as-null-pointer-constant
 """.replace("\n", " ")
-
 
 def build():
     try:
@@ -32,7 +33,6 @@ def build():
         os.system(
             'cmake '
             '-Wno-dev '
-            '-DBUILD_SHARED_LIBS=OFF '
             f'-DCMAKE_CXX_FLAGS="{cpp_flags}" '
             f'-DCMAKE_INSTALL_PREFIX={install_dir!r} -B build . ')
         os.system(f"cmake --build build -- all")

@@ -52,12 +52,12 @@ void xClient::Tick(uint64_t NowMS) {
 	}
 	if (Connected) {
 		auto IdleTime = SignedDiff(NowMS, LastKeepAliveTimestampMS);
-		if (IdleTime > IdleTimeoutMS) {
+		if (IdleTime > MakeSigned(IdleTimeoutMS)) {
 			KillConnection = true;
 			return;
 		}
 		// force keepalive:
-		if (KeepAliveTimeoutMS && IdleTime > KeepAliveTimeoutMS) {
+		if (KeepAliveTimeoutMS && IdleTime > MakeSigned(KeepAliveTimeoutMS)) {
 			assert(KeepAliveTimeoutMS < IdleTimeoutMS);
 			if (SignedDiff(NowMS, LastRequestKeepAliveTimestampMS) < RequestKeepAliveTimeoutMS) {
 				// prevent continuously send request_keepalive

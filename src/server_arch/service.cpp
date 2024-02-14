@@ -90,7 +90,7 @@ void xService::OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandl
 	if (!ConnectionId) {
 		return;
 	}
-	auto IdReleaser = xScopeGuard([=] { ConnectionIdPool.Release(ConnectionId); });
+	auto IdReleaser = xScopeGuard([=, this] { ConnectionIdPool.Release(ConnectionId); });
 
 	Deleter.Dismiss();
 	Cleaner.Dismiss();

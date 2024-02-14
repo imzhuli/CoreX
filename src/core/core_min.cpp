@@ -1,6 +1,7 @@
 
 #include "./core_min.hpp"
 
+#include <cstdarg>
 #include <filesystem>
 #include <mutex>
 #include <sstream>

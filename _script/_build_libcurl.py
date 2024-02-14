@@ -11,6 +11,11 @@ src_file = f"{cwd}/_3rd_source/curl-8.6.0.tar.gz"
 unzipped_src_dir = f"{unzip_dir}/curl-8.6.0"
 install_dir = f"{cwd}/_3rd_installed"
 
+c_flags = """
+-Wno-implicit-function-declaration
+-Wno-nested-externs
+-Wno-int-conversion
+""".replace("\n", " ")
 
 def build():
     try:
@@ -27,6 +32,7 @@ def build():
             '-DBUILD_LIBCURL_DOCS=OFF '
             '-DCURL_USE_MBEDTLS=ON '
             '-DCURL_DISABLE_LDAP=ON '
+            f'-DCMAKE_C_FLAGS="{c_flags}" '
             f'-DCMAKE_INSTALL_PREFIX={install_dir!r} -B build . ')
         os.system(f"cmake --build build -- all")
         os.system(f"cmake --build build -- install")
