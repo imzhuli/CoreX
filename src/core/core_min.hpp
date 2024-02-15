@@ -109,13 +109,15 @@ template <typename T, size_t L>
 template <typename... Args>
 [[nodiscard]] X_STATIC_INLINE constexpr size_t Count(const Args &... args) { return sizeof...(args); }
 
+
 [[noreturn]] X_STATIC_INLINE void Error(const char * message = nullptr) { throw message;}
 [[noreturn]] X_STATIC_INLINE void Fatal(const char * = nullptr /* reason */) { std::abort(); }
 [[noreturn]] X_STATIC_INLINE void Todo(const char * info = nullptr) { Fatal(info); }
 [[noreturn]] X_STATIC_INLINE void Pure() { Fatal("placeholder of pure function called, which is not expected"); }
 
-X_STATIC_INLINE void Pass(const char * = nullptr /* reason */) { }
 X_API void Breakpoint();
+X_STATIC_INLINE void Pass(const char * = nullptr /* reason */) { }
+X_STATIC_INLINE void RuntimeAssert(bool cond, const char * msg= nullptr /* reason */) { if (!cond) { Fatal(msg); } }
 
 template <typename T>
 X_STATIC_INLINE constexpr auto MakeSigned(const T & Value) { return static_cast<std::make_signed_t<T>>(Value); }
