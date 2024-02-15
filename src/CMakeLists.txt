@@ -84,6 +84,14 @@ set_target_properties(${libname} PROPERTIES VERSION 1.0)
 target_link_libraries(${libname} PRIVATE ${shared_lib_dependency_private})
 target_link_libraries(${libname} PUBLIC ${shared_lib_dependency_public})
 
+install(
+	DIRECTORY ${PROJECT_SOURCE_DIR}/
+	DESTINATION include
+	FILES_MATCHING 
+		PATTERN "*.h"
+		PATTERN "*.hpp"
+	)
+
 install(TARGETS
 	${libname}
 	RUNTIME DESTINATION bin

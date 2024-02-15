@@ -63,3 +63,4 @@ test_sub(test_string)
 if (NOT ${SERVER_SIDE_LIB_ONLY})
 build_app(env_check)
 endif()
+
