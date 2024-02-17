@@ -27,7 +27,7 @@ static constexpr const size_t MaxPacketPayloadSize = MaxPacketSize - PacketHeade
 */
 struct xPacketHeader final {
 	static constexpr const size_t           Size                             = 2 * sizeof(uint32_t) + sizeof(uint64_t);
-	static constexpr const xPacketCommandId CmdId_InnernalRequest            = 0x00;
+	static constexpr const xPacketCommandId CmdId_InnernalRequest            = xPacketCommandId(-1);
 	static constexpr const xPacketRequestId InternalRequest_KeepAlive        = 0x00;
 	static constexpr const xPacketRequestId InternalRequest_RequestKeepAlive = static_cast<uint64_t>(-1);
 
