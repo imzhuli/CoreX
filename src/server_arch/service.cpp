@@ -1,6 +1,6 @@
 #include "./service.hpp"
 
-#include "../core/core_chrono.hpp"
+#include "../core/core_time.hpp"
 #include "../core/string.hpp"
 #include "../network/packet.hpp"
 

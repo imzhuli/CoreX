@@ -1,4 +1,4 @@
-#include "./core_byte.hpp"
+#include "./core_stream.hpp"
 
 X_NS {
 	namespace __detail__::__raw__ {

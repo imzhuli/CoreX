@@ -1,6 +1,6 @@
 #pragma once
-#include "../core/core_chrono.hpp"
 #include "../core/core_min.hpp"
+#include "../core/core_time.hpp"
 #include "../core/core_value_util.hpp"
 #include "../core/indexed_storage.hpp"
 #include "../core/list.hpp"

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../core/core_byte.hpp"
 #include "../core/core_min.h"
+#include "../core/core_stream.hpp"
 
 #include <algorithm>
 #include <cstring>

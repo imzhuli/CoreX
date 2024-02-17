@@ -1,6 +1,6 @@
 #include "./logger.hpp"
 
-#include "./core_byte.hpp"
+#include "./core_stream.hpp"
 
 #include <algorithm>
 #include <cstdarg>
@@ -56,7 +56,7 @@ void xBaseLogger::Log(eLogLevel ll, const char * fmt, ...) {
 		return;
 	}
 
-	std::tm		brokenTime;
+	std::tm     brokenTime;
 	std::time_t now = std::time(nullptr);
 	XelLocalTime(&now, &brokenTime);
 
@@ -68,8 +68,9 @@ void xBaseLogger::Log(eLogLevel ll, const char * fmt, ...) {
 	do {  // synchronized block
 		auto guard = std::lock_guard{ _SyncMutex };
 		fprintf(
-			_LogFile, "%c<%016zx>%02d%02d%02d:%02d%02d%02d ", gcHint[static_cast<size_t>(ll)], hasher(std::this_thread::get_id()), brokenTime.tm_year + 1900 - 2000, brokenTime.tm_mon + 1,
-			brokenTime.tm_mday, brokenTime.tm_hour, brokenTime.tm_min, brokenTime.tm_sec
+			_LogFile, "%c<%016zx>%02d%02d%02d:%02d%02d%02d ", gcHint[static_cast<size_t>(ll)], hasher(std::this_thread::get_id()),
+			brokenTime.tm_year + 1900 - 2000, brokenTime.tm_mon + 1, brokenTime.tm_mday, brokenTime.tm_hour, brokenTime.tm_min,
+			brokenTime.tm_sec
 		);
 		vfprintf(_LogFile, fmt, vaList);
 		fputc('\n', _LogFile);
@@ -96,17 +97,17 @@ bool xMemoryLogger::Init(size32_t MaxLineNumber, size32_t MaxLineSize) {
 	assert(!_LogBufferPtr);
 
 	++MaxLineNumber;
-	_LineSize			   = MaxLineSize;
-	_RealLineSize		   = LineLeadBufferSize + _LineSize + ExtraSize;
+	_LineSize              = MaxLineSize;
+	_RealLineSize          = LineLeadBufferSize + _LineSize + ExtraSize;
 	size_t TotalBufferSize = MaxLineNumber * _RealLineSize;
-	_LogBufferPtr		   = (char *)malloc(TotalBufferSize);
+	_LogBufferPtr          = (char *)malloc(TotalBufferSize);
 	if (!_LogBufferPtr) {
 		Reset(_LineSize);
 		Reset(_RealLineSize);
 		return false;
 	}
 	_CurrentLineIndex = 0;
-	_LineNumber		  = MaxLineNumber;
+	_LineNumber       = MaxLineNumber;
 	memset(_LogBufferPtr, 0, TotalBufferSize);
 	return true;
 }
@@ -122,7 +123,7 @@ void xMemoryLogger::Clean() {
 }
 
 void xMemoryLogger::Log(eLogLevel ll, const char * fmt, ...) {
-	std::tm		brokenTime;
+	std::tm     brokenTime;
 	std::time_t now = std::time(nullptr);
 #ifdef _MSC_VER
 	localtime_s(&brokenTime, &now);
@@ -134,16 +135,17 @@ void xMemoryLogger::Log(eLogLevel ll, const char * fmt, ...) {
 	va_start(vaList, fmt);
 
 	char LineLead[LineLeadBufferSize];
-	int	 LineLeadSize = snprintf(
-		 LineLead, SafeLength(LineLead), "%c<%016zx>%02d%02d%02d:%02d%02d%02d ", gcHint[static_cast<size_t>(ll)], std::hash<std::thread::id>{}(std::this_thread::get_id()),
-		 brokenTime.tm_year + 1900 - 2000, brokenTime.tm_mon + 1, brokenTime.tm_mday, brokenTime.tm_hour, brokenTime.tm_min, brokenTime.tm_sec
-	 );
+	int  LineLeadSize = snprintf(
+        LineLead, SafeLength(LineLead), "%c<%016zx>%02d%02d%02d:%02d%02d%02d ", gcHint[static_cast<size_t>(ll)],
+        std::hash<std::thread::id>{}(std::this_thread::get_id()), brokenTime.tm_year + 1900 - 2000, brokenTime.tm_mon + 1,
+        brokenTime.tm_mday, brokenTime.tm_hour, brokenTime.tm_min, brokenTime.tm_sec
+    );
 
 	do {  // synchronized block
 		auto Guard = xSpinlockGuard{ _Spinlock };
 
 		assert(_LogBufferPtr);
-		char *		  LineStart = _LogBufferPtr + _CurrentLineIndex * _RealLineSize;
+		char *        LineStart = _LogBufferPtr + _CurrentLineIndex * _RealLineSize;
 		xStreamWriter S(LineStart);
 		S.W(LineLead, LineLeadSize);
 		int LogLength = vsnprintf((char *)S(), _LineSize, fmt, vaList);
