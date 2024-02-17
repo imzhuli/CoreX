@@ -1,3 +1,4 @@
 alias rebuild='python3 _script/build_corex.py'
+alias build_all_debug='CMAKE_BUILD_TYPE=Debug python3 _script/build_dependency.py; CMAKE_BUILD_TYPE=Debug python3 _script/build_corex.py'
 alias build_all_release='CMAKE_BUILD_TYPE=Release python3 _script/build_dependency.py; CMAKE_BUILD_TYPE=Release python3 _script/build_corex.py'
 alias qb='cmake --build _corex_build -- install;'
