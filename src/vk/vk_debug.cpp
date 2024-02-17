@@ -509,6 +509,7 @@ std::vector<const char *> GetOptimalValidationLayers(const std::vector<VkLayerPr
 		if (ValidateLayers(validation_layers, supported_instance_layers)) {
 			for (auto & layer : validation_layers) {
 				X_DEBUG_PRINTF("EnableValidationLayer: %s", layer);
+				Touch(layer);
 			}
 			return validation_layers;
 		}
