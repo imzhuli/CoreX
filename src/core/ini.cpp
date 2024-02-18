@@ -1,6 +1,7 @@
 #include "./ini.hpp"
 
 #include <cctype>
+#include <cinttypes>
 #include <cstdio>
 #include <cstring>
 
@@ -274,7 +275,7 @@ int64_t xIniReader::GetInt64(const char * key, int64_t vxDefaultValue) const {
 	if (!vxStrVal) {
 		return vxDefaultValue;
 	}
-	return (int64_t)atoll(vxStrVal);
+	return (int64_t)std::strtoimax(vxStrVal, nullptr, 10);
 }
 
 X_END
