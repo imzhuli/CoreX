@@ -4,7 +4,13 @@ import re
 
 __fix_cpp_flags = """
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-class-memaccess")
+    # GNU only begin
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-class-memaccess") 
+    # GNU only end
+
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-implicit-function-declaration")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-nested-externs")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion")
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-fallthrough")
@@ -17,11 +23,11 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-utf8")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-but-set-variable")
-
-    set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wno-implicit-function-declaration")
-    set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wno-nested-externs")
-    set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion")
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-implicit-function-declaration")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-nested-externs")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion")
+    
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-fallthrough")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-shadow")
@@ -33,10 +39,6 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-utf8")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-but-set-variable")
-
-    set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wno-implicit-function-declaration")
-    set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wno-nested-externs")
-    set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 """
