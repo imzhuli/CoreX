@@ -142,7 +142,7 @@ size_t xService::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, 
 
 bool xService::OnPacket(xServiceConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) {
 	X_DEBUG_PRINTF(
-		"CommandId: %" PRIx32 ", RequestId:%" PRIx64 ": %s", Header.CommandId, Header.RequestId, HexShow(PayloadPtr, PayloadSize).c_str()
+		"CommandId: %" PRIx32 ", RequestId:%" PRIx64 ":  \n%s", Header.CommandId, Header.RequestId, HexShow(PayloadPtr, PayloadSize).c_str()
 	);
 	return true;
 }
