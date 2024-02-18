@@ -12,14 +12,6 @@ src_file = f"{cwd}/_3rd_source/glm-1.0.0-light.zip"
 unzipped_src_dir = f"{unzip_dir}/glm"
 install_dir = f"{cwd}/_3rd_installed"
 
-cpp_flags = """
--Wno-#pragma-messages
--Wno-implicit-int-conversion
--Wno-invalid-utf8
--Wno-deprecated-declarations
--Wno-unused-but-set-variable
-""".replace("\n", " ")
-
 
 def build():
     if not us.unzip_source(unzip_dir, src_file):
@@ -32,7 +24,6 @@ def build():
             'cmake '
             '-Wno-dev '
             '-DBUILD_SHARED_LIBS=OFF '
-            f'-DCMAKE_CXX_FLAGS="{cpp_flags}" '
             f'-DCMAKE_INSTALL_PREFIX={install_dir!r} -B build . ')
         os.system(f"cmake --build build -- all")
         os.system(f"cmake --build build -- install")

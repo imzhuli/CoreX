@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import _cmake_util as cu
 import tarfile
 import os
 
@@ -11,11 +12,6 @@ src_file = f"{cwd}/_3rd_source/curl-8.6.0.tar.gz"
 unzipped_src_dir = f"{unzip_dir}/curl-8.6.0"
 install_dir = f"{cwd}/_3rd_installed"
 
-c_flags = """
--Wno-implicit-function-declaration
--Wno-nested-externs
--Wno-int-conversion
-""".replace("\n", " ")
 
 def build():
     try:
@@ -23,6 +19,10 @@ def build():
         file.extractall(unzip_dir)
     finally:
         file.close()
+
+    cmake_file = f"{unzipped_src_dir}/CMakeLists.txt"
+    if not cu.fix_cmake(cmake_file):
+        return False
 
     try:
         os.chdir(unzipped_src_dir)
@@ -32,7 +32,6 @@ def build():
             '-DBUILD_LIBCURL_DOCS=OFF '
             '-DCURL_USE_MBEDTLS=ON '
             '-DCURL_DISABLE_LDAP=ON '
-            f'-DCMAKE_C_FLAGS="{c_flags}" '
             f'-DCMAKE_INSTALL_PREFIX={install_dir!r} -B build . ')
         os.system(f"cmake --build build -- all")
         os.system(f"cmake --build build -- install")

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import _cmake_util as cu
 import tarfile
 import os
 
@@ -11,32 +12,6 @@ src_file = f"{cwd}/_3rd_source/rapidjson-1.1.0.tar.gz"
 unzipped_src_dir = f"{unzip_dir}/rapidjson-1.1.0"
 install_dir = f"{cwd}/_3rd_installed"
 
-cpp_flags = """
--Wno-deprecated-declarations
--Wno-implicit-fallthrough
--Wno-shadow 
--Wno-suggest-override
--Wno-suggest-destructor-override
--Wno-zero-as-null-pointer-constant
-""".replace("\n", " ")
-
-
-def fix_cmake():
-    cmakefile = f"{unzipped_src_dir}/CMakeLists.txt"
-    find_target = """if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")"""
-    replace_target = """    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-class-memaccess")\n"""
-    try:
-        with open(cmakefile, "r") as sources:
-            lines = sources.readlines()
-        with open(cmakefile, "w") as sources:
-            for line in lines:
-                sources.write(line)
-                if 0 == line.find(find_target):
-                    sources.write(replace_target)
-    except Exception as e:
-        return False
-    return True
-
 
 def build():
     try:
@@ -45,7 +20,8 @@ def build():
     finally:
         file.close()
 
-    if not fix_cmake():
+    cmake_file = f"{unzipped_src_dir}/CMakeLists.txt"
+    if not cu.fix_cmake(cmake_file):
         return False
 
     try:
@@ -53,7 +29,6 @@ def build():
         os.system(
             'cmake '
             '-Wno-dev '
-            f'-DCMAKE_CXX_FLAGS="{cpp_flags}" '
             f'-DCMAKE_INSTALL_PREFIX={install_dir!r} -B build . ')
         os.system(f"cmake --build build -- all")
         os.system(f"cmake --build build -- install")

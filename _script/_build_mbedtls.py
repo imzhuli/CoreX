@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import _unzip_source as us
+import _cmake_util as cu
 import os
 
 cwd = os.getcwd()
@@ -15,6 +16,10 @@ install_dir = f"{cwd}/_3rd_installed"
 def build():
     if not us.unzip_source(unzip_dir, src_file):
         print("failed to unzip source: %s" % src_file)
+        return False
+
+    cmake_file = f"{unzipped_src_dir}/CMakeLists.txt"
+    if not cu.fix_cmake(cmake_file):
         return False
 
     try:
