@@ -12,7 +12,6 @@ unzipped_src_dir = f"{unzip_dir}/rapidjson-1.1.0"
 install_dir = f"{cwd}/_3rd_installed"
 
 cpp_flags = """
--Wno-class-memaccess
 -Wno-deprecated-declarations
 -Wno-implicit-fallthrough
 -Wno-shadow 
@@ -20,6 +19,7 @@ cpp_flags = """
 -Wno-suggest-destructor-override
 -Wno-zero-as-null-pointer-constant
 """.replace("\n", " ")
+
 
 def build():
     try:

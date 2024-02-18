@@ -6,8 +6,8 @@
 
 X_BEGIN
 
-class xUdpChannel final
-	: public iBufferedIoReactor
+class xUdpChannel
+	: iBufferedIoReactor
 	, xAbstract {
 public:
 	struct iListener {

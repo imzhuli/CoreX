@@ -15,7 +15,7 @@ class xTcpConnection;
 class xTcpServer;
 
 class xTcpConnection
-	: public iBufferedIoReactor
+	: iBufferedIoReactor
 	, xAbstract {
 public:
 	enum struct eStatus {

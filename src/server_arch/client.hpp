@@ -8,16 +8,17 @@ class xClient
 	: public xTcpConnection::iListener
 	, xAbstract {
 public:
-	X_PRIVATE_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress);
-	X_PRIVATE_MEMBER void Tick(uint64_t NowMS);
-	X_PRIVATE_MEMBER void Clean();
+	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress);
+	X_API_MEMBER void Tick(uint64_t NowMS);
+	X_API_MEMBER void Clean();
 
 	X_INLINE bool IsConnected() const {
 		return Connected;
 	}
-	X_PRIVATE_MEMBER void SetKeepAliveTimeout(uint64_t TimeoutMS);
-	X_PRIVATE_MEMBER void SetMaxWriteBuffer(size_t Size);
-	X_PRIVATE_MEMBER void PostData(const void * DataPtr, size_t DataSize);
+	X_API_MEMBER void SetDefaultKeepAliveTimeout();
+	X_API_MEMBER void SetKeepAliveTimeout(uint64_t TimeoutMS);
+	X_API_MEMBER void SetMaxWriteBuffer(size_t Size);
+	X_API_MEMBER void PostData(const void * DataPtr, size_t DataSize);
 
 protected:
 	X_PRIVATE_MEMBER virtual bool OnPacket(const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);

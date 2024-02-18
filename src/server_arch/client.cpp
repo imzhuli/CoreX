@@ -119,6 +119,9 @@ bool xClient::OnPacket(const xPacketHeader & Header, ubyte * PayloadPtr, size_t 
 	);
 	return true;
 }
+void xClient::SetDefaultKeepAliveTimeout() {
+	SetKeepAliveTimeout(MaxKeepAliveTimeoutMS);
+}
 
 void xClient::SetKeepAliveTimeout(uint64_t TimeoutMS) {
 	KeepAliveTimeoutMS = std::min(TimeoutMS, MaxKeepAliveTimeoutMS);

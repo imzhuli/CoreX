@@ -3,6 +3,7 @@
 #include "../core/list.hpp"
 #include "../network/tcp_connection.hpp"
 #include "../network/tcp_server.hpp"
+#include "../network/udp_channel.hpp"
 #include "./base.hpp"
 
 X_BEGIN
@@ -25,15 +26,15 @@ class xService
 	, xTcpConnection::iListener
 	, xAbstract {
 public:
-	X_PRIVATE_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, bool ReusePort = false);
-	X_PRIVATE_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, size_t MaxConnectionId, bool ReusePort = false);
-	X_PRIVATE_MEMBER void Tick();
-	X_PRIVATE_MEMBER void Clean();
+	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, bool ReusePort = false);
+	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, size_t MaxConnectionId, bool ReusePort = false);
+	X_API_MEMBER void Tick();
+	X_API_MEMBER void Clean();
 
 public:
-	X_PRIVATE_MEMBER void SetMaxWriteBuffer(size_t Size);
-	X_PRIVATE_MEMBER bool PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
-	X_PRIVATE_MEMBER bool PostData(xServiceConnection & Connection, const void * DataPtr, size_t DataSize);
+	X_API_MEMBER void SetMaxWriteBuffer(size_t Size);
+	X_API_MEMBER bool PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
+	X_API_MEMBER bool PostData(xServiceConnection & Connection, const void * DataPtr, size_t DataSize);
 
 protected:
 	X_PRIVATE_MEMBER
@@ -72,6 +73,29 @@ private:
 
 	xServiceConnectionList ServiceConnectionTimeoutList;
 	xServiceConnectionList ServiceConnectionKillList;
+};
+
+class xUdpService
+	: xUdpChannel
+	, xUdpChannel::iListener {
+public:
+	X_API_MEMBER bool Init(xIoContext * IoContextPtr, int AddressFamily = AF_INET) {
+		return xUdpChannel::Init(IoContextPtr, AddressFamily, this);
+	}
+	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress) {
+		return xUdpChannel::Init(IoContextPtr, BindAddress, this);
+	}
+	X_API_MEMBER void Clean() {
+		xUdpChannel::Clean();
+	}
+	using xUdpChannel::PostData;
+
+protected:
+	X_API_MEMBER
+	virtual void OnPacket(const xNetAddress & RemoteAddress, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
+
+private:
+	X_PRIVATE_MEMBER void OnData(xUdpChannel * ChannelPtr, void * DataPtr, size_t DataSize, const xNetAddress & RemoteAddress) override;
 };
 
 X_END
