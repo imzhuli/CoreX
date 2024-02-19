@@ -32,6 +32,10 @@ public:
 	X_API_MEMBER void Tick(uint64_t UpdatedNowMS);
 	X_API_MEMBER void Clean();
 
+	X_INLINE void GetTickTimeMS() const {
+		return NowMS;
+	}
+
 public:
 	X_API_MEMBER void SetMaxWriteBuffer(size_t Size);
 	X_API_MEMBER bool PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
