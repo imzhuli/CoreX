@@ -20,7 +20,7 @@ static xIoContext   IoCtx;
 static xEchoService EchoService;
 static xNetAddress  ServerAddress = xNetAddress::Parse("0.0.0.0", 10000);
 
-int main(int argc, char * argv[]) {
+int main(int argc, char ** argv) {
 
 	auto IR = xResourceGuard(IoCtx);
 	if (!IR) {

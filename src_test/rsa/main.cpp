@@ -8,7 +8,7 @@
 using namespace std;
 using namespace xel;
 
-int main(int argc, char * argv[]) {
+int main(int argc, char ** argv) {
 
 	auto CL = xCommandLine(
 		argc, argv,
