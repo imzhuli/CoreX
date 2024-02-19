@@ -5,7 +5,7 @@ BasedOnStyle: Google
 IndentWidth: 4
 TabWidth: 4
 UseTab: ForContinuationAndIndentation
-ColumnLimit: 140
+ColumnLimit: 175
 MaxEmptyLinesToKeep: 1
 KeepEmptyLinesAtTheStartOfBlocks: true
 NamespaceIndentation: All

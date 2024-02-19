@@ -6,7 +6,7 @@ using namespace std;
 using namespace xel;
 
 struct xEchoService : xService {
-	bool OnPacket(xServiceConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) override {
+	bool OnPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) override {
 		auto Ret = xService::OnPacket(Connection, Header, PayloadPtr, PayloadSize);
 
 		ubyte Buffer[128];

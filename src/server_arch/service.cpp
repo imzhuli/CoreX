@@ -63,7 +63,7 @@ void xService::Tick(uint64_t UpdatedNowMS) {
 	CleanupKilledConnections();
 }
 
-void xService::CleanupConnection(xServiceConnection & Connection) {
+void xService::CleanupConnection(xServiceClientConnection & Connection) {
 	X_DEBUG_PRINTF("ConnectionId=%" PRIu64 "", Connection.ConnectionId());
 	assert(ConnectionIdPool.Check(Connection.ConnectionId));
 	ConnectionIdPool.Release(Connection.ConnectionId);
@@ -79,7 +79,7 @@ void xService::CleanupKilledConnections() {
 }
 
 void xService::OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandle) {
-	auto Connection = new (std::nothrow) xServiceConnection();
+	auto Connection = new (std::nothrow) xServiceClientConnection();
 	if (!Connection) {
 		XelCloseSocket(NativeHandle);
 		return;
@@ -108,9 +108,14 @@ void xService::OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandl
 	X_DEBUG_PRINTF("Success");
 }
 
+void xService::OnClientClose(xServiceClientConnection & Connection) {
+	X_DEBUG_PRINTF("");
+}
+
 void xService::OnPeerClose(xTcpConnection * TcpConnectionPtr) {
 	auto & Connection = Cast(*TcpConnectionPtr);
 	X_DEBUG_PRINTF("OnPeerClose: %" PRIu64 "", Connection.ConnectionId);
+	OnClientClose(Connection);
 	DeferKillConnection(Connection);
 }
 
@@ -146,7 +151,7 @@ size_t xService::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, 
 	return DataSize - RemainSize;
 }
 
-bool xService::OnPacket(xServiceConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) {
+bool xService::OnPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) {
 	X_DEBUG_PRINTF(
 		"CommandId: %" PRIx32 ", RequestId:%" PRIx64 ":  \n%s", Header.CommandId, Header.RequestId, HexShow(PayloadPtr, PayloadSize).c_str()
 	);
@@ -165,7 +170,7 @@ bool xService::PostData(uint64_t ConnectionId, const void * DataPtr, size_t Data
 	return PostData(*ConnectionPtr, DataPtr, DataSize);
 }
 
-bool xService::PostData(xServiceConnection & Connection, const void * DataPtr, size_t DataSize) {
+bool xService::PostData(xServiceClientConnection & Connection, const void * DataPtr, size_t DataSize) {
 	auto Posted = Connection.PostData(DataPtr, DataSize);
 	if (Posted != DataSize) {
 		DeferKillConnection(Connection);

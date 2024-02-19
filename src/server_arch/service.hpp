@@ -8,18 +8,18 @@
 
 X_BEGIN
 
-class xServiceConnectionNode : public xListNode {
+class xServiceClientConnectionNode : public xListNode {
 public:
 	uint64_t TimestampMS = 0;
 };
 
-class xServiceConnection
+class xServiceClientConnection
 	: public xTcpConnection
-	, public xServiceConnectionNode {
+	, public xServiceClientConnectionNode {
 public:
 	xIndexId ConnectionId = {};
 };
-using xServiceConnectionList = xList<xServiceConnectionNode>;
+using xServiceClientConnectionList = xList<xServiceClientConnectionNode>;
 
 class xService
 	: xTcpServer::iListener
@@ -39,16 +39,17 @@ public:
 public:
 	X_API_MEMBER void SetMaxWriteBuffer(size_t Size);
 	X_API_MEMBER bool PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
-	X_API_MEMBER bool PostData(xServiceConnection & Connection, const void * DataPtr, size_t DataSize);
+	X_API_MEMBER bool PostData(xServiceClientConnection & Connection, const void * DataPtr, size_t DataSize);
 
 protected:
-	X_PRIVATE_MEMBER
-	virtual bool  OnPacket(xServiceConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
-	X_INLINE void KeepAlive(xServiceConnection & Connection) {
+	X_PRIVATE_MEMBER virtual void OnClientClose(xServiceClientConnection & Connection);
+	X_PRIVATE_MEMBER virtual bool OnPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
+
+	X_INLINE void KeepAlive(xServiceClientConnection & Connection) {
 		Connection.TimestampMS = NowMS;
 		ServiceConnectionTimeoutList.GrabTail(Connection);
 	}
-	X_INLINE void DeferKillConnection(xServiceConnection & Connection) {
+	X_INLINE void DeferKillConnection(xServiceClientConnection & Connection) {
 		ServiceConnectionKillList.GrabTail(Connection);
 	}
 
@@ -57,14 +58,14 @@ private:
 	X_PRIVATE_MEMBER void   OnPeerClose(xTcpConnection * TcpConnectionPtr) override;
 	X_PRIVATE_MEMBER size_t OnData(xTcpConnection * TcpConnectionPtr, void * DataPtr, size_t DataSize) override;
 
-	X_PRIVATE_MEMBER void CleanupConnection(xServiceConnection & Connection);
+	X_PRIVATE_MEMBER void CleanupConnection(xServiceClientConnection & Connection);
 	X_PRIVATE_MEMBER void CleanupKilledConnections();
 
-	[[no_discard]] X_STATIC_INLINE xServiceConnection & Cast(xTcpConnection & Connection) {
-		return static_cast<xServiceConnection &>(Connection);
+	[[no_discard]] X_STATIC_INLINE xServiceClientConnection & Cast(xTcpConnection & Connection) {
+		return static_cast<xServiceClientConnection &>(Connection);
 	};
-	[[no_discard]] X_STATIC_INLINE xServiceConnection & Cast(xServiceConnectionNode & Node) {
-		return static_cast<xServiceConnection &>(Node);
+	[[no_discard]] X_STATIC_INLINE xServiceClientConnection & Cast(xServiceClientConnectionNode & Node) {
+		return static_cast<xServiceClientConnection &>(Node);
 	};
 
 private:
@@ -72,12 +73,12 @@ private:
 	size_t MaxWriteBufferLimitForEachConnection = 50'000'000 / sizeof(xPacketBuffer::Buffer);
 
 	//
-	uint64_t                              NowMS;
-	xTcpServer                            TcpServer;
-	xIndexedStorage<xServiceConnection *> ConnectionIdPool;
+	uint64_t                                    NowMS;
+	xTcpServer                                  TcpServer;
+	xIndexedStorage<xServiceClientConnection *> ConnectionIdPool;
 
-	xServiceConnectionList ServiceConnectionTimeoutList;
-	xServiceConnectionList ServiceConnectionKillList;
+	xServiceClientConnectionList ServiceConnectionTimeoutList;
+	xServiceClientConnectionList ServiceConnectionKillList;
 };
 
 class xUdpService

@@ -21,17 +21,13 @@ public:
 	X_API_MEMBER void PostData(const void * DataPtr, size_t DataSize);
 
 protected:
+	X_PRIVATE_MEMBER virtual void OnServerClose();
 	X_PRIVATE_MEMBER virtual bool OnPacket(const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
 
 private:
-	X_API_MEMBER void OnConnected(xTcpConnection * TcpConnectionPtr) override {
-		X_DEBUG_PRINTF("");
-	}
+	X_API_MEMBER void   OnConnected(xTcpConnection * TcpConnectionPtr) override;
+	X_API_MEMBER void   OnPeerClose(xTcpConnection * TcpConnectionPtr) override;
 	X_API_MEMBER size_t OnData(xTcpConnection * TcpConnectionPtr, void * DataPtr, size_t DataSize) override;
-	X_API_MEMBER void   OnPeerClose(xTcpConnection * TcpConnectionPtr) override {
-        X_DEBUG_PRINTF("");
-        KillConnection = true;
-	}
 
 private:
 	// config

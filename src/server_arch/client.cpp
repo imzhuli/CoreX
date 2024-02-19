@@ -39,6 +39,20 @@ void xClient::Clean() {
 	X_DEBUG_RESET(ReconnectTimestampMS);
 }
 
+void xClient::OnConnected(xTcpConnection * TcpConnectionPtr) {
+	X_DEBUG_PRINTF("");
+}
+
+void xClient::OnPeerClose(xTcpConnection * TcpConnectionPtr) {
+	X_DEBUG_PRINTF("");
+	OnServerClose();
+	KillConnection = true;
+}
+
+void xClient::OnServerClose() {
+	X_DEBUG_PRINTF("");
+}
+
 void xClient::Tick(uint64_t NowMS) {
 	this->NowMS = NowMS;
 	if (Steal(KillConnection)) {
