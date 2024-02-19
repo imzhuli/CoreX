@@ -46,7 +46,13 @@ void xService::Clean() {
 }
 
 void xService::Tick() {
-	NowMS              = GetTimestampMS();
+	auto UpdatedNowMS = GetTimestampMS();
+	Tick(UpdatedNowMS);
+}
+
+void xService::Tick(uint64_t UpdatedNowMS) {
+	NowMS = UpdatedNowMS;
+
 	auto KillTimepoint = NowMS - KeepAliveTimeoutMS;
 	for (auto & Node : ServiceConnectionTimeoutList) {
 		if (SignedDiff(Node.TimestampMS, KillTimepoint) > 0) {

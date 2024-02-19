@@ -29,6 +29,7 @@ public:
 	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, bool ReusePort = false);
 	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, size_t MaxConnectionId, bool ReusePort = false);
 	X_API_MEMBER void Tick();
+	X_API_MEMBER void Tick(uint64_t UpdatedNowMS);
 	X_API_MEMBER void Clean();
 
 public:
