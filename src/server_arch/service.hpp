@@ -8,6 +8,9 @@
 
 X_BEGIN
 
+class xService;
+class xServiceClientConnection;
+
 class xServiceClientConnectionNode : public xListNode {
 public:
 	uint64_t TimestampMS = 0;
@@ -17,7 +20,20 @@ class xServiceClientConnection
 	: public xTcpConnection
 	, public xServiceClientConnectionNode {
 public:
-	xIndexId ConnectionId = {};
+	X_INLINE uint64_t GetConnectionId() const {
+		return ConnectionId;
+	}
+	X_INLINE xVariable & GetUserContext() {
+		return UserContext;
+	}
+	X_INLINE const xVariable & GetUserContext() const {
+		return UserContext;
+	}
+
+private:
+	xIndexId  ConnectionId = {};
+	xVariable UserContext  = {};
+	friend class xService;
 };
 using xServiceClientConnectionList = xList<xServiceClientConnectionNode>;
 
