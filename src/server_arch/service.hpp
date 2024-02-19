@@ -32,7 +32,7 @@ public:
 	X_API_MEMBER void Tick(uint64_t UpdatedNowMS);
 	X_API_MEMBER void Clean();
 
-	X_INLINE void GetTickTimeMS() const {
+	X_INLINE uint64_t GetTickTimeMS() const {
 		return NowMS;
 	}
 
