@@ -64,7 +64,7 @@ void xService::Tick(uint64_t UpdatedNowMS) {
 }
 
 void xService::CleanupConnection(xServiceClientConnection & Connection) {
-	X_DEBUG_PRINTF("ConnectionId=%" PRIu64 "", Connection.ConnectionId());
+	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 "", Connection.ConnectionId());
 	assert(ConnectionIdPool.Check(Connection.ConnectionId));
 	ConnectionIdPool.Release(Connection.ConnectionId);
 	Connection.Clean();
@@ -111,11 +111,11 @@ void xService::OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandl
 }
 
 void xService::OnClientConnected(xServiceClientConnection & Connection) {
-	X_DEBUG_PRINTF("ConnectionId: %" PRIu64 "", Connection.ConnectionId);
+	X_DEBUG_PRINTF("ConnectionId: %" PRIx64 "", Connection.ConnectionId);
 }
 
 void xService::OnClientClose(xServiceClientConnection & Connection) {
-	X_DEBUG_PRINTF("ConnectionId: %" PRIu64 "", Connection.ConnectionId);
+	X_DEBUG_PRINTF("ConnectionId: %" PRIx64 "", Connection.ConnectionId);
 }
 
 void xService::OnPeerClose(xTcpConnection * TcpConnectionPtr) {
@@ -138,7 +138,7 @@ size_t xService::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, 
 			break;
 		}
 		if (Header.IsRequestKeepAlive()) {
-			X_DEBUG_PRINTF("RequestKeepAlive: %" PRIu64 "", Connection.ConnectionId());
+			X_DEBUG_PRINTF("RequestKeepAlive: %" PRIx64 "", Connection.ConnectionId());
 			if (!PostData(Connection, KeepAliveBuffer, KeepAliveSize)) {
 				return InvalidPacketSize;
 			}
