@@ -110,7 +110,7 @@ void xService::OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandl
 }
 
 void xService::OnClientConnected(xServiceClientConnection & Connection) {
-	X_DEBUG_PRINTF("");
+	X_DEBUG_PRINTF("ConnectionId: %" PRIu64 "", Connection.ConnectionId);
 }
 
 void xService::OnClientClose(xServiceClientConnection & Connection) {
