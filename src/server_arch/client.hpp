@@ -1,6 +1,5 @@
 #pragma once
 #include "../network/tcp_connection.hpp"
-#include "./base.hpp"
 
 X_BEGIN
 

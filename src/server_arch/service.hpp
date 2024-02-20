@@ -4,7 +4,6 @@
 #include "../network/tcp_connection.hpp"
 #include "../network/tcp_server.hpp"
 #include "../network/udp_channel.hpp"
-#include "./base.hpp"
 
 X_BEGIN
 
