@@ -58,6 +58,7 @@ public:
 	X_API_MEMBER bool PostData(xServiceClientConnection & Connection, const void * DataPtr, size_t DataSize);
 
 protected:
+	X_PRIVATE_MEMBER virtual void OnClientConnected(xServiceClientConnection & Connection);
 	X_PRIVATE_MEMBER virtual void OnClientClose(xServiceClientConnection & Connection);
 	X_PRIVATE_MEMBER virtual bool OnPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
 

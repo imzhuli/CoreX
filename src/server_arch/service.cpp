@@ -105,7 +105,12 @@ void xService::OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandl
 	Connection->ConnectionId = ConnectionId;
 	Connection->TimestampMS  = NowMS;
 	ServiceConnectionTimeoutList.AddTail(*Connection);
-	X_DEBUG_PRINTF("Success");
+
+	OnClientConnected(*Connection);
+}
+
+void xService::OnClientConnected(xServiceClientConnection & Connection) {
+	X_DEBUG_PRINTF("");
 }
 
 void xService::OnClientClose(xServiceClientConnection & Connection) {
@@ -152,9 +157,7 @@ size_t xService::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, 
 }
 
 bool xService::OnPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) {
-	X_DEBUG_PRINTF(
-		"CommandId: %" PRIx32 ", RequestId:%" PRIx64 ":  \n%s", Header.CommandId, Header.RequestId, HexShow(PayloadPtr, PayloadSize).c_str()
-	);
+	X_DEBUG_PRINTF("CommandId: %" PRIx32 ", RequestId:%" PRIx64 ":  \n%s", Header.CommandId, Header.RequestId, HexShow(PayloadPtr, PayloadSize).c_str());
 	return true;
 }
 void xService::SetMaxWriteBuffer(size_t Size) {
@@ -207,9 +210,7 @@ void xUdpService::OnData(xUdpChannel * ChannelPtr, void * DataPtr, size_t DataSi
 }
 
 void xUdpService::OnPacket(const xNetAddress & RemoteAddress, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) {
-	X_DEBUG_PRINTF(
-		"CommandId: %" PRIx32 ", RequestId:%" PRIx64 ":  \n%s", Header.CommandId, Header.RequestId, HexShow(PayloadPtr, PayloadSize).c_str()
-	);
+	X_DEBUG_PRINTF("CommandId: %" PRIx32 ", RequestId:%" PRIx64 ":  \n%s", Header.CommandId, Header.RequestId, HexShow(PayloadPtr, PayloadSize).c_str());
 }
 
 X_END

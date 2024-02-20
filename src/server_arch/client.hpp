@@ -21,6 +21,7 @@ public:
 	X_API_MEMBER void PostData(const void * DataPtr, size_t DataSize);
 
 protected:
+	X_PRIVATE_MEMBER virtual void OnServerConnected();
 	X_PRIVATE_MEMBER virtual void OnServerClose();
 	X_PRIVATE_MEMBER virtual bool OnPacket(const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
 

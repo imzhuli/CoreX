@@ -40,6 +40,10 @@ void xClient::Clean() {
 }
 
 void xClient::OnConnected(xTcpConnection * TcpConnectionPtr) {
+	OnServerConnected();
+}
+
+void xClient::OnServerConnected() {
 	X_DEBUG_PRINTF("");
 }
 
@@ -128,9 +132,7 @@ size_t xClient::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, s
 }
 
 bool xClient::OnPacket(const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) {
-	X_DEBUG_PRINTF(
-		"CommandId: %" PRIu32 ", RequestId:%" PRIu64 ": \n%s", Header.CommandId, Header.RequestId, HexShow(PayloadPtr, PayloadSize).c_str()
-	);
+	X_DEBUG_PRINTF("CommandId: %" PRIu32 ", RequestId:%" PRIu64 ": \n%s", Header.CommandId, Header.RequestId, HexShow(PayloadPtr, PayloadSize).c_str());
 	return true;
 }
 void xClient::SetDefaultKeepAliveTimeout() {
