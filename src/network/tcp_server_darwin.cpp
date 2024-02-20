@@ -35,7 +35,6 @@ bool xTcpServer::Init(xIoContext * IoContextPtr, const xNetAddress & Address, iL
 
 	int flags = fcntl(_ListenSocket, F_GETFL);
 	fcntl(_ListenSocket, F_SETFL, flags | O_NONBLOCK);
-
 	setsockopt(_ListenSocket, SOL_SOCKET, SO_SNDBUF, (char *)X2Ptr(int(0)), sizeof(int));
 	setsockopt(_ListenSocket, SOL_SOCKET, SO_NOSIGPIPE, (char *)X2Ptr(int(1)), sizeof(int));
 
@@ -82,13 +81,15 @@ void xTcpServer::Clean() {
 }
 
 void xTcpServer::OnIoEventInReady() {
-	sockaddr_storage SockAddr    = {};
-	socklen_t        SockAddrLen = sizeof(SockAddr);
-	int              NewSocket   = accept(_ListenSocket, (struct sockaddr *)&SockAddr, &SockAddrLen);
-	if (NewSocket == InvalidSocket) {
-		return;
-	}
-	_ListenerPtr->OnNewConnection(this, std::move(NewSocket));
+	do {
+		sockaddr_storage SockAddr    = {};
+		socklen_t        SockAddrLen = sizeof(SockAddr);
+		int              NewSocket   = accept(_ListenSocket, (struct sockaddr *)&SockAddr, &SockAddrLen);
+		if (NewSocket == InvalidSocket) {
+			return;
+		}
+		_ListenerPtr->OnNewConnection(this, std::move(NewSocket));
+	} while (true);
 }
 
 X_END

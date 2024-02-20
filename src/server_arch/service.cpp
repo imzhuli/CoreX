@@ -79,6 +79,7 @@ void xService::CleanupKilledConnections() {
 }
 
 void xService::OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandle) {
+	X_DEBUG_PRINTF("");
 	auto Connection = new (std::nothrow) xServiceClientConnection();
 	if (!Connection) {
 		XelCloseSocket(NativeHandle);
