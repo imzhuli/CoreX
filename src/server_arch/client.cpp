@@ -48,7 +48,6 @@ void xClient::OnServerConnected() {
 }
 
 void xClient::OnPeerClose(xTcpConnection * TcpConnectionPtr) {
-	X_DEBUG_PRINTF("");
 	OnServerClose();
 	KillConnection = true;
 }

@@ -114,12 +114,11 @@ void xService::OnClientConnected(xServiceClientConnection & Connection) {
 }
 
 void xService::OnClientClose(xServiceClientConnection & Connection) {
-	X_DEBUG_PRINTF("");
+	X_DEBUG_PRINTF("ConnectionId: %" PRIu64 "", Connection.ConnectionId);
 }
 
 void xService::OnPeerClose(xTcpConnection * TcpConnectionPtr) {
 	auto & Connection = Cast(*TcpConnectionPtr);
-	X_DEBUG_PRINTF("OnPeerClose: %" PRIu64 "", Connection.ConnectionId);
 	OnClientClose(Connection);
 	DeferKillConnection(Connection);
 }

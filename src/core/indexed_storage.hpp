@@ -307,7 +307,7 @@ public:
 		if (!X_LIKELY(xIndexId::IsSafeKey(Key)) || !X_LIKELY(Key == Node.Key)) {
 			return nullptr;
 		}
-		return Node.ValueHolder.Get();
+		return Node.ValueHolder.GetAddress();
 	}
 
 	X_INLINE const tValue * CheckAndGet(const xIndexId & Id) const {
@@ -320,7 +320,7 @@ public:
 		if (!X_LIKELY(xIndexId::IsSafeKey(Key)) || !X_LIKELY(Key == Node.Key)) {
 			return nullptr;
 		}
-		return Node.ValueHolder.Get();
+		return Node.ValueHolder.GetAddress();
 	}
 
 	X_INLINE bool CheckAndRelease(const xIndexId & Id) {

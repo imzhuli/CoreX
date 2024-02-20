@@ -54,7 +54,7 @@ private:
 	alignas(Alignment) ubyte _PlaceHolder[TargetSize];
 };
 
-template <typename T>
+template <typename T>  // clang-format off
 class xHolder final : xNonCopyable {
 public:
 	X_INLINE xHolder() = default;
@@ -74,16 +74,16 @@ public:
 		return ObjectPtr;
 	}
 
-	X_INLINE void Destroy() { Get()->~T(); }
+	X_INLINE void Destroy() { GetAddress()->~T(); }
 
-	X_INLINE T *	   operator->() { return Get(); }
-	X_INLINE const T * operator->() const { return Get(); }
+	X_INLINE T *	   operator->() { return GetAddress(); }
+	X_INLINE const T * operator->() const { return GetAddress(); }
 
-	X_INLINE T &	   operator*() { return *Get(); }
-	X_INLINE const T & operator*() const { return *Get(); }
+	X_INLINE T &	   operator*() { return *GetAddress(); }
+	X_INLINE const T & operator*() const { return *GetAddress(); }
 
-	X_INLINE T *	   Get() { return reinterpret_cast<T *>(_PlaceHolder); }
-	X_INLINE const T * Get() const { return reinterpret_cast<const T *>(_PlaceHolder); }
+	X_INLINE T *	   GetAddress() { return reinterpret_cast<T *>(_PlaceHolder); }
+	X_INLINE const T * GetAddress() const { return reinterpret_cast<const T *>(_PlaceHolder); }
 
 private:
 	alignas(T) ubyte _PlaceHolder[sizeof(T)];
