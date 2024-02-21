@@ -2,6 +2,7 @@
 
 import tarfile
 import os
+import _cmake_util as cu
 
 cwd = os.getcwd()
 unzip_dir = f"{cwd}/_3rd_build"
@@ -18,12 +19,16 @@ def build():
     finally:
         file.close()
 
+    cmake_file = f"{unzipped_src_dir}/CMakeLists.txt"
+    if not cu.fix_cmake(cmake_file):
+        return False
+
     try:
         os.chdir(unzipped_src_dir)
         os.system(
             'cmake '
             '-Wno-dev '
-            '-DBUILD_SHARED_LIBS=OFF '
+            '-DLWS_WITH_MBEDTLS=ON '
             '-DLWS_WITH_SHARED=OFF '
             '-DLWS_WITHOUT_TESTAPPS=ON '
             '-DLWS_WITHOUT_TEST_SERVER=ON '
@@ -31,6 +36,7 @@ def build():
             '-DLWS_WITHOUT_TEST_PING=ON '
             '-DLWS_WITHOUT_TEST_CLIENT=ON '
             '-DBUILD_TESTING=OFF '
+            '-DLWS_HAVE_MBEDTLS_NET_SOCKETS=1 '
             f'-DCMAKE_INSTALL_PREFIX={install_dir!r} -B build .')
         os.system(f"cmake --build build -- all")
         os.system(f"cmake --build build -- install")
