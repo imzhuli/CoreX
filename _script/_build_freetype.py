@@ -6,7 +6,7 @@ import os
 cwd = os.getcwd()
 unzip_dir = f"{cwd}/_3rd_build"
 
-libname = "curl"
+libname = "freetype"
 src_file = f"{cwd}/_3rd_source/freetype-2.13.2.tar.gz"
 unzipped_src_dir = f"{unzip_dir}/freetype-2.13.2"
 install_dir = f"{cwd}/_3rd_installed"
