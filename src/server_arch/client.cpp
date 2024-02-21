@@ -27,6 +27,7 @@ bool xClient::Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress)
 	this->LastRequestKeepAliveTimestampMS = 0;
 	this->Connected                       = false;
 	this->KillConnection                  = false;
+	SetDefaultKeepAliveTimeout();
 	return true;
 }
 
