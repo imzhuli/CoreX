@@ -5,6 +5,7 @@ import _build_freetype as bfreetype
 import _build_glfw3 as bglfw3
 import _build_glm as bglm
 import _build_libcurl as blibcurl
+import _build_libwebsockets as bws
 import _build_mbedtls as bmbedtls
 import _build_rapidjson as brapidjson
 import _build_zlib as bzlib
@@ -53,6 +54,9 @@ if not bzlib.build():
 
 # build curl after mbedtls
 if not blibcurl.build():
+    exit
+
+if not bws.build():
     exit
 
 # remove temp dir
