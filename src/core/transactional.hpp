@@ -5,16 +5,16 @@ X_BEGIN
 
 class xTransactional : xNonCopyable {
 public:
-	X_API_MEMBER virtual bool Exec() {
+	X_API_MEMBER virtual bool Execute() {
 		return true;
 	}
 	X_API_MEMBER virtual void Undo() {
 	}
 
-	X_STATIC_INLINE bool BatchExec(xTransactional * TransactionList, size_t Count) {
+	X_STATIC_INLINE bool BatchExecute(xTransactional * TransactionList, size_t Count) {
 		size_t i = 0;
 		while (i < Count) {
-			if (!TransactionList[i].Exec()) {
+			if (!TransactionList[i].Execute()) {
 				break;
 			}
 			++i;
@@ -29,16 +29,16 @@ public:
 	}
 
 	template <typename tTransactional>
-	X_STATIC_INLINE bool BatchExec(tTransactional && TransactionalRef) {
-		return std::forward<tTransactional>(TransactionalRef).Exec();
+	X_STATIC_INLINE bool BatchExecute(tTransactional && TransactionalRef) {
+		return std::forward<tTransactional>(TransactionalRef).Execute();
 	}
 
 	template <typename tTransactional, typename... tTransactionalRefs>
-	X_STATIC_INLINE bool BatchExec(tTransactional && TransactionalRef, tTransactionalRefs &&... TransactionRefs) {
-		if (!std::forward<tTransactional>(TransactionalRef).Exec()) {
+	X_STATIC_INLINE bool BatchExecute(tTransactional && TransactionalRef, tTransactionalRefs &&... TransactionRefs) {
+		if (!std::forward<tTransactional>(TransactionalRef).Execute()) {
 			return false;
 		}
-		if (!BatchExecute(std::forward<tTransactionalRefs>(TransactionRefs)...)) {
+		if (!BatchExecuteute(std::forward<tTransactionalRefs>(TransactionRefs)...)) {
 			std::forward<tTransactional>(TransactionalRef).Undo();
 			return false;
 		}
