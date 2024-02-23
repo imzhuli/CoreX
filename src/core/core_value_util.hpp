@@ -61,19 +61,11 @@ public:
 	X_INLINE ~xHolder() = default;
 
 	X_INLINE void Create() { new ((void *)_PlaceHolder) T; }
-
 	template <typename... tArgs>
-	X_INLINE T * CreateValue(tArgs &&... Args) {
-		auto ObjectPtr = new ((void *)_PlaceHolder) T(std::forward<tArgs>(Args)...);
-		return ObjectPtr;
-	}
-
+	X_INLINE void CreateValue(tArgs &&... Args) { new ((void *)_PlaceHolder) T(std::forward<tArgs>(Args)...); }
 	template <typename... tArgs>
-	X_INLINE T * CreateValueWithList(tArgs &&... Args) {
-		auto ObjectPtr = new ((void *)_PlaceHolder) T{ std::forward<tArgs>(Args)... };
-		return ObjectPtr;
-	}
-
+	X_INLINE void CreateValueWithList(tArgs &&... Args) { new ((void *)_PlaceHolder) T{ std::forward<tArgs>(Args)... }; }
+	
 	X_INLINE void Destroy() { GetAddress()->~T(); }
 
 	X_INLINE T *	   operator->() { return GetAddress(); }
