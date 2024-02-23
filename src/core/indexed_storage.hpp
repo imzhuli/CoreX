@@ -63,7 +63,7 @@ private:
 template <bool RandomKey>
 class xIndexIdPool final : xNonCopyable {
 public:
-	bool Init(size_t Size) {
+	bool Init(size_t Size, uint32_t InitCounter = xIndexId::TimeSeed()) {
 		assert(Size <= xIndexId::MaxIndexSize);
 		assert(_IdPoolPtr == nullptr);
 		assert(_NextFreeIdIndex == xIndexId::NoFreeIndex);
@@ -77,16 +77,10 @@ public:
 		_InitedId        = 0;
 		_NextFreeIdIndex = xIndexId::NoFreeIndex;
 
-		_Counter = xIndexId::TimeSeed();
-		_Random32.seed(_Counter);
-		return true;
-	}
-
-	X_INLINE std::enable_if_t<!RandomKey, bool> DebugInit(size_t Size, uint32_t InitCounter = 0) {
-		if (!Init(Size)) {
-			return false;
-		}
 		_Counter = InitCounter;
+		if constexpr (RandomKey) {
+			_Random32.seed(_Counter);
+		}
 		return true;
 	}
 
@@ -164,7 +158,7 @@ class xIndexedStorage final : xNonCopyable {
 	};
 
 public:
-	X_INLINE bool Init(size_t Size) {
+	X_INLINE bool Init(size_t Size, uint32_t InitCounter = xIndexId::TimeSeed()) {
 		assert(Size <= xIndexId::MaxIndexSize);
 		assert(_IdPoolPtr == nullptr);
 		assert(_NextFreeIdIndex == xIndexId::NoFreeIndex);
@@ -178,16 +172,10 @@ public:
 		_InitedId        = 0;
 		_NextFreeIdIndex = xIndexId::NoFreeIndex;
 
-		_Counter = xIndexId::TimeSeed();
-		_Random32.seed(_Counter);
-		return true;
-	}
-
-	X_INLINE std::enable_if_t<!RandomKey, bool> DebugInit(size_t Size, uint32_t InitCounter) {
-		if (!Init(Size)) {
-			return false;
-		}
 		_Counter = InitCounter;
+		if constexpr (RandomKey) {
+			_Random32.seed(_Counter);
+		}
 		return true;
 	}
 
