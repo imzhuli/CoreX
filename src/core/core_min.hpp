@@ -143,11 +143,11 @@ template <typename T, typename TValue>
 X_STATIC_INLINE constexpr void Assign(T & ExpiringTarget, TValue && value) { ExpiringTarget = std::forward<TValue>(value); }
 
 template <typename T>
-X_STATIC_INLINE void Construct(T & ExpiringTarget) { static_assert(!std::is_const_v<T>); new ((void *)AddressOf(ExpiringTarget)) T; }
+X_STATIC_INLINE void Construct(T & ExpiringTarget) { new (AddressOf(ExpiringTarget)) T; }
 template <typename T, typename... tArgs> 
-X_STATIC_INLINE void ConstructValue(T & ExpiringTarget, tArgs &&... Args) { static_assert(!std::is_const_v<T>); new ((void *)AddressOf(ExpiringTarget)) T(std::forward<tArgs>(Args)...); }
+X_STATIC_INLINE void ConstructValue(T & ExpiringTarget, tArgs &&... Args) { new (AddressOf(ExpiringTarget)) T(std::forward<tArgs>(Args)...); }
 template <typename T, typename... tArgs>
-X_STATIC_INLINE void ConstructValueWithList(T & ExpiringTarget, tArgs &&... Args) { static_assert(!std::is_const_v<T>); new ((void *)AddressOf(ExpiringTarget)) T{ std::forward<tArgs>(Args)... }; }
+X_STATIC_INLINE void ConstructValueWithList(T & ExpiringTarget, tArgs &&... Args) { new (AddressOf(ExpiringTarget)) T{ std::forward<tArgs>(Args)... }; }
 template <typename T> 
 X_STATIC_INLINE void Destruct(T & ExpiringTarget) { ExpiringTarget.~T(); }
 
