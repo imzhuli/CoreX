@@ -50,8 +50,25 @@ public:
 
 	static constexpr const size_t Size = TargetSize;
 
+	template <typename T>
+	X_INLINE static std::conditional_t<std::is_const_v<T>, const xDummy *, xDummy *> CastPtr(T * RealObjectPtr) {
+		static_assert(Alignment >= alignof(T));
+		static_assert(sizeof(_PlaceHolder) >= sizeof(T));
+		static_assert(offsetof(xDummy, _PlaceHolder) == 0);
+		return X_Entry(AddressOf(*RealObjectPtr), xDummy, _PlaceHolder);
+	}
+
+	template <typename T>
+	X_INLINE static std::conditional_t<std::is_const_v<T>, const xDummy &, xDummy &> Cast(T & RealObject) {
+		static_assert(Alignment >= alignof(T));
+		static_assert(sizeof(_PlaceHolder) >= sizeof(T));
+		static_assert(offsetof(xDummy, _PlaceHolder) == 0);
+		return *X_Entry(AddressOf(RealObject), xDummy, _PlaceHolder);
+	}
+
 private:
-	alignas(Alignment) ubyte _PlaceHolder[TargetSize];
+	using xPlaceHolder = ubyte[TargetSize];
+	alignas(Alignment) xPlaceHolder _PlaceHolder;
 };
 
 template <typename T>  // clang-format off
