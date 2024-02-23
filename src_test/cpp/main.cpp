@@ -13,7 +13,7 @@ int main(int argc, char ** argv) {
 
 	int i = 123;
 
-	auto & DummyPtrJ = xIntDummy::Cast(i);
+	auto & DummyPtrJ = xIntDummy::CastRef(i);
 	DummyPtrJ.CreateValueAs<int>(456);
 	cout << i << endl;
 

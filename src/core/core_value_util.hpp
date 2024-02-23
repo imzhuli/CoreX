@@ -59,7 +59,7 @@ public:
 	}
 
 	template <typename T>
-	X_INLINE static std::conditional_t<std::is_const_v<T>, const xDummy &, xDummy &> Cast(T & RealObject) {
+	X_INLINE static std::conditional_t<std::is_const_v<T>, const xDummy &, xDummy &> CastRef(T & RealObject) {
 		static_assert(Alignment >= alignof(T));
 		static_assert(sizeof(_PlaceHolder) >= sizeof(T));
 		static_assert(offsetof(xDummy, _PlaceHolder) == 0);
