@@ -11,8 +11,14 @@
 #include <new>
 #include <type_traits>
 #include <utility>
-
 // clang-format off
+
+#define X_NS namespace xel
+#define X_BEGIN namespace xel {
+#define X_END }
+#define X_COMMON_BEGIN namespace xel { inline namespace common {
+#define X_COMMON_END }}
+
 X_COMMON_BEGIN
 
 inline namespace numeric {
@@ -363,9 +369,4 @@ X_COMMON_END
 #define X_DEBUG_PRINTF(...)  ::xel::Pass()
 #define X_DEBUG_FPRINTF(...) ::xel::Pass()
 #define X_DEBUG_BREAKPOINT(...)
-#endif
-
-#ifdef X_AddressOf
-#undef X_AddressOf
-#define X_AddressOf ::xel::AddressOf
 #endif

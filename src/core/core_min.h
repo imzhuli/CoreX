@@ -186,18 +186,13 @@
 #endif
 #endif
 
-#include <assert.h>
+#define __X_STRINGIFY__(x) #x
+#define X_STRINGIFY(x) __X_STRINGIFY__(x)
+
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdint.h>
-#include <stdlib.h>
-
-#define __X_STRINGIFY__(x) #x
-#define X_STRINGIFY(x)     __X_STRINGIFY__(x)
 
 X_CNAME_BEGIN
-
-#define X_AddressOf(T) (&(T))
 X_STATIC_INLINE void * X_Cast(void * MemberPtr, size_t MemberOffset) {
 	if (!MemberPtr) {
 		return NULL;
@@ -205,21 +200,4 @@ X_STATIC_INLINE void * X_Cast(void * MemberPtr, size_t MemberOffset) {
 	return (void *)((unsigned char *)MemberPtr - MemberOffset);
 }
 #define X_Entry(_MemberPtr, Type, Member) ((Type *)(X_Cast((_MemberPtr), offsetof(Type, Member))))
-
 X_CNAME_END
-
-#ifdef __cplusplus
-
-#define X_NS namespace xel
-
-#define X_BEGIN namespace xel {
-#define X_END   }
-
-#define X_COMMON_BEGIN \
-	namespace xel {    \
-		inline namespace common {
-#define X_COMMON_END \
-	}                \
-	}
-
-#endif
