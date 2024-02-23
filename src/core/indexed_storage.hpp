@@ -338,11 +338,7 @@ public:
 		return true;
 	}
 
-	X_INLINE tValue & operator[](const xIndexId & Id) {
-		return *_IdPoolPtr[Id.GetIndex()].ValueHolder;
-	}
-
-	X_INLINE const tValue & operator[](const xIndexId & Id) const {
+	X_INLINE tValue & operator[](const xIndexId & Id) const {
 		return *_IdPoolPtr[Id.GetIndex()].ValueHolder;
 	}
 
