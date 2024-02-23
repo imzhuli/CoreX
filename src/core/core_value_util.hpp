@@ -7,10 +7,10 @@ template <size_t TargetSize, size_t Alignment = alignof(std::max_align_t)>
 class xDummy final : xNonCopyable {
 public:
 	template <typename T>
-	X_INLINE void CreateAs() {
+	X_INLINE T & CreateAs() {
 		static_assert(Alignment >= alignof(T));
 		static_assert(sizeof(_PlaceHolder) >= sizeof(T));
-		new ((void *)_PlaceHolder) T;
+		return *new ((void *)_PlaceHolder) T;
 	}
 
 	template <typename T, typename... tArgs>
