@@ -26,6 +26,7 @@ def build():
             '-Wno-dev '
             '-DBUILD_SHARED_LIBS=OFF '
             '-DFT_DISABLE_HARFBUZZ=TRUE '
+            '-DCMAKE_CXX_STANDARD=20 '
             f'-DCMAKE_INSTALL_PREFIX={install_dir!r} -B build .')
         os.system(f"cmake --build build -- all")
         os.system(f"cmake --build build -- install")

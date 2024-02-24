@@ -29,6 +29,7 @@ def build():
         os.system(
             'cmake '
             '-Wno-dev '
+            '-DCMAKE_CXX_STANDARD=20 '
             f'-DCMAKE_INSTALL_PREFIX={install_dir!r} -B build . ')
         os.system(f"cmake --build build -- all")
         os.system(f"cmake --build build -- install")
