@@ -142,6 +142,7 @@ size_t xService::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, 
 			if (!PostData(Connection, KeepAliveBuffer, KeepAliveSize)) {
 				return InvalidPacketSize;
 			}
+			KeepAlive(Connection);
 		} else {
 			auto PayloadPtr  = xPacket::GetPayload(DataPtr);
 			auto PayloadSize = Header.GetPayloadSize();
@@ -152,7 +153,6 @@ size_t xService::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, 
 		DataPtr    += PacketSize;
 		RemainSize -= PacketSize;
 	}
-	KeepAlive(Connection);
 	return DataSize - RemainSize;
 }
 
@@ -160,6 +160,7 @@ bool xService::OnPacket(xServiceClientConnection & Connection, const xPacketHead
 	X_DEBUG_PRINTF("CommandId: %" PRIx32 ", RequestId:%" PRIx64 ":  \n%s", Header.CommandId, Header.RequestId, HexShow(PayloadPtr, PayloadSize).c_str());
 	return true;
 }
+
 void xService::SetMaxWriteBuffer(size_t Size) {
 	MaxWriteBufferLimitForEachConnection = (Size / sizeof(xPacketBuffer::Buffer)) + 1;
 }
