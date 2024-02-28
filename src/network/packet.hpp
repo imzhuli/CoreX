@@ -21,7 +21,8 @@ static constexpr const size_t InvalidPacketSize    = static_cast<size_t>(-1);
 static constexpr const size_t MaxPacketSize        = 4096 & PacketSizeMask;
 static constexpr const size_t MaxPacketPayloadSize = MaxPacketSize - PacketHeaderSize;
 
-static constexpr const xPacketCommandId MaxDispatchableCommandId = 0xFFu;
+static constexpr const xPacketCommandId MaxDispatchableCommandId      = 0xFFu;
+static constexpr const size_t           MaxDispatchableCommandIdCount = 1 + MaxDispatchableCommandId;
 
 /***
 	@brief Such class is a 'almost' direct mapping to stream data header.
@@ -92,7 +93,7 @@ struct xPacketHeader final {
 	}
 
 	X_STATIC_INLINE size_t MakeRegisterDispatcherConsumer(void * PacketBuffer, size_t PacketBufferSize, const xPacketCommandId * CmdIds, size_t Total) {
-		assert(Total <= MaxDispatchableCommandId + 1);
+		assert(Total <= MaxDispatchableCommandIdCount);
 		size_t TotalRequired = PacketHeaderSize + Total;
 		if (PacketBufferSize < TotalRequired) {
 			return 0;
@@ -113,7 +114,7 @@ struct xPacketHeader final {
 	}
 
 	X_STATIC_INLINE size_t MakeRegisterDispatcherObserver(void * PacketBuffer, size_t PacketBufferSize, const xPacketCommandId * CmdIds, size_t Total) {
-		assert(Total <= MaxDispatchableCommandId + 1);
+		assert(Total <= MaxDispatchableCommandIdCount);
 		size_t TotalRequired = PacketHeaderSize + Total;
 		if (PacketBufferSize < TotalRequired) {
 			return 0;
