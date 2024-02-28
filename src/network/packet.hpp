@@ -143,10 +143,10 @@ struct xPacketHeader final {
 	X_INLINE bool IsRequestKeepAlive() const {
 		return IsInternalRequest() && RequestId == InternalRequest_RequestKeepAlive;
 	}
-	X_INLINE bool IsRequestRegisterDispatcherComsumer() const {
+	X_INLINE bool IsRegisterDispatcherConsumer() const {
 		return IsInternalRequest() && RequestId == InternalRequest_RegisterDispatcherConsumer;
 	}
-	X_INLINE bool IsRequestRegisterDispatcherObserver() const {
+	X_INLINE bool IsRegisterDispatcherObserver() const {
 		return IsInternalRequest() && RequestId == InternalRequest_RegisterDispatcherObserver;
 	}
 
