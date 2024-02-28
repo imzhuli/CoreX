@@ -92,48 +92,6 @@ struct xPacketHeader final {
 		return PacketHeaderSize;
 	}
 
-	X_STATIC_INLINE size_t MakeRegisterDispatcherConsumer(void * PacketBuffer, size_t PacketBufferSize, const xPacketCommandId * CmdIds, size_t Total) {
-		assert(Total <= MaxDispatchableCommandIdCount);
-		size_t TotalRequired = PacketHeaderSize + Total;
-		if (PacketBufferSize < TotalRequired) {
-			return 0;
-		}
-		xPacketHeader Header;
-		Header.CommandId  = CmdId_InnernalRequest;
-		Header.RequestId  = InternalRequest_RegisterDispatcherConsumer;
-		Header.PacketSize = TotalRequired;
-		Header.Serialize(PacketBuffer);
-		auto W = xStreamWriter(PacketBuffer);
-		W.Skip(PacketHeaderSize);
-		for (size_t I = 0; I < Total; ++I) {
-			auto CmdId = CmdIds[I];
-			assert(CmdId <= MaxDispatchableCommandId);
-			W.W1((uint8_t)CmdId);
-		}
-		return TotalRequired;
-	}
-
-	X_STATIC_INLINE size_t MakeRegisterDispatcherObserver(void * PacketBuffer, size_t PacketBufferSize, const xPacketCommandId * CmdIds, size_t Total) {
-		assert(Total <= MaxDispatchableCommandIdCount);
-		size_t TotalRequired = PacketHeaderSize + Total;
-		if (PacketBufferSize < TotalRequired) {
-			return 0;
-		}
-		xPacketHeader Header;
-		Header.CommandId  = CmdId_InnernalRequest;
-		Header.RequestId  = InternalRequest_RegisterDispatcherObserver;
-		Header.PacketSize = TotalRequired;
-		Header.Serialize(PacketBuffer);
-		auto W = xStreamWriter(PacketBuffer);
-		W.Skip(PacketHeaderSize);
-		for (size_t I = 0; I < Total; ++I) {
-			auto CmdId = CmdIds[I];
-			assert(CmdId <= MaxDispatchableCommandId);
-			W.W1((uint8_t)CmdId);
-		}
-		return TotalRequired;
-	}
-
 	X_INLINE bool IsInternalRequest() const {
 		return CommandId == CmdId_InnernalRequest;
 	}
@@ -180,6 +138,48 @@ struct xPacket {
 	}
 	X_STATIC_INLINE size_t GetPacketSize(size_t PayloadSize) {
 		return PayloadSize + PacketHeaderSize;
+	}
+
+	X_STATIC_INLINE size_t MakeRegisterDispatcherConsumer(void * PacketBuffer, size_t PacketBufferSize, const xPacketCommandId * CmdIds, size_t Total) {
+		assert(Total <= MaxDispatchableCommandIdCount);
+		size_t TotalRequired = PacketHeaderSize + Total;
+		if (PacketBufferSize < TotalRequired) {
+			return 0;
+		}
+		xPacketHeader Header;
+		Header.CommandId  = xPacketHeader::CmdId_InnernalRequest;
+		Header.RequestId  = xPacketHeader::InternalRequest_RegisterDispatcherConsumer;
+		Header.PacketSize = TotalRequired;
+		Header.Serialize(PacketBuffer);
+		auto W = xStreamWriter(PacketBuffer);
+		W.Skip(PacketHeaderSize);
+		for (size_t I = 0; I < Total; ++I) {
+			auto CmdId = CmdIds[I];
+			assert(CmdId <= MaxDispatchableCommandId);
+			W.W1((uint8_t)CmdId);
+		}
+		return TotalRequired;
+	}
+
+	X_STATIC_INLINE size_t MakeRegisterDispatcherObserver(void * PacketBuffer, size_t PacketBufferSize, const xPacketCommandId * CmdIds, size_t Total) {
+		assert(Total <= MaxDispatchableCommandIdCount);
+		size_t TotalRequired = PacketHeaderSize + Total;
+		if (PacketBufferSize < TotalRequired) {
+			return 0;
+		}
+		xPacketHeader Header;
+		Header.CommandId  = xPacketHeader::CmdId_InnernalRequest;
+		Header.RequestId  = xPacketHeader::InternalRequest_RegisterDispatcherObserver;
+		Header.PacketSize = TotalRequired;
+		Header.Serialize(PacketBuffer);
+		auto W = xStreamWriter(PacketBuffer);
+		W.Skip(PacketHeaderSize);
+		for (size_t I = 0; I < Total; ++I) {
+			auto CmdId = CmdIds[I];
+			assert(CmdId <= MaxDispatchableCommandId);
+			W.W1((uint8_t)CmdId);
+		}
+		return TotalRequired;
 	}
 };
 
