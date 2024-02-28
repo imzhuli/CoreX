@@ -119,7 +119,7 @@ size_t xClient::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, s
 			X_DEBUG_PRINTF("KeepAlive");
 			LastKeepAliveTimestampMS = NowMS;
 		} else {
-			auto PayloadPtr  = xPacket::GetPayload(DataPtr);
+			auto PayloadPtr  = xPacket::GetPayloadPtr(DataPtr);
 			auto PayloadSize = Header.GetPayloadSize();
 			if (!OnPacket(Header, PayloadPtr, PayloadSize)) { /* packet error */
 				return InvalidPacketSize;

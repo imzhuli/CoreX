@@ -144,7 +144,7 @@ size_t xService::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, 
 			}
 			KeepAlive(Connection);
 		} else {
-			auto PayloadPtr  = xPacket::GetPayload(DataPtr);
+			auto PayloadPtr  = xPacket::GetPayloadPtr(DataPtr);
 			auto PayloadSize = Header.GetPayloadSize();
 			if (!OnPacket(Connection, Header, PayloadPtr, PayloadSize)) { /* packet error */
 				return InvalidPacketSize;
@@ -204,7 +204,7 @@ void xUdpService::OnData(xUdpChannel * ChannelPtr, void * DataPtr, size_t DataSi
 		return;
 	}
 
-	auto PayloadPtr  = xPacket::GetPayload(DataPtr);
+	auto PayloadPtr  = xPacket::GetPayloadPtr(DataPtr);
 	auto PayloadSize = Header.GetPayloadSize();
 	OnPacket(RemoteAddress, Header, PayloadPtr, PayloadSize);
 	return;

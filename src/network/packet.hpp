@@ -29,6 +29,7 @@ static constexpr const size_t           MaxDispatchableCommandIdCount = 1 + MaxD
 	@note  Serialization uses Little-Endian
 */
 struct xPacketHeader final {
+
 	static constexpr const size_t           Size                                       = 2 * sizeof(uint32_t) + sizeof(uint64_t);
 	static constexpr const xPacketCommandId CmdId_InnernalRequest                      = xPacketCommandId(-1);
 	static constexpr const xPacketRequestId InternalRequest_KeepAlive                  = xPacketRequestId(-0);
@@ -119,21 +120,22 @@ private:
 	}
 };
 
-struct xPacket {
-	X_STATIC_INLINE ubyte * GetPayload(void * PacketPtr) {
+struct xPacket final {
+
+	X_STATIC_INLINE ubyte * GetPayloadPtr(void * PacketPtr) {
 		return (ubyte *)PacketPtr + xPacketHeader::Size;
 	}
-	X_STATIC_INLINE const ubyte * GetPayload(const void * PacketPtr) {
+	X_STATIC_INLINE const ubyte * GetPayloadPtr(const void * PacketPtr) {
 		return (const ubyte *)PacketPtr + xPacketHeader::Size;
 	}
 	X_STATIC_INLINE size_t GetPayloadSize(size_t PacketSize) {
 		return PacketSize - PacketHeaderSize;
 	}
 
-	X_STATIC_INLINE ubyte * GetPacket(void * PayloedPtr) {
+	X_STATIC_INLINE ubyte * GetPacketPtr(void * PayloedPtr) {
 		return (ubyte *)PayloedPtr - xPacketHeader::Size;
 	}
-	X_STATIC_INLINE const ubyte * GetPacket(const void * PayloedPtr) {
+	X_STATIC_INLINE const ubyte * GetPacketPtr(const void * PayloedPtr) {
 		return (const ubyte *)PayloedPtr - xPacketHeader::Size;
 	}
 	X_STATIC_INLINE size_t GetPacketSize(size_t PayloadSize) {
