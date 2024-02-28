@@ -168,11 +168,18 @@ struct xPacket {
 	X_STATIC_INLINE const ubyte * GetPayload(const void * PacketPtr) {
 		return (const ubyte *)PacketPtr + xPacketHeader::Size;
 	}
+	X_STATIC_INLINE size_t GetPayloadSize(size_t PacketSize) {
+		return PacketSize - PacketHeaderSize;
+	}
+
 	X_STATIC_INLINE ubyte * GetPacket(void * PayloedPtr) {
 		return (ubyte *)PayloedPtr - xPacketHeader::Size;
 	}
 	X_STATIC_INLINE const ubyte * GetPacket(const void * PayloedPtr) {
 		return (const ubyte *)PayloedPtr - xPacketHeader::Size;
+	}
+	X_STATIC_INLINE size_t GetPacketSize(size_t PayloadSize) {
+		return PayloadSize + PacketHeaderSize;
 	}
 };
 
