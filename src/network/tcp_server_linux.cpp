@@ -68,7 +68,7 @@ bool xTcpServer::Init(xIoContext * IoContextPtr, const xNetAddress & Address, iL
 	_IoContextPtr = IoContextPtr;
 	_ListenerPtr  = ListenerPtr;
 
-	X_DEBUG_PRINTF("xTcpServer::Init succeeded BindAddress=%s\n", Address.ToString().c_str());
+	X_DEBUG_PRINTF("xTcpServer::Init succeeded BindAddress=%s", Address.ToString().c_str());
 	FailSafe.Dismiss();
 	SetAvailable();
 	return true;

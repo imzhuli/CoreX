@@ -88,7 +88,7 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & Address
 	if (ConnectResult == -1) {
 		auto Error = errno;
 		if (Error != EINPROGRESS) {
-			X_DEBUG_PRINTF("Failed to start connection, Socket=%i Error=%s\n", _Socket, strerror(Error));
+			X_DEBUG_PRINTF("Failed to start connection, Socket=%i Error=%s", _Socket, strerror(Error));
 			return false;
 		}
 		_Status             = eStatus::Connecting;
@@ -167,7 +167,7 @@ void xTcpConnection::UpdateEventTrigger() {
 	Event.data.ptr           = this;
 	Event.events             = EPOLLET | (_SuspendReading ? 0 : EPOLLIN) | (_RequireOutputEvent ? EPOLLOUT : 0);
 	if (-1 == epoll_ctl(*_IoContextPtr, EPOLL_CTL_MOD, _Socket, &Event)) {
-		X_DEBUG_PRINTF("xTcpConnection::UpdateEventTrigger failed to modify epoll event, Reason=%s\n", strerror(errno));
+		X_DEBUG_PRINTF("xTcpConnection::UpdateEventTrigger failed to modify epoll event, Reason=%s", strerror(errno));
 		Fatal("");
 		return;
 	}

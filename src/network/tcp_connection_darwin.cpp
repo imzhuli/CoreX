@@ -90,7 +90,7 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & Address
 	if (ConnectResult == -1) {
 		auto Error = errno;
 		if (Error != EINPROGRESS) {
-			X_DEBUG_PRINTF("Failed to start connection, Socket=%i Error=%s\n", _Socket, strerror(Error));
+			X_DEBUG_PRINTF("Failed to start connection, Socket=%i Error=%s", _Socket, strerror(Error));
 			return false;
 		}
 		_Status             = eStatus::Connecting;
@@ -178,7 +178,7 @@ void xTcpConnection::EnableReadingTrigger() {
 	Event.filter        = EVFILT_READ;
 	Event.udata         = this;
 	if (-1 == kevent(*_IoContextPtr, &Event, 1, nullptr, 0, nullptr)) {
-		X_DEBUG_PRINTF("kevent error: %s\n", strerror(errno));
+		X_DEBUG_PRINTF("kevent error: %s", strerror(errno));
 		Fatal("EnableReadingTrigger: Failed to update kevent");
 	}
 }
@@ -190,7 +190,7 @@ void xTcpConnection::DisableReadingTrigger() {
 	Event.filter        = EVFILT_READ;
 	Event.udata         = this;
 	if (-1 == kevent(*_IoContextPtr, &Event, 1, nullptr, 0, nullptr)) {
-		X_DEBUG_PRINTF("kevent error: %s\n", strerror(errno));
+		X_DEBUG_PRINTF("kevent error: %s", strerror(errno));
 		Fatal("DisableReadingTrigger: Failed to update kevent");
 	}
 }
@@ -202,7 +202,7 @@ void xTcpConnection::EnableWritingTrigger() {
 	Event.filter        = EVFILT_WRITE;
 	Event.udata         = this;
 	if (-1 == kevent(*_IoContextPtr, &Event, 1, nullptr, 0, nullptr)) {
-		X_DEBUG_PRINTF("kevent error: %s\n", strerror(errno));
+		X_DEBUG_PRINTF("kevent error: %s", strerror(errno));
 		Fatal("EnableWritingTrigger: Failed to update kevent");
 	}
 }
@@ -214,7 +214,7 @@ void xTcpConnection::DisableWritingTrigger() {
 	Event.filter        = EVFILT_WRITE;
 	Event.udata         = this;
 	if (-1 == kevent(*_IoContextPtr, &Event, 1, nullptr, 0, nullptr)) {
-		X_DEBUG_PRINTF("kevent error: %s\n", strerror(errno));
+		X_DEBUG_PRINTF("kevent error: %s", strerror(errno));
 		Fatal("DisableWritingTrigger: Failed to update kevent");
 	}
 }
