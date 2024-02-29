@@ -114,6 +114,8 @@ template <typename T, size_t L>
 [[nodiscard]] X_STATIC_INLINE constexpr size_t SafeLength(const T (&)[L]) { return L ? L - 1 : 0; }
 template <typename... Args>
 [[nodiscard]] X_STATIC_INLINE constexpr size_t Count(const Args &... args) { return sizeof...(args); }
+template <typename T, size_t L>
+[[nodiscard]] X_STATIC_INLINE constexpr T& LastOf(T (&Array)[L]) { return Array[SafeLength(Array)]; }
 
 
 [[noreturn]] X_STATIC_INLINE void Error(const char * message = nullptr) { throw message;}
