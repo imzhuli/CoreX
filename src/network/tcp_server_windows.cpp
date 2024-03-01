@@ -35,11 +35,11 @@ bool xTcpServer::Init(xIoContext * IoContextPtr, const xNetAddress & Address, iL
 	if (_ListenSocket == InvalidSocket) {
 		return false;
 	}
-	setsockopt(_ListenSocket, SOL_SOCKET, SO_SNDBUF, (char *)X2Ptr(int(0)), sizeof(int));
+	setsockopt(_ListenSocket, SOL_SOCKET, SO_SNDBUF, (char *)X2P(int(0)), sizeof(int));
 
 	if (ReusePort) {
 #ifdef SO_REUSEADDR
-		setsockopt(_ListenSocket, SOL_SOCKET, SO_REUSEADDR, (char *)X2Ptr(int(1)), sizeof(int));
+		setsockopt(_ListenSocket, SOL_SOCKET, SO_REUSEADDR, (char *)X2P(int(1)), sizeof(int));
 #endif
 	}
 

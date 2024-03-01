@@ -36,12 +36,12 @@ bool xTcpServer::Init(xIoContext * IoContextPtr, const xNetAddress & Address, iL
 	}
 
 	if (ReusePort) {
-		setsockopt(_ListenSocket, SOL_SOCKET, X_ENABLE_REUSEPORT, (char *)X2Ptr(int(1)), sizeof(int));
+		setsockopt(_ListenSocket, SOL_SOCKET, X_ENABLE_REUSEPORT, (char *)X2P(int(1)), sizeof(int));
 	}
 
 	int flags = fcntl(_ListenSocket, F_GETFL);
 	fcntl(_ListenSocket, F_SETFL, flags | O_NONBLOCK);
-	setsockopt(_ListenSocket, SOL_SOCKET, SO_SNDBUF, (char *)X2Ptr(int(0)), sizeof(int));
+	setsockopt(_ListenSocket, SOL_SOCKET, SO_SNDBUF, (char *)X2P(int(0)), sizeof(int));
 
 	auto FailSafe = xScopeGuard{ [&] { XelCloseSocket(X_DEBUG_STEAL(_ListenSocket, InvalidSocket)); } };
 

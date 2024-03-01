@@ -149,7 +149,7 @@ void xTcpConnection::ResizeSendBuffer(size_t Size) {
 	if (_Socket == InvalidSocket) {
 		return;
 	}
-	setsockopt(_Socket, SOL_SOCKET, SO_SNDBUF, (char *)X2Ptr(int(Size)), sizeof(int));
+	setsockopt(_Socket, SOL_SOCKET, SO_SNDBUF, (char *)X2P(int(Size)), sizeof(int));
 }
 
 void xTcpConnection::ResizeReceiveBuffer(size_t Size) {
@@ -157,7 +157,7 @@ void xTcpConnection::ResizeReceiveBuffer(size_t Size) {
 	if (_Socket == InvalidSocket) {
 		return;
 	}
-	setsockopt(_Socket, SOL_SOCKET, SO_RCVBUF, (char *)X2Ptr(int(Size)), sizeof(int));
+	setsockopt(_Socket, SOL_SOCKET, SO_RCVBUF, (char *)X2P(int(Size)), sizeof(int));
 }
 
 X_END

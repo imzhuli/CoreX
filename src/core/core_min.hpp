@@ -99,10 +99,14 @@ struct xInPlaceType final { explicit constexpr xInPlaceType() = default;};
 template <typename T>
 inline constexpr xInPlaceType<T> const Type{};
 
-template <typename T>
-[[nodiscard]] X_STATIC_INLINE std::remove_reference_t<T> & X2Ref(T && ref) { return ref; }
-template <typename T>
-[[nodiscard]] X_STATIC_INLINE std::remove_reference_t<T> * X2Ptr(T && ref) { return &ref; }
+template <typename T> // eXpiring object to Reference to object
+[[nodiscard]] X_STATIC_INLINE std::remove_reference_t<T> & X2R(T && ref) { return ref; }
+template <typename T> // eXpiring object to Const Reference to object
+[[nodiscard]] X_STATIC_INLINE const std::remove_reference_t<T> & X2CR(T && ref) { return ref; }
+template <typename T> // eXpiring object to Pointer to object
+[[nodiscard]] X_STATIC_INLINE std::remove_reference_t<T> * X2P(T && ref) { return &ref; }
+template <typename T> // eXpiring object to Const Pointer to object
+[[nodiscard]] X_STATIC_INLINE const std::remove_reference_t<T> * X2CP(T && ref) { return &ref; }
 
 template <typename T>
 [[nodiscard]] X_STATIC_INLINE constexpr std::conditional_t<std::is_const_v<T>, const void *, void *> AddressOf(T & obj) {

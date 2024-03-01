@@ -27,7 +27,7 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeHandle, iL
 	} };
 
 #ifdef SO_REUSEADDR
-	setsockopt(NativeHandle, SOL_SOCKET, SO_REUSEADDR, (char *)X2Ptr(int(1)), sizeof(int));
+	setsockopt(NativeHandle, SOL_SOCKET, SO_REUSEADDR, (char *)X2P(int(1)), sizeof(int));
 #endif
 
 	if (CreateIoCompletionPort((HANDLE)NativeHandle, *IoContextPtr, (ULONG_PTR)this, 0) == NULL) {
@@ -87,7 +87,7 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & Address
 	} };
 
 #ifdef SO_REUSEADDR
-	setsockopt(_Socket, SOL_SOCKET, SO_REUSEADDR, (char *)X2Ptr(int(1)), sizeof(int));
+	setsockopt(_Socket, SOL_SOCKET, SO_REUSEADDR, (char *)X2P(int(1)), sizeof(int));
 #endif
 
 	// load connect ex:
@@ -103,8 +103,7 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & Address
 		auto  LockGuard = std::lock_guard(ConnectExLoaderMutex);
 		GUID  guid      = WSAID_CONNECTEX;
 		DWORD dwBytes   = 0;
-		auto  LoadError =
-			WSAIoctl(_Socket, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), &ConnectEx, sizeof(ConnectEx), &dwBytes, NULL, NULL);
+		auto  LoadError = WSAIoctl(_Socket, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), &ConnectEx, sizeof(ConnectEx), &dwBytes, NULL, NULL);
 		if (LoadError) {
 			auto ErrorCode = WSAGetLastError();
 			if (ErrorCode != WSA_IO_PENDING) {
@@ -326,7 +325,7 @@ void xTcpConnection::TryRecvData() {
 	BU.buf    = (CHAR *)(_IoBufferPtr->ReadBuffer + UnprocessedDataSize);
 	BU.len    = (ULONG)RemainSpaceSize;
 	memset(&ReadObject.NativeOverlappedObject, 0, sizeof(ReadObject.NativeOverlappedObject));
-	auto Error = WSARecv(_Socket, &BU, 1, nullptr, X2Ptr(DWORD(0)), &ReadObject.NativeOverlappedObject, nullptr);
+	auto Error = WSARecv(_Socket, &BU, 1, nullptr, X2P(DWORD(0)), &ReadObject.NativeOverlappedObject, nullptr);
 	if (Error) {
 		auto ErrorCode = WSAGetLastError();
 		if (ErrorCode != WSA_IO_PENDING) {

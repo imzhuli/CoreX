@@ -89,10 +89,7 @@ void xUdpChannel::TryRecvData() {
 	memset(&_RemoteAddress, 0, sizeof(_RemoteAddress));
 	_RemoteAddressLength = sizeof(_RemoteAddress);
 	memset(&ReadObject.NativeOverlappedObject, 0, sizeof(ReadObject.NativeOverlappedObject));
-	auto Error = WSARecvFrom(
-		_Socket, &BU, 1, nullptr, X2Ptr(DWORD(0)), (sockaddr *)&_RemoteAddress, &_RemoteAddressLength, &ReadObject.NativeOverlappedObject,
-		nullptr
-	);
+	auto Error = WSARecvFrom(_Socket, &BU, 1, nullptr, X2P(DWORD(0)), (sockaddr *)&_RemoteAddress, &_RemoteAddressLength, &ReadObject.NativeOverlappedObject, nullptr);
 	if (Error) {
 		auto ErrorCode = WSAGetLastError();
 		if (ErrorCode != WSA_IO_PENDING) {

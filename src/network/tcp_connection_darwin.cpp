@@ -25,8 +25,8 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeHandle, iL
 
 	int flags = fcntl(NativeHandle, F_GETFL);
 	fcntl(NativeHandle, F_SETFL, flags | O_NONBLOCK);
-	setsockopt(NativeHandle, SOL_SOCKET, SO_NOSIGPIPE, (char *)X2Ptr(int(1)), sizeof(int));
-	setsockopt(NativeHandle, SOL_SOCKET, X_ENABLE_REUSEPORT, (char *)X2Ptr(int(1)), sizeof(int));
+	setsockopt(NativeHandle, SOL_SOCKET, SO_NOSIGPIPE, (char *)X2P(int(1)), sizeof(int));
+	setsockopt(NativeHandle, SOL_SOCKET, X_ENABLE_REUSEPORT, (char *)X2P(int(1)), sizeof(int));
 
 	struct kevent Event[2] = {};
 	Event[0].ident         = NativeHandle;
@@ -83,8 +83,8 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & Address
 
 	int flags = fcntl(_Socket, F_GETFL);
 	fcntl(_Socket, F_SETFL, flags | O_NONBLOCK);
-	setsockopt(_Socket, SOL_SOCKET, SO_NOSIGPIPE, (char *)X2Ptr(int(1)), sizeof(int));
-	setsockopt(_Socket, SOL_SOCKET, X_ENABLE_REUSEPORT, (char *)X2Ptr(int(1)), sizeof(int));
+	setsockopt(_Socket, SOL_SOCKET, SO_NOSIGPIPE, (char *)X2P(int(1)), sizeof(int));
+	setsockopt(_Socket, SOL_SOCKET, X_ENABLE_REUSEPORT, (char *)X2P(int(1)), sizeof(int));
 
 	auto ConnectResult = connect(_Socket, (sockaddr *)&AddrStorage, AddrLen);
 	if (ConnectResult == -1) {
