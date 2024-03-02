@@ -128,7 +128,7 @@ template <typename T, size_t L>
 [[noreturn]] X_STATIC_INLINE void Pure() { Fatal("placeholder of pure function called, which is not expected"); }
 
 X_API void Breakpoint();
-X_STATIC_INLINE void Pass(const char * = nullptr /* reason */) { }
+X_STATIC_INLINE void Pass() { }
 X_STATIC_INLINE void RuntimeAssert(bool cond, const char * msg = nullptr /* reason */) { if (!cond) { Fatal(msg); } }
 
 template <typename T>
