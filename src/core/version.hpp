@@ -55,7 +55,7 @@ public:
 		return IsEnabled() ? Version : -1;
 	}
 
-	bool IsVersion(int64_t V) {
+	bool IsVersion(int64_t V) const {
 		return IsEnabled() && V == Version;
 	}
 
