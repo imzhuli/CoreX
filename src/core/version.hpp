@@ -3,6 +3,39 @@
 
 X_BEGIN
 
+class xVersionNumber {
+public:
+	using xNative = int64_t;
+
+public:
+	static constexpr const xNative DISABLE_MASK  = 0x8000'0000'0000'0000;
+	static constexpr const xNative INVALID_VALUE = -1;
+	static_assert(INVALID_VALUE & DISABLE_MASK);
+
+	X_INLINE xVersionNumber() = default;
+	X_INLINE xVersionNumber(xNative NewValue)
+		: Native(NewValue) {
+	}
+	X_INLINE xVersionNumber(const xVersionNumber &) = default;
+
+	X_INLINE operator xNative() const {
+		return Native;
+	}
+	X_INLINE bool IsValid() const {
+		return !(Native & DISABLE_MASK);
+	}
+	X_INLINE bool IsEqualTo(const xVersionNumber & Other) const {
+		return IsValid() ? (Native == Other.Native) : false;
+	}
+
+private:
+	xNative Native = INVALID_VALUE;
+};
+
+bool IsValidVersion(int64_t V) {
+	return V >= 0;  // highest bit is zero
+}
+
 template <typename T>
 class xVersion final : xNonCopyable {
 private:
@@ -11,68 +44,69 @@ private:
 	static_assert(std::is_copy_constructible_v<RawType> || std::is_move_constructible_v<RawType>);
 
 public:
-	xVersion() = default;
-	~xVersion() {
+	X_INLINE xVersion() = default;
+	X_INLINE ~xVersion() {
 		TestAndDisable();
 	}
 
-	const RawType & Get() const {
+	X_INLINE const RawType & Get() const {
 		assert(IsEnabled());
 		return *ValueHolder;
 	}
 
-	void Enable() {
+	X_INLINE void Enable() {
 		assert(!IsEnabled());
 		ValueHolder.Create();
 		EnableVersion();
 	}
 
 	template <typename... tArgs>
-	void EnableValue(tArgs &&... Args) {
+	X_INLINE void EnableValue(tArgs &&... Args) {
 		assert(!IsEnabled());
 		ValueHolder.CreateValue(std::forward<tArgs>(Args)...);
 		EnableVersion();
 	}
 
-	void Disable() {
+	X_INLINE void Disable() {
 		assert(IsEnabled());
 		DisableVersion();
 		ValueHolder.Destroy();
 	}
 
-	void TestAndDisable() {
+	X_INLINE void TestAndDisable() {
 		if (!IsEnabled()) {
 			return;
 		}
 		Disable();
 	}
 
-	bool IsEnabled() const {
-		return !(Version & DISABLE_MASK);
+	X_INLINE bool IsEnabled() const {
+		return xVersionNumber(Version).IsValid();
 	}
 
-	int64_t GetVersion() const {
-		return IsEnabled() ? Version : -1;
+	X_INLINE xVersionNumber GetVersion() const {
+		return IsEnabled() ? xVersionNumber(Version) : xVersionNumber();
 	}
 
-	bool IsVersion(int64_t V) const {
+	X_INLINE bool IsVersion(int64_t V) const {
 		return IsEnabled() && V == Version;
 	}
 
 private:
-	static constexpr const int64_t DISABLE_MASK = 0x8000'0000'0000'0000;
-
-	void EnableVersion() {
+	X_INLINE void EnableVersion() {
 		++Version;
-		Version &= ~DISABLE_MASK;
+		Version &= ~xVersionNumber::DISABLE_MASK;
 	}
-	void DisableVersion() {
-		Version |= DISABLE_MASK;
+	X_INLINE void DisableVersion() {
+		Version |= xVersionNumber::DISABLE_MASK;
 	}
 
 private:
-	xHolder<RawType> ValueHolder = {};
-	int64_t          Version     = DISABLE_MASK;
+	xHolder<RawType>        ValueHolder = {};
+	xVersionNumber::xNative Version     = xVersionNumber::INVALID_VALUE;
 };
+
+template <>
+class xVersion<void> {};
 
 X_END
