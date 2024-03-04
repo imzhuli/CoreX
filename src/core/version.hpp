@@ -32,10 +32,6 @@ private:
 	xNative Native = INVALID_VALUE;
 };
 
-bool IsValidVersion(int64_t V) {
-	return V >= 0;  // highest bit is zero
-}
-
 template <typename T>
 class xVersion final : xNonCopyable {
 private:
