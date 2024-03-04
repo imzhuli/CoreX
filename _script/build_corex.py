@@ -27,15 +27,18 @@ except:
     print("failed to check and remove install target")
 
 server_side_lib_only = "OFF"
+j_threads = ""
 try:
     argv = sys.argv[1:]
-    opts, args = getopt.getopt(argv, "s")
+    opts, args = getopt.getopt(argv, "sj:")
 except getopt.GetoptError:
     sys.exit(2)
 for opt, arg in opts:
     if opt == "-s":
         server_side_lib_only = "ON"
         print("server-side lib only")
+    if opt == "-j":
+        j_threads = " -j%s " % arg
     pass
 
 os.system(
@@ -43,5 +46,5 @@ os.system(
     '-DBUILD_SHARED_LIBS=OFF '
     f'-DSERVER_SIDE_LIB_ONLY={server_side_lib_only} '
     f'-DCMAKE_INSTALL_PREFIX={full_install_path!r} -B {build_path!r} .')
-os.system(f"cmake --build {build_path} -- all")
+os.system(f"cmake --build {build_path} -- {j_threads} all")
 os.system(f"cmake --build {build_path} -- install")

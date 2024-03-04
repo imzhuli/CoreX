@@ -15,21 +15,19 @@ link_directories(
 )
 
 set(shared_lib_dependency_private
+	${THIRD_LIBRARIES}
 )
 
 # enable specific macors by system type:
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	set(PLATFORM_LIBRARIES ws2_32 Mswsock)
 elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
-	set(PLATFORM_LIBRARIES dl)
+	set(PLATFORM_LIBRARIES dl cap)
 elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 	find_library(COCOA_LIBRARY Cocoa REQUIRED)
 	find_library(IOKIT_LIBRARY IOKit REQUIRED)
 	set(PLATFORM_LIBRARIES dl ${IOKIT_LIBRARY} ${COCOA_LIBRARY})
 endif()
-
-set(shared_lib_dependency_public
-)
 
 if (NOT ${BUILD_SHARED_LIBS}) #static lib:
 	set(X_OPTION X_OPTION_STATIC)
@@ -41,7 +39,6 @@ function(build_app sub_dir_name)
 	target_compile_definitions(_${sub_dir_name} PRIVATE ${X_OPTION})
 	target_link_libraries(_${sub_dir_name} PRIVATE ${core_libname})
 	target_link_libraries(_${sub_dir_name} PRIVATE ${shared_lib_dependency_private})
-	target_link_libraries(_${sub_dir_name} PRIVATE ${shared_lib_dependency_public})
 endfunction()
 
 function(test_sub sub_dir_name)
