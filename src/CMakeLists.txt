@@ -5,6 +5,7 @@ set(libname xel)
 if (NOT ${SERVER_SIDE_LIB_ONLY})
 	find_package(Vulkan REQUIRED)
 	set(THIRD_LIBRARIES ${THIRD_LIBRARIES} glfw3)
+	set(THIRD_LIBRARIES ${THIRD_LIBRARIES} ${Vulkan_LIBRARIES})
 endif()
 
 set(THIRD_LIBRARIES   ${THIRD_LIBRARIES} curl websockets everest freetype mbedcrypto mbedtls mbedx509 p256m z)
@@ -20,7 +21,6 @@ link_directories(
 )
 
 set(shared_lib_dependency_private
-	${Vulkan_LIBRARIES}
 	${THIRD_LIBRARIES}
 )
 if (${BUILD_SHARED_LIBS})

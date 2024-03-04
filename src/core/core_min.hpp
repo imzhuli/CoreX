@@ -73,13 +73,6 @@ union xVariable {
 	} UV2;
 };
 
-struct xVersion {
-	uint16_t Major;
-	uint16_t Minor;
-	uint16_t Build;
-	uint16_t Revision;
-};
-
 struct xPass final { X_INLINE void operator()() const {} };
 struct xVBase { protected: constexpr xVBase() = default; virtual ~xVBase()  = default; };
 struct xAbstract { protected: constexpr xAbstract() = default; virtual ~xAbstract() = default; xAbstract(xAbstract &&) = delete; };
