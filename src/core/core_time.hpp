@@ -29,8 +29,8 @@ X_NS {
 	X_INLINE uint64_t GetTimestampMS() {
 		return GetTimestampUS() / 1000;
 	}
-	X_INLINE uint64_t GetTimestamp() {
-		return GetTimestampUS() / 1000000;
+	X_INLINE int64_t GetUnixTimestamp() {  // the return time allows time before 1970, though time() may not
+		return (int64_t)time(nullptr);
 	}
 
 	class xTimer {
