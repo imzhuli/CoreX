@@ -15,6 +15,7 @@
 X_COMMON_BEGIN
 
 static_assert(sizeof(xVariable) == sizeof(xVariable::B));
+static_assert(std::is_trivially_copyable_v<xVariable>);
 
 void Breakpoint() {}
 
