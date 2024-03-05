@@ -22,6 +22,7 @@
 X_COMMON_BEGIN
 
 inline namespace numeric {
+
 	using byte  = ::std::byte;
 	using ubyte = unsigned char;
 
@@ -44,13 +45,13 @@ inline namespace numeric {
 	using size_t  = ::std::size_t;
 	using ssize_t = typename ::std::make_signed<size_t>::type;
 
+	using function_holder_t = void(*)();
+
 }  // namespace numeric
 
 union xVariable {
-	ubyte B[8];
 
-	void *       Pointer;
-	const void * ConstPointer;
+	ubyte B[8];
 
 	ptrdiff_t Offset;
 	size_t    Size;
@@ -71,7 +72,21 @@ union xVariable {
 	struct {
 		uint32_t X, Y;
 	} UV2;
+
+	void *            P;
+	const void *      CP;
+	function_holder_t FP;
 };
+
+template <typename T> // Function to Holder
+X_INLINE std::enable_if_t<std::is_function_v<T>, function_holder_t> F2H(const T & F) {
+	return reinterpret_cast<function_holder_t>(F);
+}
+
+template <typename T> // function pointer to holder
+X_INLINE std::enable_if_t<std::is_pointer_v<T> && std::is_function_v<std::remove_pointer_t<T>>, function_holder_t> F2H(const T & FP) { 
+	return reinterpret_cast<function_holder_t>(FP);
+}
 
 struct xPass final { X_INLINE void operator()() const {} };
 struct xVBase { protected: constexpr xVBase() = default; virtual ~xVBase()  = default; };
