@@ -78,6 +78,10 @@ public:
 		return _DataPtr;
 	}
 
+	X_INLINE const T & operator[](ptrdiff_t off) const {
+		return *(_DataPtr + off);
+	}
+
 	X_INLINE const T * Data() const {
 		return _DataPtr;
 	}
