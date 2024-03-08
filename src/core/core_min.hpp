@@ -361,8 +361,12 @@ template <typename xTarget>
 }
 
 X_API void DebugPrintf(const char * Filename, size_t Line, const char * FunctionName, const char * fmt, ...);
+X_API void ErrorPrintf(const char * Filename, size_t Line, const char * FunctionName, const char * fmt, ...);
 
 X_COMMON_END
+
+
+#define X_PERROR(fmt, ...) ::xel::ErrorPrintf(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
 
 #ifndef X_CATCH_NONE
 #define X_CATCH_NONE catch (const ::xel::xNonCatchable &)
