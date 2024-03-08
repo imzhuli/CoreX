@@ -21,7 +21,7 @@ static constexpr const size_t InvalidPacketSize    = static_cast<size_t>(-1);
 static constexpr const size_t MaxPacketSize        = 4096 & PacketSizeMask;
 static constexpr const size_t MaxPacketPayloadSize = MaxPacketSize - PacketHeaderSize;
 
-static constexpr const xPacketCommandId MaxDispatchableCommandId      = 0x0FFFu;
+static constexpr const xPacketCommandId MaxDispatchableCommandId      = 0x0'FFFu;
 static constexpr const size_t           MaxDispatchableCommandIdCount = 1 + MaxDispatchableCommandId;
 
 /***
