@@ -29,15 +29,12 @@ void xSha256WithRsa::Clean() {
 	return;
 }
 
-xView<ubyte> xSha256WithRsa::operator()(const void * Data, size_t Size) {
+xArrayView<ubyte> xSha256WithRsa::operator()(const void * Data, size_t Size) {
 	ubyte Hash[32];
 	mbedtls_sha256((const ubyte *)Data, Size, Hash, 0);
 
 	size_t olen = 0;
-	if (auto ret = mbedtls_pk_sign(
-			&_PriKeyContext, MBEDTLS_MD_SHA256, Hash, sizeof(Hash), _SignResult, sizeof(_SignResult), &olen, mbedtls_ctr_drbg_random,
-			&_CtrDrbg
-		)) {
+	if (auto ret = mbedtls_pk_sign(&_PriKeyContext, MBEDTLS_MD_SHA256, Hash, sizeof(Hash), _SignResult, sizeof(_SignResult), &olen, mbedtls_ctr_drbg_random, &_CtrDrbg)) {
 		X_DEBUG_PRINTF("failed\n  ! mbedtls_pk_encrypt returned -0x%04x\n", -ret);
 		return {};
 	}

@@ -14,8 +14,8 @@ public:
 	X_API_MEMBER bool Init(const std::filesystem::path & PriKeyPath);
 	X_API_MEMBER void Clean();
 
-	X_API_MEMBER xView<ubyte> operator()(const void * Data, size_t Size);
-	X_API_MEMBER bool         Validate(const void * Data, size_t Size, const void * Signature);
+	X_API_MEMBER xArrayView<ubyte> operator()(const void * Data, size_t Size);
+	X_API_MEMBER bool              Validate(const void * Data, size_t Size, const void * Signature);
 
 private:
 	ubyte                    _SignResult[128];

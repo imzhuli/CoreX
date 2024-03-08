@@ -13,8 +13,8 @@ struct xSha256Result {
 	X_INLINE size_t Size() const {
 		return sizeof(Digest);
 	}
-	X_INLINE xView<ubyte> View() const {
-		return { Digest, sizeof(Digest) };
+	X_INLINE xArrayView<ubyte> View() const {
+		return { Digest };
 	}
 	X_INLINE operator const ubyte *() const {
 		return Digest;

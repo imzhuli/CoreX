@@ -6,7 +6,7 @@ X_BEGIN
 // class helping iterating an list or map,
 // might be useful in some script language that accept cpp list or map as an input
 template <typename IteratorType>
-class xIteratorRange {
+class xRangeIterator {
 
 	static_assert(!std::is_reference_v<IteratorType>);
 	template <typename tIterator>
@@ -20,23 +20,23 @@ public:
 	using iterator                             = IteratorType;
 	static constexpr const bool IsPairIterator = xIsPairReference<decltype(*std::declval<IteratorType>())>::value;
 
-	X_INLINE xIteratorRange() = delete;
-	X_INLINE constexpr xIteratorRange(const IteratorType & Begin, const IteratorType & End)
+	X_INLINE xRangeIterator() = delete;
+	X_INLINE constexpr xRangeIterator(const IteratorType & Begin, const IteratorType & End)
 		: _Begin(Begin), _End(End) {
 	}
 	template <typename tContainer>
-	X_INLINE constexpr xIteratorRange(tContainer & Container)
-		: xIteratorRange(Container.begin(), Container.end()) {
+	X_INLINE constexpr xRangeIterator(tContainer & Container)
+		: xRangeIterator(Container.begin(), Container.end()) {
 	}
 	template <typename tContainer>
-	X_INLINE constexpr xIteratorRange(tContainer && Container)
-		: xIteratorRange(Container.begin(), Container.end()) {
+	X_INLINE constexpr xRangeIterator(tContainer && Container)
+		: xRangeIterator(Container.begin(), Container.end()) {
 	}
 
-	X_INLINE constexpr xIteratorRange(const xIteratorRange &)             = default;
-	X_INLINE constexpr xIteratorRange(xIteratorRange &&)                  = default;
-	X_INLINE constexpr xIteratorRange & operator=(const xIteratorRange &) = default;
-	X_INLINE constexpr xIteratorRange & operator=(xIteratorRange &&)      = default;
+	X_INLINE constexpr xRangeIterator(const xRangeIterator &)             = default;
+	X_INLINE constexpr xRangeIterator(xRangeIterator &&)                  = default;
+	X_INLINE constexpr xRangeIterator & operator=(const xRangeIterator &) = default;
+	X_INLINE constexpr xRangeIterator & operator=(xRangeIterator &&)      = default;
 
 	X_INLINE constexpr IteratorType begin() const {
 		return _Begin;
@@ -53,92 +53,68 @@ private:
 	IteratorType _End;
 };
 template <typename tWrapper>
-xIteratorRange(const tWrapper &) -> xIteratorRange<typename tWrapper::iterator>;
+xRangeIterator(const tWrapper &) -> xRangeIterator<typename tWrapper::iterator>;
 template <typename tWrapper>
-xIteratorRange(tWrapper &&) -> xIteratorRange<typename tWrapper::iterator>;
+xRangeIterator(tWrapper &&) -> xRangeIterator<typename tWrapper::iterator>;
 
-template <typename T = void>
-class xView final {
-private:
+template <typename T>
+class xArrayView final {
+	static_assert(!std::is_const_v<T>);
 	static_assert(!std::is_reference_v<T>);
 
 public:
-	X_INLINE xView()              = default;
-	X_INLINE xView(const xView &) = default;
-	X_INLINE xView(const T * pv, size_t sz)
-		: _DataPtr(pv), _Size(sz) {
+	X_INLINE xArrayView() = default;
+
+	X_INLINE xArrayView(const T * start, const T * end)
+		: _Start(start), _End(end), _Size(end - start) {
+		assert(_Start <= _End);
 	}
 
-	template <typename U, size_t N>
-	X_INLINE xView(const U (&refArray)[N])
-		: xView(refArray, N) {
+	template <typename N, typename = std::enable_if_t<std::is_integral_v<N> && !std::is_pointer_v<N>>>
+	X_INLINE xArrayView(const T * start, N number)
+		: _Start(start), _End(start + number), _Size(number) {
+		assert(_Start <= _End);
 	}
 
-	X_INLINE const void * operator()() const {
-		return _DataPtr;
+	template <size_t N>
+	xArrayView(T (&start)[N])
+		: _Start(start), _End(start + N), _Size(N) {
+	}
+
+	template <size_t N>
+	xArrayView(const T (&start)[N])
+		: _Start(start), _End(start + N), _Size(N) {
 	}
 
 	X_INLINE const T & operator[](ptrdiff_t off) const {
-		return *(_DataPtr + off);
+		return *(_Start + off);
 	}
 
 	X_INLINE const T * Data() const {
-		return _DataPtr;
+		return _Start;
 	}
 
 	X_INLINE size_t Size() const {
 		return _Size;
 	}
 
-private:
-	const T * _DataPtr = nullptr;
-	size_t    _Size    = 0;
-};
-
-template <typename T>
-class xRangeView final {
-	static_assert(!std::is_reference_v<T>);
-
-public:
-	X_INLINE xRangeView() = default;
-
-	X_INLINE xRangeView(T * start, T * end)
-		: _Start(start), _End(end), _Size(end - start) {
-		assert(_Start <= _End);
-	}
-
-	template <typename N, typename = std::enable_if_t<std::is_integral_v<N> && !std::is_pointer_v<N>>>
-	X_INLINE xRangeView(T * start, N number)
-		: _Start(start), _End(start + number), _Size(number) {
-		assert(_Start <= _End);
-	}
-
-	template <size_t N>
-	xRangeView(T (&start)[N])
-		: _Start(start), _End(start + N), _Size(N) {
-	}
-
-	X_INLINE T & operator[](ptrdiff_t off) const {
-		return *(_Start + off);
-	}
-	X_INLINE T * begin() const {
+	// for iteration
+	X_INLINE const T * begin() const {
 		return _Start;
 	}
-	X_INLINE T * end() const {
+	X_INLINE const T * end() const {
 		return _End;
-	}
-	X_INLINE size_t size() const {
-		return _Size;
 	}
 
 private:
-	T *    _Start{};
-	T *    _End{};
-	size_t _Size{};
+	const T * _Start{};
+	const T * _End{};
+	size_t    _Size{};
 };
 
 template <typename T>
 class xSliceView final {
+	static_assert(!std::is_const_v<T>);
 	static_assert(!std::is_reference_v<T>);
 	using IteratorMemory      = std::conditional_t<std::is_const_v<T>, const ubyte *, ubyte *>;
 	using IteratorInitPointer = std::conditional_t<std::is_const_v<T>, const void *, void *>;
@@ -183,21 +159,22 @@ public:
 		: _Start(reinterpret_cast<IteratorMemory>(start)), _End(_Start + number * stride), _Stride(stride), _Size(number) {
 	}
 
+	X_INLINE T & operator[](ptrdiff_t off) const {
+		return *reinterpret_cast<T *>(_Start + off * _Stride);
+	}
+	X_INLINE size_t Stride() const {
+		return _Stride;
+	}
+	X_INLINE size_t Size() const {
+		return _Size;
+	}
+
+	// for iteration
 	X_INLINE xIterator begin() const {
 		return xIterator(_Start, _Stride);
 	}
 	X_INLINE xIterator end() const {
 		return xIterator(_End, 0);
-	}
-
-	X_INLINE T & operator[](ptrdiff_t off) const {
-		return *reinterpret_cast<T *>(_Start + off * _Stride);
-	}
-	X_INLINE size_t stride() const {
-		return _Stride;
-	}
-	X_INLINE size_t size() const {
-		return _Size;
 	}
 
 private:
