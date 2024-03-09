@@ -355,9 +355,19 @@ namespace __common_detail__ {
 using xReentryFlag       = __common_detail__::xReentryFlag<false>;
 using xAtomicReentryFlag = __common_detail__::xReentryFlag<true>;
 
-template <typename xTarget>
-[[no_discard]] auto MakeResourceCleaner(xTarget & Target) {
-	return xScopeGuard([&Target] { Target.Clean(); });
+namespace __common_detail__ {
+	X_INLINE void CleanResource() {
+	}
+	template<typename T, typename... TOthers>
+	X_INLINE void CleanResource(T & Target, TOthers &...Others) {
+		CleanResource(Others...);
+		Target.Clean();
+	}
+}
+
+template <typename...xTargets>
+[[no_discard]] auto MakeResourceCleaner(xTargets &... Targets) {
+	return xScopeGuard([&Targets...] { __common_detail__::CleanResource(Targets...); });
 }
 
 X_API void DebugPrintf(const char * Filename, size_t Line, const char * FunctionName, const char * fmt, ...);
