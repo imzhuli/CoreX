@@ -16,7 +16,9 @@ namespace __io_detail__ {
 	public:
 		X_API_MEMBER bool Init(xIoContext * IoContextPtr);
 		X_API_MEMBER void Clean();
-		X_API_MEMBER void Trigger() override;
+
+	private:
+		X_API_MEMBER void Trigger() const override;
 
 	private:
 		xIoContext *           _IoContextPtr   = nullptr;
@@ -32,7 +34,7 @@ namespace __io_detail__ {
 		X_DEBUG_RESET(_IoContextPtr);
 	}
 
-	void xUserEventTrigger::Trigger() {
+	void xUserEventTrigger::Trigger() const {
 		struct kevent event;
 		EV_SET(&event, _UserEventIdent, EVFILT_USER, 0, NOTE_TRIGGER, 0, NULL);
 		kevent(*_IoContextPtr, &event, 1, NULL, 0, NULL);
@@ -48,7 +50,9 @@ namespace __io_detail__ {
 	public:
 		X_API_MEMBER bool Init(xIoContext * IoContextPtr);
 		X_API_MEMBER void Clean();
-		X_API_MEMBER void Trigger() override;
+
+	private:
+		X_API_MEMBER void Trigger() const override;
 
 	private:
 		void OnIoEventInReady() override;
@@ -92,7 +96,7 @@ namespace __io_detail__ {
 		}
 	}
 
-	void xUserEventTrigger::Trigger() {
+	void xUserEventTrigger::Trigger() const {
 		uint64_t PseudoData = 1;
 		auto     Result     = write(_UserEventFd, &PseudoData, 8);
 		if (Result < 0) {
@@ -111,7 +115,9 @@ namespace __io_detail__ {
 	public:
 		X_API_MEMBER bool Init(xIoContext * IoContextPtr);
 		X_API_MEMBER void Clean();
-		X_API_MEMBER void Trigger() override;
+
+	private:
+		X_API_MEMBER void Trigger() const override;
 
 	private:
 		void OnIoEventInReady() override;
@@ -130,7 +136,7 @@ namespace __io_detail__ {
 	void xUserEventTrigger::OnIoEventInReady() {
 	}
 
-	void xUserEventTrigger::Trigger() {
+	void xUserEventTrigger::Trigger() const {
 		PostQueuedCompletionStatus(*_IoContextPtr, 0, (ULONG_PTR)this, nullptr);
 	}
 }  // namespace __io_detail__

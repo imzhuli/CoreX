@@ -74,7 +74,12 @@ class xIoContext : xNonCopyable {
 public:
 	class iUserEventTrigger {
 	public:
-		virtual void Trigger() = 0;
+		X_INLINE void operator()() const {
+			return Trigger();
+		}
+
+	private:
+		virtual void Trigger() const = 0;
 	};
 
 public:
@@ -82,13 +87,15 @@ public:
 	X_API_MEMBER void Clean();
 	X_API_MEMBER void LoopOnce(int TimeoutMS = 50);
 
-	X_INLINE iUserEventTrigger * GetUserEventTrigger() const {
-		return _UserEventTriggerPtr;
-	}
 	X_INLINE operator xEventPoller() const {
 		return _Poller;
 	}
 
+	X_INLINE void Interrupt() const {
+		return (*_UserEventTriggerPtr)();
+	}
+
+	// called by reactors, to defer an error process
 	X_INLINE void PostError(iIoReactor & IoReactor) {
 		if (!IoReactor.IsAvailable()) {
 			return;
