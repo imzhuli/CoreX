@@ -49,6 +49,7 @@ void DebugPrintf(const char * Path, size_t Line, const char * FunctionName, cons
 #endif
 	} while (false);
 	va_end(args);
+	fflush(stdout);
 }
 
 static auto ErrorPrintfMutex = std::mutex();
@@ -81,6 +82,7 @@ void ErrorPrintf(const char * Path, size_t Line, const char * FunctionName, cons
 #endif
 	} while (false);
 	va_end(args);
+	fflush(stdout);
 }
 
 X_COMMON_END
