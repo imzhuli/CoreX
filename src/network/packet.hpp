@@ -144,6 +144,7 @@ struct xPacket final {
 
 	X_STATIC_INLINE size_t MakeRegisterDispatcherConsumer(void * PacketBuffer, size_t PacketBufferSize, const xPacketCommandId * CmdIds, size_t Total) {
 		assert(Total <= MaxDispatchableCommandIdCount);
+		assert(Total < 256 && "One Comsumer should observer no more than 256 commands");
 		size_t TotalRequired = PacketHeaderSize + Total;
 		if (PacketBufferSize < TotalRequired) {
 			return 0;
@@ -158,13 +159,14 @@ struct xPacket final {
 		for (size_t I = 0; I < Total; ++I) {
 			auto CmdId = CmdIds[I];
 			assert(CmdId <= MaxDispatchableCommandId);
-			W.W1((uint8_t)CmdId);
+			W.W2L((uint8_t)CmdId);
 		}
 		return TotalRequired;
 	}
 
 	X_STATIC_INLINE size_t MakeRegisterDispatcherObserver(void * PacketBuffer, size_t PacketBufferSize, const xPacketCommandId * CmdIds, size_t Total) {
 		assert(Total <= MaxDispatchableCommandIdCount);
+		assert(Total < 256 && "One Observer should observer no more than 256 commands");
 		size_t TotalRequired = PacketHeaderSize + Total;
 		if (PacketBufferSize < TotalRequired) {
 			return 0;
@@ -179,7 +181,7 @@ struct xPacket final {
 		for (size_t I = 0; I < Total; ++I) {
 			auto CmdId = CmdIds[I];
 			assert(CmdId <= MaxDispatchableCommandId);
-			W.W1((uint8_t)CmdId);
+			W.W2L((uint8_t)CmdId);
 		}
 		return TotalRequired;
 	}
