@@ -171,9 +171,7 @@ namespace __detail__ {
 		}
 
 		template <typename tFuncObj = xPass>
-		X_INLINE std::enable_if_t<!AutoReset && std::is_same_v<void, std::invoke_result_t<tFuncObj>>> NotifyAll(
-			const tFuncObj & PreNotifyFunc = {}
-		) {
+		X_INLINE std::enable_if_t<!AutoReset && std::is_same_v<void, std::invoke_result_t<tFuncObj>>> NotifyAll(const tFuncObj & PreNotifyFunc = {}) {
 			do {
 				auto Lock = std::lock_guard(_Mutex);
 				PreNotifyFunc();
@@ -185,6 +183,73 @@ namespace __detail__ {
 }  // namespace __detail__
 using xEvent          = __detail__::xEvent<false>;
 using xAutoResetEvent = __detail__::xEvent<true>;
+
+struct xSemaphore final {
+private:
+	std::mutex              _Mutex;
+	std::condition_variable _ConditionVariable;
+	int64_t                 _Counter = 0;
+
+public:
+	template <typename tFuncPre, typename tFuncPost>
+	X_INLINE void Wait(const tFuncPre & funcPre, const tFuncPost & funcPost) {
+		auto Lock = std::unique_lock(_Mutex);
+		funcPre();
+		_ConditionVariable.wait(Lock, [this]() { return _Counter > 0; });
+		--_Counter;
+		funcPost();
+	}
+	template <typename tFuncPost = xPass>
+	void Wait(const tFuncPost & funcPost = {}) {
+		auto Lock = std::unique_lock(_Mutex);
+		_ConditionVariable.wait(Lock, [this]() { return _Counter > 0; });
+		--_Counter;
+		funcPost();
+	}
+	template <typename Rep, typename Period, typename tFuncPre, typename tFuncPost>
+	X_INLINE bool WaitFor(const std::chrono::duration<Rep, Period> & RelTime, const tFuncPre & funcPre, const tFuncPost & funcPost) {
+		auto Lock = std::unique_lock(_Mutex);
+		funcPre();
+		if (!_ConditionVariable.wait_for(Lock, RelTime, [this]() { return _Counter > 0; })) {
+			return false;
+		}
+		--_Counter;
+		funcPost();
+		return true;
+	}
+
+	template <typename Rep, typename Period, typename tFuncPost = xPass>
+	X_INLINE bool WaitFor(const std::chrono::duration<Rep, Period> & RelTime, const tFuncPost & funcPost = {}) {
+		auto Lock = std::unique_lock(_Mutex);
+		if (!_ConditionVariable.wait_for(Lock, RelTime, [this]() { return _Counter > 0; })) {
+			return false;
+		}
+		--_Counter;
+		funcPost();
+		return true;
+	}
+	template <typename tFuncObj = xPass>
+	X_INLINE std::enable_if_t<std::is_same_v<void, std::invoke_result_t<tFuncObj>>> Notify(const tFuncObj & PreNotifyFunc = {}) {
+		do {
+			auto Lock = std::lock_guard(_Mutex);
+			PreNotifyFunc();
+			++_Counter;
+			assert(_Counter > 0);
+		} while (false);
+		_ConditionVariable.notify_one();
+	}
+	template <typename tFuncObj = xPass>
+	X_INLINE std::enable_if_t<std::is_same_v<void, std::invoke_result_t<tFuncObj>>> NotifyN(int64_t N, const tFuncObj & PreNotifyFunc = {}) {
+		assert(N > 0);
+		do {
+			auto Lock = std::lock_guard(_Mutex);
+			PreNotifyFunc();
+			_Counter += N;
+			assert(_Counter > 0);
+		} while (false);
+		_ConditionVariable.notify_all();
+	}
+};
 
 class xThreadChecker final {
 public:
