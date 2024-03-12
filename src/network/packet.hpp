@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <vector>
 
 X_BEGIN
 
@@ -21,7 +22,7 @@ static constexpr const size_t InvalidPacketSize    = static_cast<size_t>(-1);
 static constexpr const size_t MaxPacketSize        = 4096 & PacketSizeMask;
 static constexpr const size_t MaxPacketPayloadSize = MaxPacketSize - PacketHeaderSize;
 
-static constexpr const xPacketCommandId MaxDispatchableCommandId      = 0x00'FFu;
+static constexpr const xPacketCommandId MaxDispatchableCommandId      = 0x0'FFFu;
 static constexpr const size_t           MaxDispatchableCommandIdCount = 1 + MaxDispatchableCommandId;
 
 /***
@@ -143,8 +144,8 @@ struct xPacket final {
 	}
 
 	X_STATIC_INLINE size_t MakeRegisterDispatcherConsumer(void * PacketBuffer, size_t PacketBufferSize, const xPacketCommandId * CmdIds, size_t Total) {
-		assert(Total <= MaxDispatchableCommandIdCount);
-		size_t TotalRequired = PacketHeaderSize + Total;
+		assert(Total < 1024 && Total <= MaxDispatchableCommandIdCount);
+		size_t TotalRequired = PacketHeaderSize + Total * 2;
 		if (PacketBufferSize < TotalRequired) {
 			return 0;
 		}
@@ -153,35 +154,36 @@ struct xPacket final {
 		Header.RequestId  = xPacketHeader::InternalRequest_RegisterDispatcherConsumer;
 		Header.PacketSize = TotalRequired;
 		Header.Serialize(PacketBuffer);
+
 		auto W = xStreamWriter(PacketBuffer);
 		W.Skip(PacketHeaderSize);
+
+		[[maybe_unused]] auto Last = xPacketCommandId(0);
 		for (size_t I = 0; I < Total; ++I) {
 			auto CmdId = CmdIds[I];
 			assert(CmdId <= MaxDispatchableCommandId);
-			W.W1((uint8_t)CmdId);
+			assert(I == 0 || Last < CmdId);
+			Last = CmdId;
+			W.W2L((uint16_t)CmdId);
 		}
 		return TotalRequired;
 	}
 
-	X_STATIC_INLINE size_t MakeRegisterDispatcherObserver(void * PacketBuffer, size_t PacketBufferSize, const xPacketCommandId * CmdIds, size_t Total) {
-		assert(Total <= MaxDispatchableCommandIdCount);
-		size_t TotalRequired = PacketHeaderSize + Total;
-		if (PacketBufferSize < TotalRequired) {
-			return 0;
-		}
-		xPacketHeader Header;
-		Header.CommandId  = xPacketHeader::CmdId_InnernalRequest;
-		Header.RequestId  = xPacketHeader::InternalRequest_RegisterDispatcherObserver;
-		Header.PacketSize = TotalRequired;
-		Header.Serialize(PacketBuffer);
-		auto W = xStreamWriter(PacketBuffer);
-		W.Skip(PacketHeaderSize);
+	X_STATIC_INLINE std::vector<xPacketCommandId> ParseRegisterDispatcherConsumer(const void * PayloadPtr, size_t PayloadSize) {
+		auto   Ret   = std::vector<xPacketCommandId>();
+		size_t Total = PayloadSize / 2;
+		Ret.resize(Total);
+		auto Last = xPacketCommandId(0);
+		auto R    = xStreamReader(PayloadPtr);
 		for (size_t I = 0; I < Total; ++I) {
-			auto CmdId = CmdIds[I];
-			assert(CmdId <= MaxDispatchableCommandId);
-			W.W1((uint8_t)CmdId);
+			auto & CmdId = Ret[I];
+			CmdId        = (xPacketCommandId)R.R2L();
+			if (I && CmdId <= Last) {
+				return {};
+			}
+			Last = CmdId;
 		}
-		return TotalRequired;
+		return Ret;
 	}
 };
 
