@@ -143,48 +143,11 @@ struct xPacket final {
 		return PayloadSize + PacketHeaderSize;
 	}
 
-	X_STATIC_INLINE size_t MakeRegisterDispatcherConsumer(void * PacketBuffer, size_t PacketBufferSize, const xPacketCommandId * CmdIds, size_t Total) {
-		assert(Total < 1024 && Total <= MaxDispatchableCommandIdCount);
-		size_t TotalRequired = PacketHeaderSize + Total * 2;
-		if (PacketBufferSize < TotalRequired) {
-			return 0;
-		}
-		xPacketHeader Header;
-		Header.CommandId  = xPacketHeader::CmdId_InnernalRequest;
-		Header.RequestId  = xPacketHeader::InternalRequest_RegisterDispatcherConsumer;
-		Header.PacketSize = TotalRequired;
-		Header.Serialize(PacketBuffer);
+	X_API_STATIC_MEMBER size_t MakeRegisterDispatcherConsumer(void * PacketBuffer, size_t PacketBufferSize, const xPacketCommandId * CmdIds, size_t Total);
+	X_API_STATIC_MEMBER std::vector<xPacketCommandId> ParseRegisterDispatcherConsumer(const void * PayloadPtr, size_t PayloadSize);
 
-		auto W = xStreamWriter(PacketBuffer);
-		W.Skip(PacketHeaderSize);
-
-		[[maybe_unused]] auto Last = xPacketCommandId(0);
-		for (size_t I = 0; I < Total; ++I) {
-			auto CmdId = CmdIds[I];
-			assert(CmdId <= MaxDispatchableCommandId);
-			assert(I == 0 || Last < CmdId);
-			Last = CmdId;
-			W.W2L((uint16_t)CmdId);
-		}
-		return TotalRequired;
-	}
-
-	X_STATIC_INLINE std::vector<xPacketCommandId> ParseRegisterDispatcherConsumer(const void * PayloadPtr, size_t PayloadSize) {
-		auto   Ret   = std::vector<xPacketCommandId>();
-		size_t Total = PayloadSize / 2;
-		Ret.resize(Total);
-		auto Last = xPacketCommandId(0);
-		auto R    = xStreamReader(PayloadPtr);
-		for (size_t I = 0; I < Total; ++I) {
-			auto & CmdId = Ret[I];
-			CmdId        = (xPacketCommandId)R.R2L();
-			if (I && CmdId <= Last) {
-				return {};
-			}
-			Last = CmdId;
-		}
-		return Ret;
-	}
+	X_API_STATIC_MEMBER size_t MakeRegisterDispatcherObserver(void * PacketBuffer, size_t PacketBufferSize, const xPacketCommandId * CmdIds, size_t Total);
+	X_API_STATIC_MEMBER std::vector<xPacketCommandId> ParseRegisterDispatcherObserver(const void * PayloadPtr, size_t PayloadSize);
 };
 
 X_END
