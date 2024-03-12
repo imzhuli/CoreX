@@ -318,44 +318,6 @@ template <typename T, typename... tArgs>
 xResourceGuardThrowable(T & Resource, tArgs &&... Args) -> xResourceGuardThrowable<T>;
 
 namespace __common_detail__ {
-	template <bool IsAtomic = false>
-	class xReentryFlag final : xNonCopyable {
-	private:
-		using xCounter = std::conditional_t<IsAtomic, std::atomic_uint64_t, uint64_t>;
-		class xGuard : xNonCopyable {
-		public:
-			xGuard(xCounter & CounterRef)
-				: _CounterRef(CounterRef), _Entered(!CounterRef++){};
-			xGuard(xGuard && Other)
-				: _CounterRef(Other._CounterRef), _Entered(Steal(Other._Entered)) {
-				++_CounterRef;
-			};
-			~xGuard() {
-				--_CounterRef;
-			}
-			operator bool() const {
-				return _Entered;
-			}
-
-		private:
-			xCounter & _CounterRef;
-			bool       _Entered;
-			friend class xReentryFlag;
-		};
-
-	public:
-		xGuard Guard() {
-			return xGuard(_Counter);
-		}
-
-	private:
-		xCounter _Counter{};
-	};
-}  // namespace __common_detail__
-using xReentryFlag       = __common_detail__::xReentryFlag<false>;
-using xAtomicReentryFlag = __common_detail__::xReentryFlag<true>;
-
-namespace __common_detail__ {
 	X_INLINE void CleanResource() {
 	}
 	template<typename T, typename... TOthers>
@@ -364,11 +326,23 @@ namespace __common_detail__ {
 		Target.Clean();
 	}
 }
-
 template <typename...xTargets>
 [[no_discard]] auto MakeResourceCleaner(xTargets &... Targets) {
 	return xScopeGuard([&Targets...] { __common_detail__::CleanResource(Targets...); });
 }
+
+class xRunState final {
+public:
+	X_INLINE bool Start() { return _RunState.compare_exchange_strong(X2R(NO_INSTANCE), RUNNING); }
+	X_INLINE void Stop() { _RunState.compare_exchange_strong(X2R(RUNNING), STOPPING); }
+	X_INLINE void Finish() { _RunState = NO_INSTANCE; }
+	X_INLINE operator bool() const { return _RunState == RUNNING; }
+private:
+	enum eState { NO_INSTANCE, RUNNING, STOPPING, };
+	std::atomic<eState> _RunState = NO_INSTANCE;
+};
+
+/*********************/
 
 X_API void DebugPrintf(const char * Filename, size_t Line, const char * FunctionName, const char * fmt, ...);
 X_API void ErrorPrintf(const char * Filename, size_t Line, const char * FunctionName, const char * fmt, ...);
