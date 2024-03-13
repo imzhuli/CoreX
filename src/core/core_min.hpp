@@ -333,9 +333,9 @@ template <typename...xTargets>
 
 class xRunState final {
 public:
-	X_INLINE bool Start() { return _RunState.compare_exchange_strong(X2R(NO_INSTANCE), RUNNING); }
-	X_INLINE void Stop() { _RunState.compare_exchange_strong(X2R(RUNNING), STOPPING); }
-	X_INLINE void Finish() { _RunState = NO_INSTANCE; }
+	X_INLINE bool Start()    { return _RunState.compare_exchange_strong(X2R(NO_INSTANCE), RUNNING); }
+	X_INLINE void Stop()     { _RunState.compare_exchange_strong(X2R(RUNNING), STOPPING); }
+	X_INLINE void Finish()   { _RunState = NO_INSTANCE; }
 	X_INLINE operator bool() const { return _RunState == RUNNING; }
 private:
 	enum eState { NO_INSTANCE, RUNNING, STOPPING, };
