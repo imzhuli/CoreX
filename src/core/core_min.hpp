@@ -270,6 +270,13 @@ xScopeGuard(const tExit & Exit) -> xScopeGuard<xPass, std::decay_t<tExit>>;
 template <typename tEntry, typename tExit>
 xScopeGuard(xScopeGuard<tEntry, tExit> && Other) -> xScopeGuard<tEntry, tExit>;
 
+X_STATIC_INLINE void Dismiss() {}
+template<typename T0, typename...T>
+X_STATIC_INLINE void Dismiss(T0 & Guard0, T & ...Guards) {
+	Guard0.Dismiss();
+	Dismiss(Guards...);
+}
+
 namespace __common_detail__ {
 	template <typename T, bool DoThrow = false>
 	class xResourceGuardBase : xNonCopyable {
