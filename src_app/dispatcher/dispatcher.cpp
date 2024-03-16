@@ -30,7 +30,7 @@ bool xDispatcherService::Init(const xDispatcherOptions & Options) {
 		.Outer             = this,
 		.IoCtxPtr          = &IoCtx,
 		.BindAddress       = Options.ProducerAddress,
-		.ConnetionPoolSize = 10240,
+		.ConnetionPoolSize = 1024,
 	};
 	if (!ProducerService.Init(PO)) {
 		return false;
@@ -41,7 +41,7 @@ bool xDispatcherService::Init(const xDispatcherOptions & Options) {
 		.Outer             = this,
 		.IoCtxPtr          = &IoCtx,
 		.BindAddress       = Options.ConsumerAddress,
-		.ConnetionPoolSize = 10240,
+		.ConnetionPoolSize = 1024,
 	};
 	if (!ConsumerService.Init(CO)) {
 		return false;
@@ -79,10 +79,6 @@ void xDispatcherService::Tick() {
 }
 
 void xDispatcherService::PostRequest(uint64_t ProducerConnectionId, const xPacketHeader & Header, ubyte * PacketPtr, size_t PacketSize) {
-	if (Header.CommandId > MaxDispatchableCommandId) {
-		X_DEBUG_PRINTF("Invalid commmand id: %" PRIx32 "", Header.CommandId);
-		return;
-	}
 	if (Header.RequestId) {  // won't expect response if request id is zero
 		auto ConsumerRequestId = RequestIdPool.Acquire();
 		if (!ConsumerRequestId) {

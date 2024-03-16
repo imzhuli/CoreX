@@ -39,7 +39,6 @@ void xDispatcherConsumerService::OnClientClose(xServiceClientConnection & Connec
 	auto   Index          = xIndexId(ConnectionId).GetIndex();
 	auto & ConnectionInfo = ConnectionInfoPool[Index];
 	if (!ConnectionInfo.InterestedCommandIdCount) {  // first packet, registering consumer
-		X_DEBUG_PRINTF("ConnectionClose: %" PRIx64 ", NoInterestedCommandId found", Connection.GetConnectionId());
 		return;
 	}
 	for (size_t I = 0; I < ConnectionInfo.InterestedCommandIdCount; ++I) {
@@ -59,12 +58,10 @@ bool xDispatcherConsumerService::OnPacket(xServiceClientConnection & Connection,
 	auto   Index          = xIndexId(ConnectionId).GetIndex();
 	auto & ConnectionInfo = ConnectionInfoPool[Index];
 	X_DEBUG_PRINTF("ConsumerPacket: %" PRIx64 "\n%s", ConnectionId, HexShow(PayloadPtr, PayloadSize).c_str());
-
 	if (!ConnectionInfo.InterestedCommandIdCount) {  // first packet, registering consumer
 		if (!Header.IsRegisterDispatcherConsumer() || !PayloadSize) {
 			return false;
 		}
-
 		auto InterestedCommandIds = xPacket::ParseRegisterDispatcherConsumer(PayloadPtr, PayloadSize);
 		X_DEBUG_PRINTF("New Consumer accepted: Interested command number: %zi", InterestedCommandIds.size());
 		if (InterestedCommandIds.empty()) {
@@ -79,7 +76,10 @@ bool xDispatcherConsumerService::OnPacket(xServiceClientConnection & Connection,
 		return true;
 	}
 
-	assert(!Header.IsInternalRequest());
+	if (Header.IsInternalRequest()) {
+		X_DEBUG_PRINTF("Observe should not post internal messages after initialization");
+		return false;
+	}
 	auto PacketPtr  = xPacket::GetPacketPtr(PayloadPtr);
 	auto PacketSize = xPacket::GetPacketSize(PayloadSize);
 	DispatcherPtr->PostResponse(Header, PacketPtr, PacketSize);

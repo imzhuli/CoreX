@@ -20,7 +20,9 @@ void xBroadcasterProducerService::Clean() {
 
 bool xBroadcasterProducerService::OnPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) {
 	X_DEBUG_PRINTF("ProducerPacket: \n%s", HexShow(PayloadPtr, PayloadSize).c_str());
-	assert(!Header.IsInternalRequest());
+	if (Header.IsInternalRequest() || Header.CommandId > MaxDispatchableCommandId) {
+		return false;
+	}
 
 	auto PacketPtr  = xPacket::GetPacketPtr(PayloadPtr);
 	auto PacketSize = xPacket::GetPacketSize(PayloadSize);

@@ -39,7 +39,6 @@ void xBroadcasterObserverService::OnClientClose(xServiceClientConnection & Conne
 	auto   Index          = xIndexId(ConnectionId).GetIndex();
 	auto & ConnectionInfo = ConnectionInfoPool[Index];
 	if (!ConnectionInfo.InterestedCommandIdCount) {  // first packet, registering consumer
-		X_DEBUG_PRINTF("ConnectionClose: %" PRIx64 ", NoInterestedCommandId found", Connection.GetConnectionId());
 		return;
 	}
 	for (size_t I = 0; I < ConnectionInfo.InterestedCommandIdCount; ++I) {
@@ -59,12 +58,10 @@ bool xBroadcasterObserverService::OnPacket(xServiceClientConnection & Connection
 	auto   Index          = xIndexId(ConnectionId).GetIndex();
 	auto & ConnectionInfo = ConnectionInfoPool[Index];
 	X_DEBUG_PRINTF("ObserverPacket: %" PRIx64 "\n%s", ConnectionId, HexShow(PayloadPtr, PayloadSize).c_str());
-
 	if (!ConnectionInfo.InterestedCommandIdCount) {  // first packet, registering consumer
 		if (!Header.IsRegisterDispatcherObserver() || !PayloadSize) {
 			return false;
 		}
-
 		auto InterestedCommandIds = xPacket::ParseRegisterDispatcherObserver(PayloadPtr, PayloadSize);
 		X_DEBUG_PRINTF("New Observer accepted: Interested command number: %zi", InterestedCommandIds.size());
 		if (InterestedCommandIds.empty()) {

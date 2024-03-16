@@ -72,7 +72,7 @@ private:
 struct xDispatcherOptions final {
 	xNetAddress ProducerAddress;
 	xNetAddress ConsumerAddress;
-	size_t      RequestIdPoolSize;
+	size_t      RequestIdPoolSize = 10240;
 };
 
 class xDispatcherService final {

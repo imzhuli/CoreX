@@ -17,7 +17,7 @@ bool xBroadcasterService::Init(const xBroadcasterOptions & Options) {
 		.Outer             = this,
 		.IoCtxPtr          = &IoCtx,
 		.BindAddress       = Options.ProducerAddress,
-		.ConnetionPoolSize = 10240,
+		.ConnetionPoolSize = 1024,
 	};
 	if (!ProducerService.Init(PO)) {
 		return false;
@@ -28,7 +28,7 @@ bool xBroadcasterService::Init(const xBroadcasterOptions & Options) {
 		.Outer             = this,
 		.IoCtxPtr          = &IoCtx,
 		.BindAddress       = Options.ObserverAddress,
-		.ConnetionPoolSize = 10240,
+		.ConnetionPoolSize = 1024,
 	};
 	if (!ObserverService.Init(CO)) {
 		return false;
@@ -51,10 +51,7 @@ void xBroadcasterService::Tick() {
 }
 
 void xBroadcasterService::Broadcast(uint64_t ProducerConnectionId, const xPacketHeader & Header, ubyte * PacketPtr, size_t PacketSize) {
-	if (Header.CommandId > MaxDispatchableCommandId) {
-		X_DEBUG_PRINTF("Invalid commmand id: %" PRIx32 "", Header.CommandId);
-		return;
-	}
+
 	ObserverService.Broadcast(Header.CommandId, PacketPtr, PacketSize);
 	X_DEBUG_PRINTF("Dispatching request: \n%s", HexShow(PacketPtr, PacketSize).c_str());
 }
