@@ -124,4 +124,20 @@ X_NS {
 		}
 	};
 
+	class xTicker final {
+	public:
+		xTicker() {
+			Update();
+		}
+		uint64_t Update() {
+			return (NowMS = GetTimestampMS());
+		}
+		operator uint64_t() const {
+			return NowMS;
+		}
+
+	private:
+		uint64_t NowMS;
+	};
+
 }  // namespace ze
