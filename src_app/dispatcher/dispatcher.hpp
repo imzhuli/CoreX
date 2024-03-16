@@ -23,6 +23,7 @@ public:
 	void Clean();
 
 	using xService::PostData;
+	using xService::Tick;
 
 protected:
 	bool OnPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) override;
@@ -44,6 +45,7 @@ public:
 	bool Init(const xDispatcherConsumerOptions & Options);
 	void Clean();
 	void DispatchRequest(xPacketCommandId CommandId, const void * PacketPtr, size_t PacketSize);
+	using xService::Tick;
 
 protected:
 	void OnClientConnected(xServiceClientConnection & Connection) override;

@@ -30,7 +30,7 @@ bool xDispatcherService::Init(const xDispatcherOptions & Options) {
 		.Outer             = this,
 		.IoCtxPtr          = &IoCtx,
 		.BindAddress       = Options.ProducerAddress,
-		.ConnetionPoolSize = 1024,
+		.ConnetionPoolSize = 10240,
 	};
 	if (!ProducerService.Init(PO)) {
 		return false;
@@ -41,7 +41,7 @@ bool xDispatcherService::Init(const xDispatcherOptions & Options) {
 		.Outer             = this,
 		.IoCtxPtr          = &IoCtx,
 		.BindAddress       = Options.ConsumerAddress,
-		.ConnetionPoolSize = 1024,
+		.ConnetionPoolSize = 10240,
 	};
 	if (!ConsumerService.Init(CO)) {
 		return false;
@@ -64,6 +64,8 @@ void xDispatcherService::Clean() {
 void xDispatcherService::Tick() {
 	NowMS = GetTimestampMS();
 	IoCtx.LoopOnce();
+	ProducerService.Tick(NowMS);
+	ConsumerService.Tick(NowMS);
 	auto KillTimestamp = NowMS - REQUEST_TIMEOUT_MS;
 	for (auto & N : RequestTimeoutList) {
 		if (SignedDiff(KillTimestamp, N.TimestampMS) < 0) {

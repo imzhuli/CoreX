@@ -41,9 +41,13 @@ function(build_app sub_dir_name)
 	target_link_libraries(x_${sub_dir_name} PRIVATE ${shared_lib_dependency_private})
 endfunction()
 
+build_app(broadcaster)
 build_app(dispatcher)
 
+
+
 install(TARGETS
+	x_broadcaster
 	x_dispatcher
 	RUNTIME DESTINATION bin
 	ARCHIVE DESTINATION lib

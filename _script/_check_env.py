@@ -7,7 +7,6 @@ import shutil
 MIN_PY_VERSION_MAJOR = 3
 MIN_PY_VERSION_MINOR = 7
 
-
 def check_version():
     py_version_major = sys.version_info[0]
     py_version_minor = sys.version_info[1]
@@ -40,7 +39,7 @@ def check_env():
     return True
 
 
-def _remake_dir(dir):
+def remake_dir(dir):
     try:
         shutil.rmtree(dir)
     except Exception as e:
@@ -55,7 +54,7 @@ def _remake_dir(dir):
 def remake_3rd_build_dir():
     cwd = os. getcwd()
     install_dir = cwd + "/_3rd_build"
-    if not _remake_dir(install_dir):
+    if not remake_dir(install_dir):
         print("failed to remake 3rd_build dir")
         return False
     print("3rd_build dir prepared")
@@ -65,7 +64,7 @@ def remake_3rd_build_dir():
 def remake_3rd_install_dir():
     cwd = os. getcwd()
     install_dir = cwd + "/_3rd_installed"
-    if not _remake_dir(install_dir):
+    if not remake_dir(install_dir):
         print("failed to remake 3rd_installed dir")
         return False
     print("3rd_installed dir prepared")
