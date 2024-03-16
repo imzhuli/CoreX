@@ -77,7 +77,7 @@ bool xDispatcherConsumerService::OnPacket(xServiceClientConnection & Connection,
 	}
 
 	if (Header.IsInternalRequest()) {
-		X_DEBUG_PRINTF("Observe should not post internal messages after initialization");
+		X_DEBUG_PRINTF("Consumer should not post internal messages after initialization");
 		return false;
 	}
 	auto PacketPtr  = xPacket::GetPacketPtr(PayloadPtr);
