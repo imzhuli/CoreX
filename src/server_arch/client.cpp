@@ -14,12 +14,13 @@ static constexpr const int64_t  RequestKeepAliveTimeoutMS = 10'000;
 static ubyte  RequestKeepAliveBuffer[128];
 static size_t RequestKeepAliveSize = xPacketHeader::MakeRequestKeepAlive(RequestKeepAliveBuffer);
 
-bool xClient::Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress) {
+bool xClient::Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress, const xNetAddress & BindAddress) {
 	assert(IoContextPtr);
 	assert(TargetAddress);
 
 	this->IoContextPtr                    = IoContextPtr;
 	this->TargetAddress                   = TargetAddress;
+	this->BindAddress                     = BindAddress;
 	this->NowMS                           = 0;
 	this->ReconnectTimestampMS            = 0;
 	this->KeepAliveTimeoutMS              = 0;
@@ -92,7 +93,7 @@ void xClient::Tick(uint64_t NowMS) {
 		return;
 	}
 	ReconnectTimestampMS = NowMS;
-	if (!Connection.Init(IoContextPtr, TargetAddress, this)) {
+	if (!Connection.Init(IoContextPtr, TargetAddress, BindAddress, this)) {
 		return;
 	} else {
 		Connection.SetMaxWriteBufferSize(MaxWriteBufferLimitForEachConnection);

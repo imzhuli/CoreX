@@ -7,7 +7,10 @@ class xClient
 	: public xTcpConnection::iListener
 	, xAbstract {
 public:
-	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress);
+	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress) {
+		return Init(IoContextPtr, TargetAddress, xNetAddress());
+	}
+	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress, const xNetAddress & BindAddress);
 	X_API_MEMBER void Tick(uint64_t NowMS);
 	X_API_MEMBER void Clean();
 
@@ -35,6 +38,7 @@ private:
 
 	xIoContext *   IoContextPtr = {};
 	xNetAddress    TargetAddress;
+	xNetAddress    BindAddress;
 	xTcpConnection Connection;
 
 	uint64_t NowMS                           = 0;
