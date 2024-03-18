@@ -72,7 +72,10 @@ public:
 
 public:
 	X_API_MEMBER bool Init(xIoContext * IoContextPtr, xSocket && NativeHandle, iListener * ListenerPtr);
-	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & Address, iListener * ListenerPtr);
+	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & Address, const xNetAddress & BindAddress, iListener * ListenerPtr);
+	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & Address, iListener * ListenerPtr) {
+		return Init(IoContextPtr, Address, xNetAddress(), ListenerPtr);
+	}
 	X_API_MEMBER void Clean();
 
 	X_API_MEMBER xNetAddress GetRemoteAddress() const;

@@ -55,7 +55,7 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeHandle, iL
 	return true;
 }
 
-bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & Address, iListener * ListenerPtr) {
+bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & Address, const xNetAddress & BindAddress, iListener * ListenerPtr) {
 	int              AF          = AF_UNSPEC;
 	sockaddr_storage AddrStorage = {};
 	size_t           AddrLen     = Address.Dump(&AddrStorage);
@@ -80,6 +80,17 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & Address
 		X_DEBUG_RESET(_IoContextPtr);
 		X_DEBUG_RESET(_ListenerPtr);
 	} };
+
+	if (BindAddress) {
+		assert(Address.Type == BindAddress.Type);
+		sockaddr_storage BindAddrStorage;
+		size_t           AddrLen = Address.Dump(&BindAddrStorage);
+		auto             BindRet = bind(_Socket, (sockaddr *)&BindAddrStorage, (int)AddrLen);
+		if (BindRet == -1) {
+			X_DEBUG_PRINTF("failed bind: socket=%" PRIuPTR "\n", (uintptr_t)_Socket);
+			return false;
+		}
+	}
 
 	int flags = fcntl(_Socket, F_GETFL);
 	fcntl(_Socket, F_SETFL, flags | O_NONBLOCK);

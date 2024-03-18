@@ -57,7 +57,7 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeHandle, iL
 	return true;
 }
 
-bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & Address, iListener * ListenerPtr) {
+bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & Address, const xNetAddress & BindAddress, iListener * ListenerPtr) {
 	_IoContextPtr = IoContextPtr;
 	_ListenerPtr  = ListenerPtr;
 
@@ -131,10 +131,30 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & Address
 
 	/* ConnectEx requires the socket to be initially bound. */
 	do {
-		struct sockaddr_storage BindAddr;
-		memset(&BindAddr, 0, sizeof(BindAddr));
-		BindAddr.ss_family = AddrStorage.ss_family;
-		auto Error         = bind(_Socket, (SOCKADDR *)&BindAddr, (int)AddrLen);
+
+		if (BindAddress) {
+			assert(Address.Type == BindAddress.Type);
+			sockaddr_storage AddrStorage;
+			size_t           AddrLen = Address.Dump(&AddrStorage);
+			auto             BindRet = bind(_Socket, (sockaddr *)&AddrStorage, (int)AddrLen);
+			if (BindRet == -1) {
+				X_DEBUG_PRINTF("failed bind: socket=%" PRIuPTR "\n", (uintptr_t)_Socket);
+				return false;
+			}
+		}
+
+		sockaddr_storage BindAddrStorage;
+		size_t           BindAddrLen = AddrLen;
+		if (BindAddress) {
+			BindAddrLen = BindAddress.Dump(BindAddrStorage);
+			assert(Address.Type == BindAddress.Type);
+			assert(BindAddrLen == AddrLen);
+		} else {
+			memset(&BindAddrStorage, 0, sizeof(BindAddrStorage));
+			BindAddrStorage.ss_family = AddrStorage.ss_family;
+		}
+
+		auto Error = bind(_Socket, (SOCKADDR *)&BindAddrStorage, (int)BindAddrLen);
 		if (Error) {
 			X_DEBUG_PRINTF("bind failed: %u\n", WSAGetLastError());
 			return false;
