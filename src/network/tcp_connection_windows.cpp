@@ -135,7 +135,7 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & Address
 		if (BindAddress) {
 			assert(Address.Type == BindAddress.Type);
 			sockaddr_storage AddrStorage;
-			size_t           AddrLen = Address.Dump(&AddrStorage);
+			size_t           AddrLen = BindAddress.Dump(&AddrStorage);
 			auto             BindRet = bind(_Socket, (sockaddr *)&AddrStorage, (int)AddrLen);
 			if (BindRet == -1) {
 				X_DEBUG_PRINTF("failed bind: socket=%" PRIuPTR "\n", (uintptr_t)_Socket);

@@ -83,7 +83,7 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & Address
 	if (BindAddress) {
 		assert(Address.Type == BindAddress.Type);
 		sockaddr_storage BindAddrStorage;
-		size_t           AddrLen = Address.Dump(&BindAddrStorage);
+		size_t           AddrLen = BindAddress.Dump(&BindAddrStorage);
 		auto             BindRet = bind(_Socket, (sockaddr *)&BindAddrStorage, (int)AddrLen);
 		if (BindRet == -1) {
 			X_DEBUG_PRINTF("failed bind: socket=%" PRIuPTR "\n", (uintptr_t)_Socket);
