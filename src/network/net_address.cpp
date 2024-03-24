@@ -58,7 +58,7 @@ xNetAddress xNetAddress::Parse(const std::string & AddressStr) {
 	return Parse(IpStr, Port);
 }
 
-xNetAddress xNetAddress::Parse(const struct sockaddr * SockAddrPtr) {
+xNetAddress xNetAddress::Parse(const sockaddr * SockAddrPtr) {
 	xNetAddress Result = {};
 	if (SockAddrPtr->sa_family == AF_INET) {
 		auto Addr4Ptr = (const sockaddr_in *)SockAddrPtr;
@@ -90,6 +90,10 @@ xNetAddress xNetAddress::Parse(const sockaddr_in6 * SockAddr6Ptr) {
 	memcpy(Ret.Ipv6, &SockAddr6Ptr->sin6_addr, sizeof(Ret.Ipv6));
 	Ret.Port = ntohs(SockAddr6Ptr->sin6_port);
 	return Ret;
+}
+
+xNetAddress xNetAddress::Parse(const sockaddr_storage * SockAddrStoragePtr) {
+	return Parse((const sockaddr *)SockAddrStoragePtr);
 }
 
 std::string xNetAddress::IpToString() const {
