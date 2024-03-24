@@ -1,6 +1,8 @@
 #include "./core_min.hpp"
 #include "./string.hpp"
 
+#include <compare>
+
 X_BEGIN
 
 class xUuid {
@@ -29,23 +31,8 @@ public:
 		memcpy(&_Data, &RawData, sizeof(xRawType));
 	}
 
-	X_INLINE bool operator!=(const xUuid & Other) const {
-		return memcmp(_Data, Other._Data, sizeof(xRawType));
-	}
-	X_INLINE bool operator==(const xUuid & Other) const {
-		return !memcmp(_Data, Other._Data, sizeof(xRawType));
-	}
-	X_INLINE bool operator<(const xUuid & Other) const {
-		return memcmp(_Data, Other._Data, 16) < 0;
-	}
-	X_INLINE bool operator>(const xUuid & Other) const {
-		return memcmp(_Data, Other._Data, 16) > 0;
-	}
-	X_INLINE bool operator<=(const xUuid & Other) const {
-		return memcmp(_Data, Other._Data, 16) <= 0;
-	}
-	X_INLINE bool operator>=(const xUuid & Other) const {
-		return memcmp(_Data, Other._Data, 16) >= 0;
+	X_INLINE std::strong_ordering operator<=>(const xUuid & Other) const {
+		return memcmp(_Data, Other._Data, sizeof(xRawType)) <=> 0;
 	}
 
 	X_API_MEMBER bool Generate();

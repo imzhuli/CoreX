@@ -2,6 +2,7 @@
 #include "./base.hpp"
 
 #include <array>
+#include <compare>
 #include <string>
 
 X_BEGIN
@@ -123,6 +124,6 @@ struct xNetAddress final {
 	}
 };
 
-X_API bool operator<(const xNetAddress & lhs, const xNetAddress & rhs);
+X_API std::strong_ordering operator<=>(const xNetAddress & lhs, const xNetAddress & rhs);
 
 X_END

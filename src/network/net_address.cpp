@@ -4,32 +4,33 @@
 
 X_BEGIN
 
-bool operator<(const xNetAddress & lhs, const xNetAddress & rhs) {
-	if (lhs.Type < rhs.Type) {
-		return true;
+std::strong_ordering operator<=>(const xNetAddress & lhs, const xNetAddress & rhs) {
+	if (lhs.Type != rhs.Type) {
+		return lhs.Type <=> rhs.Type;
 	}
 	if (lhs.Type == xNetAddress::eUnknown) {
-		return lhs.Port < rhs.Port;
+		return lhs.Port <=> rhs.Port;
 	}
 	if (lhs.Type == xNetAddress::eIpv4) {
-		if (memcmp(lhs.Ipv4, rhs.Ipv4, 4) < 0) {
-			return true;
+		auto diff = memcmp(lhs.Ipv4, rhs.Ipv4, 4);
+		if (!diff) {
+			return lhs.Port <=> rhs.Port;
 		}
-		return lhs.Port < rhs.Port;
+		return diff <=> 0;
 	}
 	if (lhs.Type == xNetAddress::eIpv6) {
-		if (memcmp(lhs.Ipv6, rhs.Ipv6, 16) < 0) {
-			return true;
+		auto diff = memcmp(lhs.Ipv6, rhs.Ipv6, 16);
+		if (!diff) {
+			return lhs.Port <=> rhs.Port;
 		}
-		return lhs.Port < rhs.Port;
+		return diff <=> 0;
 	}
 	Fatal("Invalid address type");
-	return false;
 }
 
 xNetAddress xNetAddress::Parse(const char * IpStr, uint16_t Port) {
 	xNetAddress Ret;
-	auto		parse4 = inet_pton(AF_INET, IpStr, Ret.Ipv4);
+	auto        parse4 = inet_pton(AF_INET, IpStr, Ret.Ipv4);
 	if (1 == parse4) {
 		Ret.Type = xNetAddress::eIpv4;
 		Ret.Port = Port;
@@ -46,7 +47,7 @@ xNetAddress xNetAddress::Parse(const char * IpStr, uint16_t Port) {
 
 xNetAddress xNetAddress::Parse(const std::string & AddressStr) {
 	uint16_t Port = 0;
-	auto	 Segs = Split(AddressStr, ":");
+	auto     Segs = Split(AddressStr, ":");
 	if (Segs.size() > 2) {
 		return {};
 	}
@@ -61,15 +62,15 @@ xNetAddress xNetAddress::Parse(const struct sockaddr * SockAddrPtr) {
 	xNetAddress Result = {};
 	if (SockAddrPtr->sa_family == AF_INET) {
 		auto Addr4Ptr = (const sockaddr_in *)SockAddrPtr;
-		Result.Type = xNetAddress::eIpv4;
-		Result.Port = ntohs(Addr4Ptr->sin_port);
+		Result.Type   = xNetAddress::eIpv4;
+		Result.Port   = ntohs(Addr4Ptr->sin_port);
 		memcpy(Result.Ipv4, &Addr4Ptr->sin_addr, sizeof(Result.Ipv4));
 		return Result;
 	} else if (SockAddrPtr->sa_family == AF_INET6) {
-		auto		Addr6Ptr = (const sockaddr_in6 *)SockAddrPtr;
-		xNetAddress Result = {};
-		Result.Type = xNetAddress::eIpv6;
-		Result.Port = ntohs(Addr6Ptr->sin6_port);
+		auto        Addr6Ptr = (const sockaddr_in6 *)SockAddrPtr;
+		xNetAddress Result   = {};
+		Result.Type          = xNetAddress::eIpv6;
+		Result.Port          = ntohs(Addr6Ptr->sin6_port);
 		memcpy(Result.Ipv6, &Addr6Ptr->sin6_addr, sizeof(Result.Ipv6));
 	}
 	return Result;
@@ -107,8 +108,8 @@ std::string xNetAddress::IpToString() const {
 				 "%02x:%02x:%02x:%02x:"
 				 "%02x:%02x:%02x:%02x:"
 				 "%02x:%02x:%02x:%02x",
-				 (int)Ipv6[0], (int)Ipv6[1], (int)Ipv6[2], (int)Ipv6[3], (int)Ipv6[4], (int)Ipv6[5], (int)Ipv6[6], (int)Ipv6[7], (int)Ipv6[8], (int)Ipv6[9], (int)Ipv6[10], (int)Ipv6[11],
-				 (int)Ipv6[12], (int)Ipv6[13], (int)Ipv6[14], (int)Ipv6[15]
+				 (int)Ipv6[0], (int)Ipv6[1], (int)Ipv6[2], (int)Ipv6[3], (int)Ipv6[4], (int)Ipv6[5], (int)Ipv6[6], (int)Ipv6[7], (int)Ipv6[8], (int)Ipv6[9], (int)Ipv6[10],
+				 (int)Ipv6[11], (int)Ipv6[12], (int)Ipv6[13], (int)Ipv6[14], (int)Ipv6[15]
 			 ) };
 }
 
@@ -129,8 +130,8 @@ std::string xNetAddress::ToString() const {
 				 "%02x:%02x:%02x:%02x:"
 				 "%02x:%02x:%02x:%02x:"
 				 "%u",
-				 (int)Ipv6[0], (int)Ipv6[1], (int)Ipv6[2], (int)Ipv6[3], (int)Ipv6[4], (int)Ipv6[5], (int)Ipv6[6], (int)Ipv6[7], (int)Ipv6[8], (int)Ipv6[9], (int)Ipv6[10], (int)Ipv6[11],
-				 (int)Ipv6[12], (int)Ipv6[13], (int)Ipv6[14], (int)Ipv6[15], (int)Port
+				 (int)Ipv6[0], (int)Ipv6[1], (int)Ipv6[2], (int)Ipv6[3], (int)Ipv6[4], (int)Ipv6[5], (int)Ipv6[6], (int)Ipv6[7], (int)Ipv6[8], (int)Ipv6[9], (int)Ipv6[10],
+				 (int)Ipv6[11], (int)Ipv6[12], (int)Ipv6[13], (int)Ipv6[14], (int)Ipv6[15], (int)Port
 			 ) };
 }
 
