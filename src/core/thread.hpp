@@ -188,9 +188,15 @@ struct xSemaphore final {
 private:
 	std::mutex              _Mutex;
 	std::condition_variable _ConditionVariable;
-	int64_t                 _Counter = 0;
+	uint64_t                _Counter = 0;
 
 public:
+	template <typename tFuncPost = xPass>
+	void Reset(const tFuncPost & funcPost = {}) {
+		auto Lock = std::unique_lock(_Mutex);
+		_Counter  = 0;
+		funcPost();
+	}
 	template <typename tFuncPre, typename tFuncPost>
 	X_INLINE void Wait(const tFuncPre & funcPre, const tFuncPost & funcPost) {
 		auto Lock = std::unique_lock(_Mutex);
@@ -239,13 +245,12 @@ public:
 		_ConditionVariable.notify_one();
 	}
 	template <typename tFuncObj = xPass>
-	X_INLINE std::enable_if_t<std::is_same_v<void, std::invoke_result_t<tFuncObj>>> NotifyN(int64_t N, const tFuncObj & PreNotifyFunc = {}) {
-		assert(N > 0);
+	X_INLINE std::enable_if_t<std::is_same_v<void, std::invoke_result_t<tFuncObj>>> NotifyN(uint64_t N, const tFuncObj & PreNotifyFunc = {}) {
+		assert(N);
 		do {
 			auto Lock = std::lock_guard(_Mutex);
 			PreNotifyFunc();
 			_Counter += N;
-			assert(_Counter > 0);
 		} while (false);
 		_ConditionVariable.notify_all();
 	}
