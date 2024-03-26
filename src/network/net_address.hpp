@@ -8,8 +8,9 @@
 X_BEGIN
 
 struct xNetAddress final {
-	using xKeyType                                        = std::array<ubyte, 20>;
-	enum eType : uint16_t { eUnknown, eIpv4, eIpv6 } Type = eUnknown;
+	enum eType : uint16_t { eUnknown, eIpv4, eIpv6 };
+
+	eType Type = eUnknown;
 	union {
 		ubyte Ipv4[4];
 		ubyte Ipv6[16];
@@ -27,6 +28,8 @@ struct xNetAddress final {
 	X_INLINE explicit operator bool() const {
 		return Type != eUnknown;
 	}
+
+	using xKeyType = std::array<ubyte, 20>;
 	X_INLINE xKeyType AsKey() const {
 		xKeyType Ret;
 		memcpy(Ret.data(), this, sizeof(*this));
