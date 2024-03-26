@@ -50,32 +50,24 @@ inline namespace numeric {
 }  // namespace numeric
 
 union xVariable {
-
-	ubyte B[8];
-
-	ptrdiff_t Offset;
-	size_t    Size;
-
-	int          I;
-	unsigned int U;
-	int8_t       I8;
-	int16_t      I16;
-	int32_t      I32;
-	int64_t      I64;
-	uint8_t      U8;
-	uint16_t     U16;
-	uint32_t     U32;
-	uint64_t     U64;
-	struct {
-		int32_t X, Y;
-	} IV2;
-	struct {
-		uint32_t X, Y;
-	} UV2;
-
-	void *            P;
-	const void *      CP;
-	function_holder_t FP;
+	ubyte                      B[8];
+	size_t                     Size;
+	ptrdiff_t                  Offset;
+	int                        I;
+	unsigned int               U;
+	int8_t                     I8;
+	int16_t                    I16;
+	int32_t                    I32;
+	int64_t                    I64;
+	uint8_t                    U8;
+	uint16_t                   U16;
+	uint32_t                   U32;
+	uint64_t                   U64;
+	struct { int32_t X, Y; }   IV2;
+	struct { uint32_t X, Y; }  UV2;
+	void *                     P;
+	const void *               CP;
+	function_holder_t          FP;
 };
 
 template <typename T> // Function to Holder
@@ -84,7 +76,7 @@ X_INLINE std::enable_if_t<std::is_function_v<T>, function_holder_t> F2H(const T 
 }
 
 template <typename T> // function pointer to holder
-X_INLINE std::enable_if_t<std::is_pointer_v<T> && std::is_function_v<std::remove_pointer_t<T>>, function_holder_t> F2H(const T & FP) { 
+X_INLINE std::enable_if_t<std::is_pointer_v<T> && std::is_function_v<std::remove_pointer_t<T>>, function_holder_t> F2H(const T & FP) {
 	return reinterpret_cast<function_holder_t>(FP);
 }
 
@@ -164,18 +156,18 @@ X_STATIC_INLINE constexpr void Assign(T & ExpiringTarget, TValue && value) { Exp
 
 template <typename T>
 X_STATIC_INLINE void Construct(T & ExpiringTarget) { new (AddressOf(ExpiringTarget)) T; }
-template <typename T, typename... tArgs> 
+template <typename T, typename... tArgs>
 X_STATIC_INLINE void ConstructValue(T & ExpiringTarget, tArgs &&... Args) { new (AddressOf(ExpiringTarget)) T(std::forward<tArgs>(Args)...); }
 template <typename T, typename... tArgs>
 X_STATIC_INLINE void ConstructValueWithList(T & ExpiringTarget, tArgs &&... Args) { new (AddressOf(ExpiringTarget)) T{ std::forward<tArgs>(Args)... }; }
-template <typename T> 
+template <typename T>
 X_STATIC_INLINE void Destruct(T & ExpiringTarget) { ExpiringTarget.~T(); }
 
-template <typename T> 
+template <typename T>
 X_STATIC_INLINE void Renew(T & ExpiringTarget) { ExpiringTarget.~T(); Construct(ExpiringTarget); }
-template <typename T, typename... tArgs> 
+template <typename T, typename... tArgs>
 X_STATIC_INLINE void RenewValue(T & ExpiringTarget, tArgs &&... Args) { ExpiringTarget.~T(); ConstructValue(ExpiringTarget, std::forward<tArgs>(Args)...); }
-template <typename T, typename... tArgs> 
+template <typename T, typename... tArgs>
 X_STATIC_INLINE void RenewValueWithList(T & ExpiringTarget, tArgs &&... Args) { ExpiringTarget.~T(); ConstructValueWithList(ExpiringTarget, std::forward<tArgs>(Args)...); }
 
 template <typename T>
@@ -309,7 +301,7 @@ namespace __common_detail__ {
 }  // namespace __common_detail__
 
 template <typename T>
-struct xResourceGuard final 
+struct xResourceGuard final
 : __common_detail__::xResourceGuardBase<T, false> {
 	using __common_detail__::xResourceGuardBase<T, false>::xResourceGuardBase;
 };
@@ -317,7 +309,7 @@ template <typename T, typename... tArgs>
 xResourceGuard(T & Resource, tArgs &&... Args) -> xResourceGuard<T>;
 
 template <typename T>
-struct xResourceGuardThrowable final 
+struct xResourceGuardThrowable final
 : __common_detail__::xResourceGuardBase<T, true> {
 	using __common_detail__::xResourceGuardBase<T, true>::xResourceGuardBase;
 };
