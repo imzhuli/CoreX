@@ -8,9 +8,9 @@
 X_BEGIN
 
 struct xNetAddress final {
-	enum eType : uint16_t { eUnknown, eIpv4, eIpv6 };
+	enum eType : uint16_t { UNSPEC, IPV4, IPV6 };
 
-	eType Type = eUnknown;
+	eType Type = UNSPEC;
 	union {
 		ubyte Ipv4[4];
 		ubyte Ipv6[16];
@@ -20,13 +20,13 @@ struct xNetAddress final {
 
 	// methods:
 	X_INLINE bool IsV4() const {
-		return Type == eIpv4;
+		return Type == IPV4;
 	}
 	X_INLINE bool IsV6() const {
-		return Type == eIpv6;
+		return Type == IPV6;
 	}
 	X_INLINE explicit operator bool() const {
-		return Type != eUnknown;
+		return Type != UNSPEC;
 	}
 
 	using xKeyType = std::array<ubyte, 20>;
@@ -40,10 +40,10 @@ struct xNetAddress final {
 		if (Type != Other.Type || Port != Other.Port) {
 			return false;
 		}
-		if (Type == eIpv4) {
+		if (Type == IPV4) {
 			return !memcmp(Ipv4, Other.Ipv4, sizeof(Ipv4));
 		}
-		if (Type == eIpv6) {
+		if (Type == IPV6) {
 			return !memcmp(Ipv6, Other.Ipv6, sizeof(Ipv6));
 		}
 		return true;  // both of type unknown
@@ -54,10 +54,10 @@ struct xNetAddress final {
 	}
 
 	X_INLINE int GetAddressFamily() const {
-		if (Type == eIpv4) {
+		if (Type == IPV4) {
 			return AF_INET;
 		}
-		if (Type == eIpv6) {
+		if (Type == IPV6) {
 			return AF_INET6;
 		}
 		return AF_UNSPEC;
@@ -99,19 +99,19 @@ struct xNetAddress final {
 	X_API_MEMBER std::string ToString() const;
 
 	X_STATIC_INLINE xNetAddress Make4() {
-		return xNetAddress{ .Type = eIpv4 };
+		return xNetAddress{ .Type = IPV4 };
 	}
 	X_STATIC_INLINE xNetAddress Make6() {
-		return xNetAddress{ .Type = eIpv6 };
+		return xNetAddress{ .Type = IPV6 };
 	}
 
 	X_STATIC_INLINE xNetAddress Make4Raw(const void * RawPtr, uint16_t Port) {
-		auto Address = xNetAddress{ .Type = eIpv4, .Port = Port };
+		auto Address = xNetAddress{ .Type = IPV4, .Port = Port };
 		memcpy(Address.Ipv4, RawPtr, sizeof(Address.Ipv4));
 		return Address;
 	}
 	X_STATIC_INLINE xNetAddress Make6Raw(const void * RawPtr, uint16_t Port) {
-		auto Address = xNetAddress{ .Type = eIpv6, .Port = Port };
+		auto Address = xNetAddress{ .Type = IPV6, .Port = Port };
 		memcpy(Address.Ipv6, RawPtr, sizeof(Address.Ipv6));
 		return Address;
 	}
