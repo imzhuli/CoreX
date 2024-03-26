@@ -12,9 +12,9 @@ struct xNetAddress final {
 
 	eType Type = UNSPEC;
 	union {
-		ubyte Ipv4[4];
-		ubyte Ipv6[16];
-		ubyte IpStorage[16] = {};
+		ubyte Addr4[4];
+		ubyte Addr6[16];
+		ubyte AddrStorage[16] = {};
 	};
 	uint16_t Port = 0;
 
@@ -41,10 +41,10 @@ struct xNetAddress final {
 			return false;
 		}
 		if (Type == IPV4) {
-			return !memcmp(Ipv4, Other.Ipv4, sizeof(Ipv4));
+			return !memcmp(Addr4, Other.Addr4, sizeof(Addr4));
 		}
 		if (Type == IPV6) {
-			return !memcmp(Ipv6, Other.Ipv6, sizeof(Ipv6));
+			return !memcmp(Addr6, Other.Addr6, sizeof(Addr6));
 		}
 		return true;  // both of type unknown
 	}
@@ -68,7 +68,7 @@ struct xNetAddress final {
 		memset(Addr4Ptr, 0, sizeof(*Addr4Ptr));
 		auto & Addr4     = *Addr4Ptr;
 		Addr4.sin_family = AF_INET;
-		Addr4.sin_addr   = (decltype(sockaddr_in::sin_addr) &)(Ipv4);
+		Addr4.sin_addr   = (decltype(sockaddr_in::sin_addr) &)(Addr4);
 		Addr4.sin_port   = htons(Port);
 	}
 
@@ -77,7 +77,7 @@ struct xNetAddress final {
 		memset(Addr6Ptr, 0, sizeof(*Addr6Ptr));
 		auto & Addr6      = *Addr6Ptr;
 		Addr6.sin6_family = AF_INET6;
-		Addr6.sin6_addr   = (decltype(sockaddr_in6::sin6_addr) &)(Ipv6);
+		Addr6.sin6_addr   = (decltype(sockaddr_in6::sin6_addr) &)(Addr6);
 		Addr6.sin6_port   = htons(Port);
 	}
 
@@ -107,12 +107,12 @@ struct xNetAddress final {
 
 	X_STATIC_INLINE xNetAddress Make4Raw(const void * RawPtr, uint16_t Port) {
 		auto Address = xNetAddress{ .Type = IPV4, .Port = Port };
-		memcpy(Address.Ipv4, RawPtr, sizeof(Address.Ipv4));
+		memcpy(Address.Addr4, RawPtr, sizeof(Address.Addr4));
 		return Address;
 	}
 	X_STATIC_INLINE xNetAddress Make6Raw(const void * RawPtr, uint16_t Port) {
 		auto Address = xNetAddress{ .Type = IPV6, .Port = Port };
-		memcpy(Address.Ipv6, RawPtr, sizeof(Address.Ipv6));
+		memcpy(Address.Addr6, RawPtr, sizeof(Address.Addr6));
 		return Address;
 	}
 

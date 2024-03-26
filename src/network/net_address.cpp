@@ -12,14 +12,14 @@ std::strong_ordering operator<=>(const xNetAddress & lhs, const xNetAddress & rh
 		return lhs.Port <=> rhs.Port;
 	}
 	if (lhs.Type == xNetAddress::IPV4) {
-		auto diff = memcmp(lhs.Ipv4, rhs.Ipv4, 4);
+		auto diff = memcmp(lhs.Addr4, rhs.Addr4, 4);
 		if (!diff) {
 			return lhs.Port <=> rhs.Port;
 		}
 		return diff <=> 0;
 	}
 	if (lhs.Type == xNetAddress::IPV6) {
-		auto diff = memcmp(lhs.Ipv6, rhs.Ipv6, 16);
+		auto diff = memcmp(lhs.Addr6, rhs.Addr6, 16);
 		if (!diff) {
 			return lhs.Port <=> rhs.Port;
 		}
@@ -29,20 +29,20 @@ std::strong_ordering operator<=>(const xNetAddress & lhs, const xNetAddress & rh
 }
 
 xNetAddress xNetAddress::Parse(const char * IpStr, uint16_t Port) {
-	xNetAddress Ret;
-	auto        parse4 = inet_pton(AF_INET, IpStr, Ret.Ipv4);
+	auto Result = xNetAddress();
+	auto parse4 = inet_pton(AF_INET, IpStr, Result.Addr4);
 	if (1 == parse4) {
-		Ret.Type = xNetAddress::IPV4;
-		Ret.Port = Port;
-		return Ret;
+		Result.Type = xNetAddress::IPV4;
+		Result.Port = Port;
+		return Result;
 	}
-	auto parse6 = inet_pton(AF_INET6, IpStr, Ret.Ipv6);
+	auto parse6 = inet_pton(AF_INET6, IpStr, Result.Addr6);
 	if (1 == parse6) {
-		Ret.Type = xNetAddress::IPV6;
-		Ret.Port = Port;
-		return Ret;
+		Result.Type = xNetAddress::IPV6;
+		Result.Port = Port;
+		return Result;
 	}
-	return Ret;
+	return Result;
 }
 
 xNetAddress xNetAddress::Parse(const std::string & AddressStr) {
@@ -59,19 +59,17 @@ xNetAddress xNetAddress::Parse(const std::string & AddressStr) {
 }
 
 xNetAddress xNetAddress::Parse(const sockaddr * SockAddrPtr) {
-	xNetAddress Result = {};
+	auto Result = xNetAddress();
 	if (SockAddrPtr->sa_family == AF_INET) {
 		auto Addr4Ptr = (const sockaddr_in *)SockAddrPtr;
 		Result.Type   = xNetAddress::IPV4;
 		Result.Port   = ntohs(Addr4Ptr->sin_port);
-		memcpy(Result.Ipv4, &Addr4Ptr->sin_addr, sizeof(Result.Ipv4));
-		return Result;
+		memcpy(Result.Addr4, &Addr4Ptr->sin_addr, sizeof(Result.Addr4));
 	} else if (SockAddrPtr->sa_family == AF_INET6) {
-		auto        Addr6Ptr = (const sockaddr_in6 *)SockAddrPtr;
-		xNetAddress Result   = {};
-		Result.Type          = xNetAddress::IPV6;
-		Result.Port          = ntohs(Addr6Ptr->sin6_port);
-		memcpy(Result.Ipv6, &Addr6Ptr->sin6_addr, sizeof(Result.Ipv6));
+		auto Addr6Ptr = (const sockaddr_in6 *)SockAddrPtr;
+		Result.Type   = xNetAddress::IPV6;
+		Result.Port   = ntohs(Addr6Ptr->sin6_port);
+		memcpy(Result.Addr6, &Addr6Ptr->sin6_addr, sizeof(Result.Addr6));
 	}
 	return Result;
 }
@@ -79,7 +77,7 @@ xNetAddress xNetAddress::Parse(const sockaddr * SockAddrPtr) {
 xNetAddress xNetAddress::Parse(const sockaddr_in * SockAddr4Ptr) {
 	assert(SockAddr4Ptr->sin_family == AF_INET);
 	auto Ret = Make4();
-	memcpy(Ret.Ipv4, &SockAddr4Ptr->sin_addr, sizeof(Ret.Ipv4));
+	memcpy(Ret.Addr4, &SockAddr4Ptr->sin_addr, sizeof(Ret.Addr4));
 	Ret.Port = ntohs(SockAddr4Ptr->sin_port);
 	return Ret;
 }
@@ -87,7 +85,7 @@ xNetAddress xNetAddress::Parse(const sockaddr_in * SockAddr4Ptr) {
 xNetAddress xNetAddress::Parse(const sockaddr_in6 * SockAddr6Ptr) {
 	assert(SockAddr6Ptr->sin6_family == AF_INET6);
 	auto Ret = Make6();
-	memcpy(Ret.Ipv6, &SockAddr6Ptr->sin6_addr, sizeof(Ret.Ipv6));
+	memcpy(Ret.Addr6, &SockAddr6Ptr->sin6_addr, sizeof(Ret.Addr6));
 	Ret.Port = ntohs(SockAddr6Ptr->sin6_port);
 	return Ret;
 }
@@ -102,7 +100,7 @@ std::string xNetAddress::IpToString() const {
 		return "unknown";
 	}
 	if (Type == IPV4) {
-		return { Buffer, (size_t)sprintf(Buffer, "%d.%d.%d.%d", (int)Ipv4[0], (int)Ipv4[1], (int)Ipv4[2], (int)Ipv4[3]) };
+		return { Buffer, (size_t)sprintf(Buffer, "%d.%d.%d.%d", (int)Addr4[0], (int)Addr4[1], (int)Addr4[2], (int)Addr4[3]) };
 	}
 	// ipv6
 	return { Buffer,
@@ -112,8 +110,8 @@ std::string xNetAddress::IpToString() const {
 				 "%02x:%02x:%02x:%02x:"
 				 "%02x:%02x:%02x:%02x:"
 				 "%02x:%02x:%02x:%02x",
-				 (int)Ipv6[0], (int)Ipv6[1], (int)Ipv6[2], (int)Ipv6[3], (int)Ipv6[4], (int)Ipv6[5], (int)Ipv6[6], (int)Ipv6[7], (int)Ipv6[8], (int)Ipv6[9], (int)Ipv6[10],
-				 (int)Ipv6[11], (int)Ipv6[12], (int)Ipv6[13], (int)Ipv6[14], (int)Ipv6[15]
+				 (int)Addr6[0], (int)Addr6[1], (int)Addr6[2], (int)Addr6[3], (int)Addr6[4], (int)Addr6[5], (int)Addr6[6], (int)Addr6[7], (int)Addr6[8], (int)Addr6[9],
+				 (int)Addr6[10], (int)Addr6[11], (int)Addr6[12], (int)Addr6[13], (int)Addr6[14], (int)Addr6[15]
 			 ) };
 }
 
@@ -123,7 +121,7 @@ std::string xNetAddress::ToString() const {
 		return "unknown";
 	}
 	if (Type == IPV4) {
-		return { Buffer, (size_t)sprintf(Buffer, "%d.%d.%d.%d:%u", (int)Ipv4[0], (int)Ipv4[1], (int)Ipv4[2], (int)Ipv4[3], (int)Port) };
+		return { Buffer, (size_t)sprintf(Buffer, "%d.%d.%d.%d:%u", (int)Addr4[0], (int)Addr4[1], (int)Addr4[2], (int)Addr4[3], (int)Port) };
 	}
 	// ipv6
 	return { Buffer,
@@ -134,8 +132,8 @@ std::string xNetAddress::ToString() const {
 				 "%02x:%02x:%02x:%02x:"
 				 "%02x:%02x:%02x:%02x:"
 				 "%u",
-				 (int)Ipv6[0], (int)Ipv6[1], (int)Ipv6[2], (int)Ipv6[3], (int)Ipv6[4], (int)Ipv6[5], (int)Ipv6[6], (int)Ipv6[7], (int)Ipv6[8], (int)Ipv6[9], (int)Ipv6[10],
-				 (int)Ipv6[11], (int)Ipv6[12], (int)Ipv6[13], (int)Ipv6[14], (int)Ipv6[15], (int)Port
+				 (int)Addr6[0], (int)Addr6[1], (int)Addr6[2], (int)Addr6[3], (int)Addr6[4], (int)Addr6[5], (int)Addr6[6], (int)Addr6[7], (int)Addr6[8], (int)Addr6[9],
+				 (int)Addr6[10], (int)Addr6[11], (int)Addr6[12], (int)Addr6[13], (int)Addr6[14], (int)Addr6[15], (int)Port
 			 ) };
 }
 
