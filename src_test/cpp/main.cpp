@@ -9,15 +9,5 @@ using namespace std;
 using namespace xel;
 
 int main(int argc, char ** argv) {
-
-	auto TV = xVersion<int>();
-
-	TV.EnableValue(123);
-	cout << TV.GetVersion() << ": " << TV.Get() << endl;
-	TV.Disable();
-	cout << TV.GetVersion() << ": " << endl;
-	TV.EnableValue();
-	cout << TV.GetVersion() << ": " << TV.Get() << endl;
-
 	return 0;
 }

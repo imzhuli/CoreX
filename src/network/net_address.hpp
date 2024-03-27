@@ -14,8 +14,13 @@ struct xNetAddress final {
 	union {
 		ubyte SA4[4];
 		ubyte SA6[16];
+		ubyte __HOLDER__[sizeof(sockaddr_storage)] = {};
 	};
 	uint16_t Port = 0;
+
+	// asserts
+	static_assert(sizeof(SA4) <= sizeof(__HOLDER__));
+	static_assert(sizeof(SA6) <= sizeof(__HOLDER__));
 
 	// methods:
 	X_INLINE bool IsV4() const {
@@ -33,23 +38,6 @@ struct xNetAddress final {
 		xKeyType Ret;
 		memcpy(Ret.data(), this, sizeof(*this));
 		return Ret;
-	}
-
-	X_INLINE bool operator==(const xNetAddress & Other) const {
-		if (Type != Other.Type || Port != Other.Port) {
-			return false;
-		}
-		if (Type == IPV4) {
-			return !memcmp(SA4, Other.SA4, sizeof(SA4));
-		}
-		if (Type == IPV6) {
-			return !memcmp(SA6, Other.SA6, sizeof(SA6));
-		}
-		return true;  // both of type unknown
-	}
-
-	X_INLINE bool operator!=(const xNetAddress & Other) const {
-		return !(*this == Other);
 	}
 
 	X_INLINE int GetAddressFamily() const {

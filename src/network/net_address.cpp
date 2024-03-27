@@ -9,7 +9,8 @@ std::strong_ordering operator<=>(const xNetAddress & lhs, const xNetAddress & rh
 		return lhs.Type <=> rhs.Type;
 	}
 	if (lhs.Type == xNetAddress::UNSPEC) {
-		return lhs.Port <=> rhs.Port;
+		assert(!lhs.Port && !rhs.Port);
+		return std::strong_ordering::equal;
 	}
 	if (lhs.Type == xNetAddress::IPV4) {
 		auto diff = memcmp(lhs.SA4, rhs.SA4, 4);

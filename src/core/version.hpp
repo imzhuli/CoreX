@@ -63,6 +63,13 @@ public:
 		EnableVersion();
 	}
 
+	template <typename... tArgs>
+	X_INLINE void EnableValueWithList(tArgs &&... Args) {
+		assert(!IsEnabled());
+		ValueHolder.CreateValueWithList(std::forward<tArgs>(Args)...);
+		EnableVersion();
+	}
+
 	X_INLINE void Disable() {
 		assert(IsEnabled());
 		DisableVersion();
