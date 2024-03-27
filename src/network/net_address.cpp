@@ -47,16 +47,53 @@ xNetAddress xNetAddress::Parse(const char * IpStr, uint16_t Port) {
 }
 
 xNetAddress xNetAddress::Parse(const std::string & AddressStr) {
-	uint16_t Port = 0;
-	auto     Segs = Split(AddressStr, ":");
-	if (Segs.size() > 2) {
+	if (AddressStr.empty() || AddressStr.length() >= 64) {
 		return {};
 	}
-	if (Segs.size() == 2) {
-		Port = (uint16_t)atoll(Segs[1].c_str());
+	auto PortIndex = AddressStr.find_last_of(':');
+	if (PortIndex == AddressStr.npos) {  // no port, test ipv4 then ipv6
+		return Parse(AddressStr.c_str(), 0);
 	}
-	auto IpStr = Segs[0].c_str();
-	return Parse(IpStr, Port);
+
+	if (AddressStr[0] == '[') {  // ipv6 with port
+		if (AddressStr[PortIndex - 1] == ']') {
+			char IpBuffer[64];
+			auto IpLength = PortIndex - 2;
+			memcpy(IpBuffer, AddressStr.c_str() + 1, IpLength);
+			IpBuffer[IpLength] = '\0';
+
+			auto Result = xNetAddress();
+			if (1 == inet_pton(AF_INET6, IpBuffer, Result.SA6)) {
+				Result.Type = xNetAddress::IPV6;
+				Result.Port = (uint16_t)atoll(AddressStr.c_str() + PortIndex + 1);
+				return Result;
+			}
+			return {};
+		}
+		return {};  // invalid address
+	}
+	for (size_t i = 1; i < 4; ++i) {
+		if (AddressStr[i] == '.') {  // ipv4 with port
+			char IpBuffer[64];
+			memcpy(IpBuffer, AddressStr.c_str(), PortIndex);
+			IpBuffer[PortIndex] = '\0';
+
+			auto Result = xNetAddress();
+			if (1 == inet_pton(AF_INET, IpBuffer, Result.SA4)) {
+				Result.Type = xNetAddress::IPV4;
+				Result.Port = (uint16_t)atoll(AddressStr.c_str() + PortIndex + 1);
+				return Result;
+			}
+			return {};
+		}
+	}
+	// ipv6 w/o port
+	auto Result = xNetAddress();
+	if (1 == inet_pton(AF_INET6, AddressStr.c_str(), Result.SA6)) {
+		Result.Type = xNetAddress::IPV6;
+		return Result;
+	}
+	return {};
 }
 
 xNetAddress xNetAddress::Parse(const sockaddr * SockAddrPtr) {
@@ -107,10 +144,10 @@ std::string xNetAddress::IpToString() const {
 	return { Buffer,
 			 (size_t)sprintf(
 				 Buffer,
-				 "%02x:%02x:%02x:%02x:"
-				 "%02x:%02x:%02x:%02x:"
-				 "%02x:%02x:%02x:%02x:"
-				 "%02x:%02x:%02x:%02x",
+				 "%02x%02x:%02x%02x:"
+				 "%02x%02x:%02x%02x:"
+				 "%02x%02x:%02x%02x:"
+				 "%02x%02x:%02x%02x",
 				 (int)SA6[0], (int)SA6[1], (int)SA6[2], (int)SA6[3], (int)SA6[4], (int)SA6[5], (int)SA6[6], (int)SA6[7], (int)SA6[8], (int)SA6[9], (int)SA6[10], (int)SA6[11],
 				 (int)SA6[12], (int)SA6[13], (int)SA6[14], (int)SA6[15]
 			 ) };
@@ -128,11 +165,12 @@ std::string xNetAddress::ToString() const {
 	return { Buffer,
 			 (size_t)sprintf(
 				 Buffer,
-				 "%02x:%02x:%02x:%02x:"
-				 "%02x:%02x:%02x:%02x:"
-				 "%02x:%02x:%02x:%02x:"
-				 "%02x:%02x:%02x:%02x:"
-				 "%u",
+				 "["
+				 "%02x%02x:%02x%02x:"
+				 "%02x%02x:%02x%02x:"
+				 "%02x%02x:%02x%02x:"
+				 "%02x%02x:%02x%02x]"
+				 ":%u",
 				 (int)SA6[0], (int)SA6[1], (int)SA6[2], (int)SA6[3], (int)SA6[4], (int)SA6[5], (int)SA6[6], (int)SA6[7], (int)SA6[8], (int)SA6[9], (int)SA6[10], (int)SA6[11],
 				 (int)SA6[12], (int)SA6[13], (int)SA6[14], (int)SA6[15], (int)Port
 			 ) };
