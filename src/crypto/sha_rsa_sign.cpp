@@ -14,6 +14,7 @@ bool xSha256WithRsa::Init(const std::filesystem::path & PriKeyPath) {
 	auto CtrCleaner = xScopeGuard([&] { mbedtls_ctr_drbg_free(&_CtrDrbg); });
 
 	if (auto ret = mbedtls_pk_parse_keyfile(&_PriKeyContext, PriKeyPath.string().c_str(), nullptr, nullptr, nullptr)) {
+		Touch(ret);
 		X_DEBUG_PRINTF("failed\n  ! mbedtls_pk_parse_keyfile returned -0x%04x\n", -ret);
 		return false;
 	}
@@ -35,6 +36,7 @@ xArrayView<ubyte> xSha256WithRsa::operator()(const void * Data, size_t Size) {
 
 	size_t olen = 0;
 	if (auto ret = mbedtls_pk_sign(&_PriKeyContext, MBEDTLS_MD_SHA256, Hash, sizeof(Hash), _SignResult, sizeof(_SignResult), &olen, mbedtls_ctr_drbg_random, &_CtrDrbg)) {
+		Touch(ret);
 		X_DEBUG_PRINTF("failed\n  ! mbedtls_pk_encrypt returned -0x%04x\n", -ret);
 		return {};
 	}
@@ -45,6 +47,7 @@ bool xSha256WithRsa::Validate(const void * Data, size_t Size, const void * Signa
 	ubyte Hash[32];
 	mbedtls_sha256((const ubyte *)Data, Size, Hash, 0);
 	if (auto ret = mbedtls_pk_verify(&_PriKeyContext, MBEDTLS_MD_SHA256, Hash, sizeof(Hash), (const ubyte *)Signature, 64)) {
+		Touch(ret);
 		X_DEBUG_PRINTF("failed\n  ! mbedtls_pk_verify returned -0x%04x\n", -ret);
 		return false;
 	}
@@ -61,6 +64,7 @@ bool xSha256WithRsaValidator::Init(const std::filesystem::path & PubKeyPath) {
 	auto CtrCleaner = xScopeGuard([&] { mbedtls_ctr_drbg_free(&_CtrDrbg); });
 
 	if (auto ret = mbedtls_pk_parse_public_keyfile(&_PubKeyContext, PubKeyPath.string().c_str())) {
+		Touch(ret);
 		X_DEBUG_PRINTF("failed\n  ! mbedtls_pk_parse_public_keyfile returned -0x%04x\n", -ret);
 		return false;
 	}
@@ -80,6 +84,7 @@ bool xSha256WithRsaValidator::operator()(const void * Data, size_t Size, const v
 	ubyte Hash[32];
 	mbedtls_sha256((const ubyte *)Data, Size, Hash, 0);
 	if (auto ret = mbedtls_pk_verify(&_PubKeyContext, MBEDTLS_MD_SHA256, Hash, sizeof(Hash), (const ubyte *)Signature, 64)) {
+		Touch(ret);
 		X_DEBUG_PRINTF("failed\n  ! mbedtls_pk_verify returned -0x%04x\n", -ret);
 		return false;
 	}
