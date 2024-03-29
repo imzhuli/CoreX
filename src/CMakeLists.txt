@@ -87,7 +87,7 @@ target_link_libraries(${libname} PUBLIC ${shared_lib_dependency_public})
 install(
 	DIRECTORY ${PROJECT_SOURCE_DIR}/
 	DESTINATION include
-	FILES_MATCHING 
+	FILES_MATCHING
 		PATTERN "*.h"
 		PATTERN "*.hpp"
 	)
