@@ -15,49 +15,63 @@ protected:
 	X_API_MEMBER virtual void DeserializeMembers();
 
 protected:
+	template <typename T, typename... tArgs>
+	X_INLINE void W(T && Arg0, tArgs &&... Args) {
+		_W(std::forward<T>(Arg0));
+		W(std::forward<tArgs>(Args)...);
+	}
+	X_INLINE void W(){};
+
+	template <typename T, typename... tArgs>
+	X_INLINE void R(T && Arg0, tArgs &&... Args) {
+		_R(std::forward<T>(Arg0));
+		R(std::forward<tArgs>(Args)...);
+	}
+	X_INLINE void R(){};
+
+private:
 	// W
 	template <typename T>
-	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 1 == sizeof(T)> W(T && V) {
+	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 1 == sizeof(T)> _W(T && V) {
 		_W1(V);
 	}
 	template <typename T>
-	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 2 == sizeof(T)> W(T && V) {
+	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 2 == sizeof(T)> _W(T && V) {
 		_W2(V);
 	}
 	template <typename T>
-	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 4 == sizeof(T)> W(T && V) {
+	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 4 == sizeof(T)> _W(T && V) {
 		_W4(V);
 	}
 	template <typename T>
-	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 8 == sizeof(T)> W(T && V) {
+	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 8 == sizeof(T)> _W(T && V) {
 		_W8(V);
 	}
-	X_INLINE void W(const std::string & V) {
+	X_INLINE void _W(const std::string_view & V) {
 		_WB(V.data(), V.size());
 	}
 
 	// R
 	template <typename T>
-	X_INLINE std::enable_if_t<std::is_integral_v<T> && 1 == sizeof(T)> R(T & V) {
+	X_INLINE std::enable_if_t<std::is_integral_v<T> && 1 == sizeof(T)> _R(T & V) {
 		V = static_cast<T>(_R1());
 	}
 	template <typename T>
-	X_INLINE std::enable_if_t<std::is_integral_v<T> && 2 == sizeof(T)> R(T & V) {
+	X_INLINE std::enable_if_t<std::is_integral_v<T> && 2 == sizeof(T)> _R(T & V) {
 		V = static_cast<T>(_R2());
 	}
 	template <typename T>
-	X_INLINE std::enable_if_t<std::is_integral_v<T> && 4 == sizeof(T)> R(T & V) {
+	X_INLINE std::enable_if_t<std::is_integral_v<T> && 4 == sizeof(T)> _R(T & V) {
 		V = static_cast<T>(_R4());
 	}
 	template <typename T>
-	X_INLINE std::enable_if_t<std::is_integral_v<T> && 8 == sizeof(T)> R(T & V) {
+	X_INLINE std::enable_if_t<std::is_integral_v<T> && 8 == sizeof(T)> _R(T & V) {
 		V = static_cast<T>(_R8());
 	}
-	X_INLINE void R(std::string & V) {
+	X_INLINE void _R(std::string & V) {
 		V = _RB();
 	}
 
-private:
 	/* write */
 	X_INLINE void _W1(uint8_t V) {
 		auto RequiredSize = (ssize_t)sizeof(V);
