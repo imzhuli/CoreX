@@ -17,6 +17,7 @@ public:
 	X_INLINE bool IsConnected() const {
 		return Connected;
 	}
+	X_API_MEMBER void DisableKeepAliveOnTick();
 	X_API_MEMBER void SetDefaultKeepAliveTimeout();
 	X_API_MEMBER void SetKeepAliveTimeout(uint64_t TimeoutMS);
 	X_API_MEMBER void SetMaxWriteBuffer(size_t Size);

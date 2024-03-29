@@ -136,6 +136,11 @@ bool xClient::OnPacket(const xPacketHeader & Header, ubyte * PayloadPtr, size_t 
 	X_DEBUG_PRINTF("CommandId: %" PRIu32 ", RequestId:%" PRIx64 ": \n%s", Header.CommandId, Header.RequestId, HexShow(PayloadPtr, PayloadSize).c_str());
 	return true;
 }
+
+void xClient::DisableKeepAliveOnTick() {
+	SetKeepAliveTimeout(0);
+}
+
 void xClient::SetDefaultKeepAliveTimeout() {
 	SetKeepAliveTimeout(MaxKeepAliveTimeoutMS);
 }
