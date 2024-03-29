@@ -14,7 +14,7 @@ struct xNetAddress final {
 	union {
 		ubyte SA4[4];
 		ubyte SA6[16];
-		ubyte __HOLDER__[sizeof(sockaddr_storage)] = {};
+		ubyte __HOLDER__[16] = {};  // used for zero init
 	};
 	uint16_t Port = 0;
 
@@ -35,6 +35,7 @@ struct xNetAddress final {
 
 	using xKeyType = std::array<ubyte, 20>;
 	X_INLINE xKeyType AsKey() const {
+		static_assert(sizeof(*this) == std::tuple_size_v<xKeyType>);
 		xKeyType Ret;
 		memcpy(Ret.data(), this, sizeof(*this));
 		return Ret;
