@@ -37,7 +37,7 @@ public:
 		 *
 		 * Causion: !!!
 		 *
-		 * Please not that not all operations are asynchronously done,
+		 * Please note that not all operations are asynchronously done,
 		 * Connection could be made or fail immediately to a local address, or an invalid address.
 		 * so OnConnected is only called on asynchronous call.
 		 * The same applies to OnFlush. Though technically it's possible to call onflush every time the sending queue becomes empty,
