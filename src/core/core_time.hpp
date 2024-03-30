@@ -132,6 +132,9 @@ X_NS {
 		uint64_t Update() {
 			return (NowMS = GetTimestampMS());
 		}
+		void Update(uint64_t TimestampMS) {
+			NowMS = TimestampMS;
+		}
 		operator uint64_t() const {
 			return NowMS;
 		}
