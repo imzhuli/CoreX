@@ -129,6 +129,12 @@ X_NS {
 		xTicker() {
 			Update();
 		}
+		xTicker(const xNoInit &) {
+			NowMS = 0;
+		}
+		xTicker(const xZeroInit &) {
+			NowMS = 0;
+		}
 		uint64_t Update() {
 			return (NowMS = GetTimestampMS());
 		}
