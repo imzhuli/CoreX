@@ -19,73 +19,44 @@ public:
 	using RealType = std::conditional_t<cAtomic, std::atomic<T>, T>;
 
 protected:
-	X_INLINE				   xRetainableBase() = default;
-	X_INLINE				   xRetainableBase(T initCount) : _Count(initCount) {}
-	X_INLINE				   xRetainableBase(const xRetainableBase &){};
-	X_INLINE xRetainableBase & operator=(const xRetainableBase &) { return *this; }
+	X_INLINE xRetainableBase() = default;
+	X_INLINE xRetainableBase(T initCount)
+		: _Count(initCount) {
+	}
+	X_INLINE                   xRetainableBase(const xRetainableBase &){};
+	X_INLINE xRetainableBase & operator=(const xRetainableBase &) {
+		return *this;
+	}
 
 public:
-	X_INLINE void Retain(T increment = 1) const { _Count += increment; }
-	X_INLINE T	  Release(T decrement = 1) const { return _Count -= decrement; }
-	X_INLINE T	  GetRetainCount() const { return static_cast<T>(_Count); }
-	X_INLINE void SetRetainCount(T resetCount) const { _Count = resetCount; }
+	X_INLINE void Retain(T increment = 1) const {
+		_Count += increment;
+	}
+	X_INLINE T Release(T decrement = 1) const {
+		return _Count -= decrement;
+	}
+	X_INLINE T GetRetainCount() const {
+		return static_cast<T>(_Count);
+	}
+	X_INLINE void SetRetainCount(T resetCount) const {
+		_Count = resetCount;
+	}
 
 private:
 	mutable RealType _Count{ 1 };
 };
 
-constexpr const struct xNoRetain {
-} NoRetain{};
-
-template <typename tRetainable, typename tDeleter>
-class xRetainer : xNonCopyable {
-public:
-	X_INLINE xRetainer(const xNoRetain &, tRetainable *&& TargetPtr, const tDeleter & Deleter = {})
-		: _TargetPtr(TargetPtr)
-		, _Deleter(Deleter) {}
-	X_INLINE xRetainer(tRetainable * TargetPtr, const tDeleter & Deleter = {})
-		: _TargetPtr(TargetPtr)
-		, _Deleter(Deleter) {
-		_TargetPtr->Retain();
-	}
-	X_INLINE xRetainer(const xRetainer & Other) : _TargetPtr(Other._TargetPtr), _Deleter(Other._Deleter) {
-		_TargetPtr->Retain();
-	}
-	X_INLINE ~xRetainer() {
-		if (_TargetPtr->Release()) {
-			return;
-		}
-		_Deleter(_TargetPtr);
-	}
-
-	X_INLINE tRetainable & operator*() const { return *_TargetPtr; }
-	X_INLINE tRetainable * operator->() const { return _TargetPtr; }
-
-private:
-	tRetainable * _TargetPtr;
-	tDeleter	  _Deleter;
-};
-template <typename tRetainable>
-xRetainer(tRetainable *) -> xRetainer<tRetainable, std::default_delete<tRetainable>>;
-template <typename tRetainable>
-xRetainer(const xNoRetain &, tRetainable *&&) -> xRetainer<tRetainable, std::default_delete<tRetainable>>;
-
-template <typename tRetainable, typename tDeleter>
-xRetainer(tRetainable *, const tDeleter &) -> xRetainer<tRetainable, tDeleter>;
-template <typename tRetainable, typename tDeleter>
-xRetainer(const xNoRetain &, tRetainable *&&, const tDeleter &) -> xRetainer<tRetainable, tDeleter>;
-
-using xRetainable8 = xRetainableBase<false, int8_t>;
+using xRetainable8  = xRetainableBase<false, int8_t>;
 using xRetainable16 = xRetainableBase<false, int16_t>;
 using xRetainable32 = xRetainableBase<false, int32_t>;
 using xRetainable64 = xRetainableBase<false, int64_t>;
-using xRetainable = xRetainable64;
+using xRetainable   = xRetainable64;
 
-using xRetainableAtomic8 = xRetainableBase<true, int8_t>;
+using xRetainableAtomic8  = xRetainableBase<true, int8_t>;
 using xRetainableAtomic16 = xRetainableBase<true, int16_t>;
 using xRetainableAtomic32 = xRetainableBase<true, int32_t>;
 using xRetainableAtomic64 = xRetainableBase<true, int64_t>;
-using xRetainableAtomic = xRetainableAtomic64;
+using xRetainableAtomic   = xRetainableAtomic64;
 
 namespace __detail__ {
 	template <typename T>
@@ -233,7 +204,7 @@ public:
 	}
 
 public:
-	xAllocator() = default;
+	xAllocator()              = default;
 	xAllocator(xAllocator &&) = delete;
 	virtual ~xAllocator();
 };
