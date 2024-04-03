@@ -16,18 +16,18 @@ protected:
 
 protected:  // clang-format off
 	template <typename T, typename... tArgs>
-	X_INLINE void W(T && Arg0, tArgs &&... Args) { 
-		_W(std::forward<T>(Arg0)); W(std::forward<tArgs>(Args)...); 
+	X_INLINE void W(T && Arg0, tArgs &&... Args) {
+		_W(std::forward<T>(Arg0)); W(std::forward<tArgs>(Args)...);
 	}
 	X_INLINE void W(){};
 
 	template <typename T, typename... tArgs>
 	X_INLINE void R(T && Arg0, tArgs &&... Args) {
-		_R(std::forward<T>(Arg0)); R(std::forward<tArgs>(Args)...); 
+		_R(std::forward<T>(Arg0)); R(std::forward<tArgs>(Args)...);
 	}
 	X_INLINE void R(){};
 
-private: 
+private:
 	// W
 	X_INLINE void _W(const std::string_view & V) { _WB(V.data(), V.size()); }
 	template <typename T>
@@ -152,7 +152,6 @@ private:  // clang-format on
 		R.resize(Size);
 		_ReadRawBlock(R.data(), Size);
 		if (_RemainSize < 0) {
-			_Reader.Skip(-4);
 			return {};
 		}
 		return R;

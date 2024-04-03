@@ -145,8 +145,8 @@ X_STATIC_INLINE constexpr auto UnignedDiff(T1 && Value, T0 && FromValue) { retur
 template <typename T>
 X_STATIC_INLINE constexpr bool IsDefaultValue(const T & Target) { return Target == T{}; }
 
-template <typename T>
-X_STATIC_INLINE void Touch(T &) {}
+template <typename...T>
+X_STATIC_INLINE void Touch(T&...) {}
 template <typename T>
 X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget) { ExpiringTarget = T(); }
 template <typename T, typename TValue>
