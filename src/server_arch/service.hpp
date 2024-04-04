@@ -86,7 +86,7 @@ private:
 
 private:
 	// config
-	size_t MaxWriteBufferLimitForEachConnection = 50'000'000 / sizeof(xPacketBuffer::Buffer);
+	size_t MaxWriteBufferLimitForEachConnection = 100'000'000 / sizeof(xPacketBuffer::Buffer);
 
 	//
 	uint64_t                                    NowMS;

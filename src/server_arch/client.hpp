@@ -35,7 +35,7 @@ private:
 
 private:
 	// config
-	size_t MaxWriteBufferLimitForEachConnection = 10'000'000 / sizeof(xPacketBuffer::Buffer);
+	size_t MaxWriteBufferLimitForEachConnection = 100'000'000 / sizeof(xPacketBuffer::Buffer);
 
 	xIoContext *   IoContextPtr = {};
 	xNetAddress    TargetAddress;
