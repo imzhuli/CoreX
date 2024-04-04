@@ -1,5 +1,6 @@
 #pragma once
 #include "../core/core_min.hpp"
+#include "../network/net_address.hpp"
 #include "../network/packet.hpp"
 
 X_BEGIN
@@ -30,6 +31,7 @@ protected:  // clang-format off
 private:
 	// W
 	X_INLINE void _W(const std::string_view & V) { _WB(V.data(), V.size()); }
+	X_INLINE void _W(const xNetAddress & Addr) { _W(Addr.ToString()); }
 	template <typename T>
 	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 1 == sizeof(T)> _W(T && V) { _W1(V); }
 	template <typename T>
@@ -41,6 +43,7 @@ private:
 
 	// R
 	X_INLINE void _R(std::string & V) { V = _RB(); }
+	X_INLINE void _R(xNetAddress & Addr) { std::string AddrString; _R(AddrString); Addr = xNetAddress::Parse(AddrString); }
 	template <typename T>
 	X_INLINE std::enable_if_t<std::is_integral_v<T> && 1 == sizeof(T)> _R(T & V) { V = static_cast<T>(_R1()); }
 	template <typename T>
