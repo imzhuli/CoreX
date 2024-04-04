@@ -47,6 +47,8 @@ inline namespace numeric {
 
 	using function_holder_t = void(*)();
 
+	static constexpr const size_t InvalidDataSize = static_cast<size_t>(-1);
+
 }  // namespace numeric
 
 union xVariable {

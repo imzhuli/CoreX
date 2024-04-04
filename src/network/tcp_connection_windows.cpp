@@ -267,7 +267,7 @@ void xTcpConnection::OnIoEventInReady() {
 	RemainDataSize       += ReadObject.DataSize;
 	while (RemainDataSize) {
 		auto ProcessedData = _ListenerPtr->OnData(this, ProcessDataPtr, RemainDataSize);
-		if (ProcessedData == InvalidPacketSize) {
+		if (ProcessedData == InvalidDataSize) {
 			SetError();
 			return;
 		}

@@ -110,7 +110,7 @@ size_t xClient::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, s
 	while (RemainSize >= PacketHeaderSize) {
 		auto Header = xPacketHeader::Parse(DataPtr);
 		if (!Header) { /* header error */
-			return InvalidPacketSize;
+			return InvalidDataSize;
 		}
 		auto PacketSize = Header.PacketSize;  // make a copy, so Header can be reused
 		if (RemainSize < PacketSize) {        // wait for data
@@ -123,7 +123,7 @@ size_t xClient::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, s
 			auto PayloadPtr  = xPacket::GetPayloadPtr(DataPtr);
 			auto PayloadSize = Header.GetPayloadSize();
 			if (!OnPacket(Header, PayloadPtr, PayloadSize)) { /* packet error */
-				return InvalidPacketSize;
+				return InvalidDataSize;
 			}
 		}
 		DataPtr    += PacketSize;

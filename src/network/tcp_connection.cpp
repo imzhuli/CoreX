@@ -40,7 +40,7 @@ void xTcpConnection::OnIoEventInReady() {
 		auto ProcessDataPtr  = (ubyte *)_ReadBuffer;
 		while (_ReadBufferDataSize) {
 			auto ProcessedData = _ListenerPtr->OnData(this, ProcessDataPtr, _ReadBufferDataSize);
-			if (ProcessedData == InvalidPacketSize) {
+			if (ProcessedData == InvalidDataSize) {
 				SetError();
 				return;
 			}
