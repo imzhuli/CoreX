@@ -3,6 +3,8 @@
 #include "../network/net_address.hpp"
 #include "../network/packet.hpp"
 
+#include <limits>
+
 X_BEGIN
 
 class xBinaryMessage {
