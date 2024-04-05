@@ -45,6 +45,7 @@ private:
 
 	// R
 	X_INLINE void _R(std::string & V) { V = _RB(); }
+	X_INLINE void _R(std::string_view & V) { V = _ReadRawBlockView(); }
 	X_INLINE void _R(xNetAddress & Addr) { std::string AddrString; _R(AddrString); Addr = xNetAddress::Parse(AddrString); }
 	template <typename T>
 	X_INLINE std::enable_if_t<std::is_integral_v<T> && 1 == sizeof(T)> _R(T & V) { V = static_cast<T>(_R1()); }
@@ -161,6 +162,22 @@ private:  // clang-format on
 		}
 		return R;
 	}
+
+	X_INLINE std::string_view _ReadRawBlockView() {
+		auto Size = _R4();
+		if (_RemainSize < 0) {
+			return {};
+		}
+		auto RequiredSize = static_cast<ssize_t>(Size);
+		assert(RequiredSize < std::numeric_limits<ssize32_t>::max());
+		if (_RemainSize < RequiredSize) {
+			_RemainSize = -1;
+			return {};
+		}
+		_RemainSize -= RequiredSize;
+		return { (const char *)_Reader.Skip(Size), Size };
+	}
+
 	X_INLINE void _ReadRawBlock(void * Block, size_t Size) {
 		auto RequiredSize = static_cast<ssize_t>(Size);
 		assert(RequiredSize < std::numeric_limits<ssize32_t>::max());
