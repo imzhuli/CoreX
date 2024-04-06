@@ -138,7 +138,7 @@ size_t xService::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, 
 			break;
 		}
 		if (Header.IsRequestKeepAlive()) {
-			X_DEBUG_PRINTF("RequestKeepAlive: %" PRIx64 "", Connection.ConnectionId());
+			// X_DEBUG_PRINTF("RequestKeepAlive: %" PRIx64 "", Connection.ConnectionId());
 			if (!PostData(Connection, KeepAliveBuffer, KeepAliveSize)) {
 				return InvalidDataSize;
 			}

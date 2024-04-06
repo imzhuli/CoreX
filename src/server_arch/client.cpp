@@ -117,7 +117,7 @@ size_t xClient::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, s
 			break;
 		}
 		if (Header.IsKeepAlive()) {
-			X_DEBUG_PRINTF("KeepAlive");
+			// X_DEBUG_PRINTF("KeepAlive");
 			LastKeepAliveTimestampMS = NowMS;
 		} else {
 			auto PayloadPtr  = xPacket::GetPayloadPtr(DataPtr);
