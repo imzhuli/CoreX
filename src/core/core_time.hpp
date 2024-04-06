@@ -144,6 +144,9 @@ X_NS {
 		operator uint64_t() const {
 			return NowMS;
 		}
+		uint64_t operator()() const {
+			return NowMS;
+		}
 
 	private:
 		uint64_t NowMS;
