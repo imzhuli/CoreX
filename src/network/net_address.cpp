@@ -135,7 +135,7 @@ xNetAddress xNetAddress::Parse(const sockaddr_storage * SockAddrStoragePtr) {
 std::string xNetAddress::IpToString() const {
 	char Buffer[64];
 	if (Type == UNSPEC) {
-		return "unknown";
+		return "";
 	}
 	if (Type == IPV4) {
 		return { Buffer, (size_t)sprintf(Buffer, "%d.%d.%d.%d", (int)SA4[0], (int)SA4[1], (int)SA4[2], (int)SA4[3]) };
@@ -156,7 +156,7 @@ std::string xNetAddress::IpToString() const {
 std::string xNetAddress::ToString() const {
 	char Buffer[64];
 	if (Type == UNSPEC) {
-		return "unknown";
+		return "";
 	}
 	if (Type == IPV4) {
 		return { Buffer, (size_t)sprintf(Buffer, "%d.%d.%d.%d:%u", (int)SA4[0], (int)SA4[1], (int)SA4[2], (int)SA4[3], (int)Port) };
