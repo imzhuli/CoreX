@@ -8,6 +8,8 @@
 #include <string_view>
 #include <vector>
 
+// clang-format off
+
 using namespace std::literals::string_literals;
 using namespace std::literals::string_view_literals;
 
@@ -27,6 +29,8 @@ X_STATIC_INLINE void CStrNCpy(char (&dsrArr)[N], const char * src) {
 
 X_API std::string HexShowLower(const void * buffer, size_t len, size_t IndentSize = 0, bool header = false);
 X_API std::string HexShow(const void * buffer, size_t len, size_t IndentSize = 0, bool header = false);
+X_INLINE std::string HexShowLower(const std::string_view & v, size_t IndentSize = 0, bool header = false) { return HexShowLower(v.data(), v.size(), IndentSize, header); }
+X_INLINE std::string HexShow(const std::string_view & v, size_t IndentSize = 0, bool header = false) { return HexShow(v.data(), v.size(), IndentSize, header); }
 
 X_API void HexToStr(void * dst, const void * str, size_t len);
 X_API std::string HexToStr(const void * str, size_t len);
