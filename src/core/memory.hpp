@@ -23,7 +23,7 @@ protected:
 	X_INLINE xRetainableBase(T initCount)
 		: _Count(initCount) {
 	}
-	X_INLINE                   xRetainableBase(const xRetainableBase &){};
+	X_INLINE                   xRetainableBase(const xRetainableBase &) {};
 	X_INLINE xRetainableBase & operator=(const xRetainableBase &) {
 		return *this;
 	}
@@ -81,11 +81,11 @@ public:
 	 * @return address of Allocaed memroy
 	 * @exception bad_Alloc
 	 */
-	X_API_MEMBER virtual void * Alloc(size_t vxSize, size_t vxAlignment);
+	X_API_MEMBER virtual void * Alloc(size_t vxSize, size_t vxAlignment) noexcept;
 	/**
 	 * @brief Free Allocated memory, null pointer should be accepted
 	 */
-	X_API_MEMBER virtual void Free(const void * vpObject);
+	X_API_MEMBER virtual void Free(const void * vpObject) noexcept;
 
 	template <typename T>
 	X_INLINE T * Create() {
