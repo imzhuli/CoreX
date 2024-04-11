@@ -82,7 +82,7 @@ void ErrorPrintf(const char * Path, size_t Line, const char * FunctionName, cons
 #endif
 	} while (false);
 	va_end(args);
-	fflush(stdout);
+	fflush(stderr);
 }
 
 X_COMMON_END
