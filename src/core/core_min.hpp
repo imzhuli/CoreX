@@ -123,9 +123,9 @@ template <typename... Args>
 template <typename T, size_t L>
 [[nodiscard]] X_STATIC_INLINE constexpr T& LastOf(T (&Array)[L]) { return Array[SafeLength(Array)]; }
 
-
+[[noreturn]] X_API void QuickExit(int ExitCode);
 [[noreturn]] X_STATIC_INLINE void Error(const char * message = nullptr) { throw message;}
-[[noreturn]] X_STATIC_INLINE void Fatal(const char * = nullptr /* reason */) { std::abort(); }
+[[noreturn]] X_STATIC_INLINE void Fatal(const char * = nullptr /* reason */) { QuickExit(EXIT_FAILURE); }
 [[noreturn]] X_STATIC_INLINE void Todo(const char * info = nullptr) { Fatal(info); }
 [[noreturn]] X_STATIC_INLINE void Pure() { Fatal("placeholder of pure function called, which is not expected"); }
 
@@ -347,11 +347,13 @@ private:
 
 X_API void DebugPrintf(const char * Filename, size_t Line, const char * FunctionName, const char * fmt, ...);
 X_API void ErrorPrintf(const char * Filename, size_t Line, const char * FunctionName, const char * fmt, ...);
+X_API void FatalPrintf(const char * Filename, size_t Line, const char * FunctionName, const char * fmt, ...);
 
 X_COMMON_END
 
 
 #define X_PERROR(fmt, ...) ::xel::ErrorPrintf(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
+#define X_PFATAL(fmt, ...) ::xel::FatalPrintf(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
 
 #ifndef X_CATCH_NONE
 #define X_CATCH_NONE catch (const ::xel::xNonCatchable &)
