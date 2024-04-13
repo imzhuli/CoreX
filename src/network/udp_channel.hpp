@@ -6,7 +6,9 @@
 
 X_BEGIN
 
-class xUdpChannel : xSocketIoReactor {
+class xUdpChannel
+	: xSocketIoReactor
+	, xAbstract {
 public:
 	struct iListener {  // clang-format off
 		virtual void OnError(xUdpChannel * ChannelPtr) {}

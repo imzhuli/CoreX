@@ -7,7 +7,9 @@
 
 X_BEGIN
 
-class xTcpConnection : xSocketIoReactor {
+class xTcpConnection
+	: xSocketIoReactor
+	, xAbstract {
 public:
 	enum struct eState {
 		UNSPEC,
