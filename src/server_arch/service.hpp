@@ -15,7 +15,7 @@ public:
 	uint64_t TimestampMS = 0;
 };
 
-class xServiceClientConnection
+class xServiceClientConnection final
 	: public xTcpConnection
 	, public xServiceClientConnectionNode {
 public:
@@ -53,8 +53,8 @@ public:
 
 public:
 	X_API_MEMBER void SetMaxWriteBuffer(size_t Size);
-	X_API_MEMBER bool PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
-	X_API_MEMBER bool PostData(xServiceClientConnection & Connection, const void * DataPtr, size_t DataSize);
+	X_API_MEMBER void PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
+	X_API_MEMBER void PostData(xServiceClientConnection & Connection, const void * DataPtr, size_t DataSize);
 
 	X_INLINE void DeferKillConnection(xServiceClientConnection & Connection) {
 		ServiceConnectionKillList.GrabTail(Connection);
@@ -101,9 +101,6 @@ class xUdpService
 	: xUdpChannel
 	, xUdpChannel::iListener {
 public:
-	X_API_MEMBER bool Init(xIoContext * IoContextPtr, int AddressFamily = AF_INET) {
-		return xUdpChannel::Init(IoContextPtr, AddressFamily, this);
-	}
 	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress) {
 		return xUdpChannel::Init(IoContextPtr, BindAddress, this);
 	}

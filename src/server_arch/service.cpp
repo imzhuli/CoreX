@@ -22,7 +22,7 @@ bool xService::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, 
 
 bool xService::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, size_t MaxConnectionId, bool ReusePort) {
 	NowMS = GetTimestampMS();
-	if (!TcpServer.Init(IoContextPtr, BindAddress, this, ReusePort)) {
+	if (!TcpServer.Init(IoContextPtr, BindAddress, this)) {
 		return false;
 	}
 	auto TcpServerCleaner = MakeResourceCleaner(TcpServer);
@@ -139,9 +139,7 @@ size_t xService::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, 
 		}
 		if (Header.IsRequestKeepAlive()) {
 			// X_DEBUG_PRINTF("RequestKeepAlive: %" PRIx64 "", Connection.ConnectionId());
-			if (!PostData(Connection, KeepAliveBuffer, KeepAliveSize)) {
-				return InvalidDataSize;
-			}
+			PostData(Connection, KeepAliveBuffer, KeepAliveSize);
 			KeepAlive(Connection);
 		} else {
 			auto PayloadPtr  = xPacket::GetPayloadPtr(DataPtr);
@@ -165,22 +163,17 @@ void xService::SetMaxWriteBuffer(size_t Size) {
 	MaxWriteBufferLimitForEachConnection = (Size / sizeof(xPacketBuffer::Buffer)) + 1;
 }
 
-bool xService::PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize) {
+void xService::PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize) {
 	auto HolderPtr = ConnectionIdPool.CheckAndGet(ConnectionId);
 	if (!HolderPtr) {
-		return false;
+		return;
 	}
 	auto ConnectionPtr = *HolderPtr;
-	return PostData(*ConnectionPtr, DataPtr, DataSize);
+	PostData(*ConnectionPtr, DataPtr, DataSize);
 }
 
-bool xService::PostData(xServiceClientConnection & Connection, const void * DataPtr, size_t DataSize) {
-	auto Posted = Connection.PostData(DataPtr, DataSize);
-	if (Posted != DataSize) {
-		DeferKillConnection(Connection);
-		return false;
-	}
-	return true;
+void xService::PostData(xServiceClientConnection & Connection, const void * DataPtr, size_t DataSize) {
+	Connection.PostData(DataPtr, DataSize);
 }
 
 /* udp */

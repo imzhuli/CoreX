@@ -157,12 +157,7 @@ void xClient::PostData(const void * DataPtr, size_t DataSize) {
 	if (!Connected || KillConnection) {
 		return;
 	}
-	auto Posted = Connection.PostData(DataPtr, DataSize);
-	if (Posted != DataSize) {
-		KillConnection = true;
-		return;
-	}
-	return;
+	Connection.PostData(DataPtr, DataSize);
 }
 
 X_END

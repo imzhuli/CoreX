@@ -1,0 +1,67 @@
+#include "./tcp_server.hpp"
+
+#include "./socket.hpp"
+#include "./tcp_connection.hpp"
+
+X_BEGIN
+
+bool xTcpServer::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, iListener * ListenerPtr) {
+	if (!CreateNonBlockingTcpSocket(NativeSocket, BindAddress)) {
+		return false;
+	}
+	auto SG = xScopeGuard([this] { DestroySocket(std::move(NativeSocket)); });
+
+	if (!TryListen()) {
+		return false;
+	}
+
+	if (!IoContextPtr->Add(*this)) {
+		X_PFATAL("failed to register tcp server socket");
+		return false;
+	}
+
+	this->ICP = IoContextPtr;
+	this->LP  = ListenerPtr;
+	SG.Dismiss();
+	return true;
+}
+
+void xTcpServer::Clean() {
+	this->ICP->Remove(*this);
+	DestroySocket(std::move(NativeSocket));
+}
+
+bool xTcpServer::OnIoEventInReady() {
+	auto NewSocket = InvalidSocket;
+	while (TryAccept(NewSocket)) {
+		LP->OnNewConnection(this, Steal(NewSocket, InvalidSocket));
+	}
+	return true;
+}
+
+bool xTcpServer::TryListen() {
+	setsockopt(NativeSocket, SOL_SOCKET, SO_SNDBUF, (char *)X2P(int(0)), sizeof(int));
+	auto ListenRet = listen(NativeSocket, SOMAXCONN);
+	if (ListenRet == -1) {
+		X_PFATAL("failed to listen on address");
+		return false;
+	}
+	return true;
+}
+
+bool xTcpServer::TryAccept(xSocket & NewConnectionSocket) {
+	sockaddr_storage SockAddr    = {};
+	socklen_t        SockAddrLen = sizeof(SockAddr);
+
+	NewConnectionSocket = accept(NativeSocket, (struct sockaddr *)&SockAddr, &SockAddrLen);
+	if (NewConnectionSocket == InvalidSocket) {
+		auto Error = errno;
+		if (Error != EAGAIN) {
+			X_PFATAL("failed to accept new connection: %s", strerror(Error));
+		}
+		return false;
+	}
+	return true;
+}
+
+X_END

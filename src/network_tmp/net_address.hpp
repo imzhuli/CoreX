@@ -78,7 +78,6 @@ struct xNetAddress final {
 			Dump((sockaddr_in6 *)AddrStoragePtr);
 			return sizeof(sockaddr_in6);
 		}
-		X_PFATAL("invalid address type");
 		*AddrStoragePtr           = sockaddr_storage{};
 		AddrStoragePtr->ss_family = AF_UNSPEC;
 		return 0;

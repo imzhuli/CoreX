@@ -30,7 +30,7 @@ void xSha256WithRsa::Clean() {
 	return;
 }
 
-xArrayView<ubyte> xSha256WithRsa::operator()(const void * Data, size_t Size) {
+xView<ubyte> xSha256WithRsa::operator()(const void * Data, size_t Size) {
 	ubyte Hash[32];
 	mbedtls_sha256((const ubyte *)Data, Size, Hash, 0);
 

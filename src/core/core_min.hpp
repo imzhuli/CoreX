@@ -123,7 +123,7 @@ template <typename... Args>
 template <typename T, size_t L>
 [[nodiscard]] X_STATIC_INLINE constexpr T& LastOf(T (&Array)[L]) { return Array[SafeLength(Array)]; }
 
-[[noreturn]] X_API void QuickExit(int ExitCode);
+[[noreturn]] X_API void QuickExit(int ExitCode = EXIT_FAILURE);
 [[noreturn]] X_STATIC_INLINE void Error(const char * message = nullptr) { throw message;}
 [[noreturn]] X_STATIC_INLINE void Fatal(const char * = nullptr /* reason */) { QuickExit(EXIT_FAILURE); }
 [[noreturn]] X_STATIC_INLINE void Todo(const char * info = nullptr) { Fatal(info); }
@@ -153,8 +153,6 @@ template <typename T>
 X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget) { ExpiringTarget = T(); }
 template <typename T, typename TValue>
 X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget, TValue && value) { ExpiringTarget = std::forward<TValue>(value); }
-template <typename T, typename TValue>
-X_STATIC_INLINE constexpr void Assign(T & ExpiringTarget, TValue && value) { ExpiringTarget = std::forward<TValue>(value); }
 
 template <typename T>
 X_STATIC_INLINE void Construct(T & ExpiringTarget) { new (AddressOf(ExpiringTarget)) T; }
