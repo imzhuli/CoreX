@@ -8,7 +8,7 @@ class xClient
 	, xAbstract {
 public:
 	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress) {
-		return Init(IoContextPtr, TargetAddress, xNetAddress());
+		return Init(IoContextPtr, TargetAddress, TargetAddress.Decay());
 	}
 	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress, const xNetAddress & BindAddress);
 	X_API_MEMBER void Tick(uint64_t NowMS);

@@ -51,6 +51,10 @@ struct xNetAddress final {
 		return AF_UNSPEC;
 	}
 
+	X_INLINE xNetAddress Decay() const {
+		return { .Type = this->Type };
+	}
+
 	X_INLINE void Dump(sockaddr_in * Addr4Ptr) const {
 		assert(IsV4());
 		memset(Addr4Ptr, 0, sizeof(*Addr4Ptr));

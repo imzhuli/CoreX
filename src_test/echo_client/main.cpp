@@ -18,7 +18,7 @@ int main(int argc, char ** argv) {
 		cerr << "Invalid IR" << endl;
 		return -1;
 	}
-	auto CR = xResourceGuard(Client, &IoCtx, ServerAddress);
+	auto CR = xResourceGuard(Client, &IoCtx, ServerAddress, xNetAddress::Make4());
 	if (!CR) {
 		cerr << "Invalid CR" << endl;
 		return -1;
