@@ -40,7 +40,7 @@ public:
 
 	// clang-format off
 	X_INLINE bool IsConnected() const { return State == eState::CONNECTED; }
-	X_INLINE bool HasPendingWrites() const { Todo(); }
+	X_INLINE bool HasPendingWrites() const { return WriteBufferChain.GetSize(); }
 	X_INLINE void SetMaxWriteBufferSize(size_t NewLimit) { MaxWriteBufferSize = NewLimit; }
 	X_API_MEMBER void PostData(const void * DataPtr, size_t DataSize);
 	// clang-format on
