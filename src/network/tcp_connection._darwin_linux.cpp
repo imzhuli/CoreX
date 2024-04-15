@@ -175,7 +175,9 @@ bool xTcpConnection::OnIoEventInReady() {
 		if (ProcessedDataSize == InvalidDataSize) {
 			return false;
 		}
-		ReadDataSize -= ProcessedDataSize;
+		if ((ReadDataSize -= ProcessedDataSize)) {
+			memmove(ReadBuffer, ReadBuffer + ProcessedDataSize, ReadDataSize);
+		}
 	}
 	return true;
 }
