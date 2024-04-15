@@ -104,8 +104,8 @@ bool xTcpConnection::ReadData(xView<ubyte> & BufferView) {
 		}
 		return false;
 	}
-	BufferView    = { StartPtr, (size_t)ReadSize };
 	ReadDataSize += ReadSize;
+	BufferView    = { ReadBuffer, (size_t)ReadDataSize };
 	return true;
 }
 
