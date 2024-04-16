@@ -57,10 +57,14 @@ bool xUdpChannel::OnIoEventInReady() {
 		socklen_t        SockAddrLen = sizeof(SockAddr);
 		int              ReadSize    = recvfrom(NativeSocket, ReadBuffer, sizeof(ReadBuffer), 0, (sockaddr *)&SockAddr, &SockAddrLen);
 		if (ReadSize == -1) {
-			if (errno != EAGAIN) {
-				return false;
+			auto Error = errno;
+			if (Error == EMSGSIZE) {
+				continue;
 			}
-			return true;
+			if (Error == EAGAIN) {
+				return true;
+			}
+			return false;
 		}
 		xNetAddress RemoteAddress = xNetAddress::Parse((const sockaddr *)&SockAddr);
 		LP->OnData(this, ReadBuffer, (size_t)ReadSize, RemoteAddress);
