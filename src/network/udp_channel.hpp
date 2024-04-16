@@ -20,13 +20,20 @@ public:
 	X_API_MEMBER void Clean();
 	X_API_MEMBER void PostData(const void * DataPtr, size_t DataSize, const xNetAddress & DestiationAddress);
 
+	X_INLINE const xNetAddress & GetBindAddress() const {
+		return ActualBindAddress;
+	}
+
 private:
 	X_API_MEMBER bool OnIoEventInReady() override;
 	X_API_MEMBER void OnIoEventError() override;
 
+	X_API_MEMBER xNetAddress GetLocalAddress() const;
+
 private:
-	xIoContext * ICP = nullptr;
-	iListener *  LP  = nullptr;
+	xIoContext * ICP               = nullptr;
+	iListener *  LP                = nullptr;
+	xNetAddress  ActualBindAddress = {};
 
 	ubyte ReadBuffer[MaxPacketSize];
 };

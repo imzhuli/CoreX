@@ -12,15 +12,26 @@ bool xUdpChannel::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddres
 	if (!CreateNonBlockingUdpSocket(NativeSocket, BindAddress)) {
 		return false;
 	}
-	this->ICP = IoContextPtr;
-	this->LP  = ListenerPtr;
+	this->ActualBindAddress = GetLocalAddress();
+	this->ICP               = IoContextPtr;
+	this->LP                = ListenerPtr;
 	return true;
 }
 
 void xUdpChannel::Clean() {
 	DestroySocket(std::move(NativeSocket));
+	Reset(ActualBindAddress);
 	Reset(LP);
 	Reset(ICP);
+}
+
+xNetAddress xUdpChannel::GetLocalAddress() const {
+	sockaddr_storage SockAddr;
+	socklen_t        SockAddrLen = sizeof(SockAddr);
+	if (getsockname(NativeSocket, (sockaddr *)&SockAddr, &SockAddrLen)) {
+		return {};
+	}
+	return xNetAddress::Parse(&SockAddr);
 }
 
 void xUdpChannel::PostData(const void * DataPtr, size_t DataSize, const xNetAddress & Address) {
