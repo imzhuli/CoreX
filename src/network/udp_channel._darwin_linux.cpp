@@ -12,6 +12,11 @@ bool xUdpChannel::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddres
 	if (!CreateNonBlockingUdpSocket(NativeSocket, BindAddress)) {
 		return false;
 	}
+	if (!IoContextPtr->Add(*this)) {
+		X_DEBUG_PRINTF("Failed to add to listener");
+		DestroySocket(std::move(NativeSocket));
+		return false;
+	}
 	this->ActualBindAddress = GetLocalAddress();
 	this->ICP               = IoContextPtr;
 	this->LP                = ListenerPtr;
