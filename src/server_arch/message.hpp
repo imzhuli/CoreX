@@ -32,8 +32,8 @@ protected:  // clang-format off
 
 private:
 	// W
+	X_INLINE void _W(const xNetAddress & Address) { _WAddr(Address); }
 	X_INLINE void _W(const std::string_view & V) { _WB(V.data(), V.size()); }
-	X_INLINE void _W(const xNetAddress & Addr) { _W(Addr.ToString()); }
 	template <typename T>
 	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 1 == sizeof(T)> _W(T && V) { _W1(V); }
 	template <typename T>
@@ -46,7 +46,7 @@ private:
 	// R
 	X_INLINE void _R(std::string & V) { V = _RB(); }
 	X_INLINE void _R(std::string_view & V) { V = _ReadRawBlockView(); }
-	X_INLINE void _R(xNetAddress & Addr) { std::string AddrString; _R(AddrString); Addr = xNetAddress::Parse(AddrString); }
+	X_INLINE void _R(xNetAddress & Addr) { _RAddr(Addr); }
 	template <typename T>
 	X_INLINE std::enable_if_t<std::is_integral_v<T> && 1 == sizeof(T)> _R(T & V) { V = static_cast<T>(_R1()); }
 	template <typename T>
@@ -110,6 +110,42 @@ private:  // clang-format on
 		}
 		_RemainSize -= RequiredSize;
 		_Writer.W(Block, Size);
+	}
+	X_INLINE void _WAddr(const xNetAddress & Addr) {
+		if (!Addr) {
+			if (_RemainSize < 1) {
+				_RemainSize = -1;
+				return;
+			}
+			_Writer.W1(0);
+			_RemainSize -= 1;
+			return;
+		}
+		if (Addr.IsV4()) {
+			auto RequiredSize = decltype(_RemainSize)(7);
+			if (_RemainSize < RequiredSize) {
+				_RemainSize = -1;
+				return;
+			}
+			_Writer.W1(0x04);
+			_Writer.W(Addr.SA4, 4);
+			_Writer.W2L(Addr.Port);
+			_RemainSize -= RequiredSize;
+			return;
+		}
+		if (Addr.IsV6()) {
+			auto RequiredSize = decltype(_RemainSize)(19);
+			if (_RemainSize < RequiredSize) {
+				_RemainSize = -1;
+				return;
+			}
+			_Writer.W1(0x06);
+			_Writer.W(Addr.SA6, 16);
+			_Writer.W2L(Addr.Port);
+			_RemainSize -= RequiredSize;
+			return;
+		}
+		X_PFATAL("Invalid address type");
 	}
 
 	/* read */
@@ -187,6 +223,49 @@ private:  // clang-format on
 		}
 		_RemainSize -= RequiredSize;
 		_Reader.R(Block, Size);
+	}
+	void _RAddr(xNetAddress & Addr) {
+		if (_RemainSize < 1) {
+			_RemainSize = -1;
+			Reset(Addr);
+			return;
+		}
+		auto Type = _Reader.R1();
+		if (Type == 0x00) {
+			_RemainSize -= 1;
+			Reset(Addr);
+			return;
+		}
+		if (Type == 0x04) {
+			auto RequiredSize = decltype(_RemainSize)(7);
+			if (_RemainSize < RequiredSize) {
+				_RemainSize = -1;
+				Reset(Addr);
+				return;
+			}
+			Addr = xNetAddress::Make4();
+			_Reader.R(Addr.SA4, 4);
+			Addr.Port    = _Reader.R2L();
+			_RemainSize -= RequiredSize;
+			return;
+		}
+		if (Type == 0x06) {
+			auto RequiredSize = decltype(_RemainSize)(19);
+			if (_RemainSize < RequiredSize) {
+				_RemainSize = -1;
+				Reset(Addr);
+				return;
+			}
+			Addr = xNetAddress::Make6();
+			_Reader.R(Addr.SA6, 16);
+			Addr.Port    = _Reader.R2L();
+			_RemainSize -= RequiredSize;
+			return;
+		}
+		// error:
+		Reset(Addr);
+		_RemainSize = -1;
+		return;
 	}
 
 private:

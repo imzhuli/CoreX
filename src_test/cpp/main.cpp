@@ -4,25 +4,41 @@
 #include <cstdlib>
 #include <iostream>
 #include <mutex>
+#include <server_arch/message.hpp>
 #include <string>
 #include <thread>
 
 using namespace xel;
 using namespace std;
 
-static auto M = std::mutex();
-static auto C = std::condition_variable();
+struct xSSS : xBinaryMessage {
+	void SerializeMembers() override {
+		W(Address);
+	}
+	void DeserializeMembers() override {
+		R(Address);
+	}
 
-void Foo() {
-	auto G = std::unique_lock(M);
-	std::abort();
-}
+	xNetAddress Address = {};
+};
 
 int main(int argc, char ** argv) {
-	auto G = std::unique_lock(M);
-	auto T = std::thread(Foo);
-	C.wait(G, [] { return false; });
 
-	T.join();
+	auto Addr = xNetAddress::Parse("192.168.123.1", 7788);
+	Addr      = xNetAddress::Make6();
+	Addr.Port = 1024;
+	Touch(Addr);
+
+	xSSS SSS;
+	SSS.Address = Addr;
+
+	ubyte Buffer[1024];
+	auto  SS = SSS.Serialize(Buffer, sizeof(Buffer));
+	cout << HexShow(Buffer, SS) << endl;
+
+	xSSS RRR;
+	RRR.Deserialize(Buffer, SS);
+	cout << RRR.Address.ToString() << endl;
+
 	return 0;
 }
