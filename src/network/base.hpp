@@ -3,22 +3,22 @@
 
 #if defined(X_SYSTEM_WINDOWS)
 #define WIN32_LEAN_AND_MEAN
-#include <MSWSock.h>
-#include <WS2tcpip.h>
 #include <WinSock2.h>
 #include <Windows.h>
+#include <MSWSock.h>
+#include <WS2tcpip.h>
 #include <windef.h>
 #include <ws2def.h>
 
 X_NS {
-	typedef SSIZE_T              ssize_t;
-	typedef int                  send_len_t;
-	typedef int                  recv_len_t;
-	typedef HANDLE               xEventPoller;
-	typedef xVariable            xNativeEventType;
-	typedef SOCKET               xSocket;
-	constexpr const xEventPoller InvalidEventPoller = reinterpret_cast<xEventPoller>(INVALID_HANDLE_VALUE);
-	constexpr const xSocket      InvalidSocket      = INVALID_SOCKET;
+	typedef SSIZE_T                  ssize_t;
+	typedef int                      send_len_t;
+	typedef int                      recv_len_t;
+	typedef HANDLE                   xEventPoller;
+	typedef xVariable                xNativeEventType;
+	typedef SOCKET                   xSocket;
+	static inline const xEventPoller InvalidEventPoller = reinterpret_cast<xEventPoller>(INVALID_HANDLE_VALUE);
+	static inline const xSocket      InvalidSocket      = INVALID_SOCKET;
 #define XelCloseSocket(sockfd) closesocket((sockfd))
 }
 
