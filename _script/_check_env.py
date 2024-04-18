@@ -53,11 +53,11 @@ def remake_dir(dir):
 
 def remake_3rd_build_dir():
     cwd = os. getcwd()
-    install_dir = cwd + "/_3rd_build"
-    if not remake_dir(install_dir):
+    build_dir = cwd + "/_3rd_build"
+    if not remake_dir(build_dir):
         print("failed to remake 3rd_build dir")
         return False
-    print("3rd_build dir prepared")
+    print("3rd_build dir prepared: " + build_dir)
     return True
 
 
@@ -67,5 +67,5 @@ def remake_3rd_install_dir():
     if not remake_dir(install_dir):
         print("failed to remake 3rd_installed dir")
         return False
-    print("3rd_installed dir prepared")
+    print("3rd_installed dir prepared: " + install_dir)
     return True

@@ -24,7 +24,7 @@ def build():
             'cmake '
             '-Wno-dev '
             '-DBUILD_SHARED_LIBS=OFF '
-            f'-DCMAKE_INSTALL_PREFIX={install_dir!r} -B build . ')
+            f'-DCMAKE_INSTALL_PREFIX="{install_dir}" -B build . ')
         os.system(f"cmake --build build -- all")
         os.system(f"cmake --build build -- install")
     except Exception as e:
@@ -41,7 +41,6 @@ def post_build():
         target_include_dir = install_dir + "/include/glm"
         shutil.rmtree(target_include_dir)
         shutil.copytree(src_include_dir, target_include_dir)
-        print(f"{libname} installed to {install_dir!r}")
     except Exception as e:
         print(f"Exception: {e}")
         return False

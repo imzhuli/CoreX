@@ -35,7 +35,7 @@ def build():
             '-DCURL_DISABLE_LDAP=ON '
             '-DPICKY_COMPILER=OFF '
             '-DCMAKE_CXX_STANDARD=20 '
-            f'-DCMAKE_INSTALL_PREFIX={install_dir!r} -B build . ')
+            f'-DCMAKE_INSTALL_PREFIX="{install_dir}" -B build . ')
         os.system(f"cmake --build build -- all")
         os.system(f"cmake --build build -- install")
     except Exception as e:
@@ -43,7 +43,6 @@ def build():
         return False
     finally:
         os.chdir(cwd)
-    print(f"{libname} installed to {install_dir!r}")
     return True
 
 

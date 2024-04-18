@@ -326,7 +326,7 @@ namespace __common_detail__ {
 	}
 }
 template <typename...xTargets>
-[[no_discard]] auto MakeResourceCleaner(xTargets &... Targets) {
+[[nodiscard]] auto MakeResourceCleaner(xTargets &... Targets) {
 	return xScopeGuard([&Targets...] { __common_detail__::CleanResource(Targets...); });
 }
 

@@ -40,11 +40,11 @@ for opt, arg in opts:
     if opt == "-j":
         j_threads = " -j%s " % arg
     pass
-
-os.system(
-    'cmake -Wno-dev '
-    '-DBUILD_SHARED_LIBS=OFF '
-    f'-DSERVER_SIDE_LIB_ONLY={server_side_lib_only} '
-    f'-DCMAKE_INSTALL_PREFIX={full_install_path!r} -B {build_path!r} .')
-os.system(f"cmake --build {build_path} -- {j_threads} all")
-os.system(f"cmake --build {build_path} -- install")
+prepare = \
+    'cmake -Wno-dev ' \
+    '-DBUILD_SHARED_LIBS=OFF ' \
+    f'-DSERVER_SIDE_LIB_ONLY={server_side_lib_only} ' \
+    f'-DCMAKE_INSTALL_PREFIX="{full_install_path}" -B "{build_path}" .'
+os.system(prepare)
+os.system(f'cmake --build "{build_path}" -- {j_threads}')
+# os.system(f'cmake --build "{build_path}" -- install')

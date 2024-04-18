@@ -13,4 +13,7 @@ cwd = os.getcwd()
 build_path = cwd + "/_corex_build"
 full_install_path = cwd + "/_corex_installed"
 
+print("build_path: " + build_path)
+print("full_install_path: " + full_install_path)
+
 ce.remake_dir(full_install_path)

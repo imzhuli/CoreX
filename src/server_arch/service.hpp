@@ -77,10 +77,10 @@ private:
 	X_PRIVATE_MEMBER void CleanupConnection(xServiceClientConnection & Connection);
 	X_PRIVATE_MEMBER void CleanupKilledConnections();
 
-	[[no_discard]] X_STATIC_INLINE xServiceClientConnection & Cast(xTcpConnection & Connection) {
+	[[nodiscard]] X_STATIC_INLINE xServiceClientConnection & Cast(xTcpConnection & Connection) {
 		return static_cast<xServiceClientConnection &>(Connection);
 	};
-	[[no_discard]] X_STATIC_INLINE xServiceClientConnection & Cast(xServiceClientConnectionNode & Node) {
+	[[nodiscard]] X_STATIC_INLINE xServiceClientConnection & Cast(xServiceClientConnectionNode & Node) {
 		return static_cast<xServiceClientConnection &>(Node);
 	};
 
