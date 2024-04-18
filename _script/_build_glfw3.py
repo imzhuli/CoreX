@@ -26,10 +26,11 @@ def build():
         os.system(
             'cmake '
             '-Wno-dev '
+            '-DGLFW_BUILD_DOCS=OFF '
             '-DBUILD_SHARED_LIBS=OFF '
             f'-DCMAKE_INSTALL_PREFIX="{install_dir}" -B build .')
-        os.system(f"cmake --build build --config={build_type}")
-        os.system(f"cmake --install build --config={build_type}")
+        os.system(f"cmake --build build --config {build_type}")
+        os.system(f"cmake --install build --config {build_type}")
     except Exception as e:
         print(f"{libname} build error: %s" % e)
         return False

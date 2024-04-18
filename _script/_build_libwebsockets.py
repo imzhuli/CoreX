@@ -43,8 +43,8 @@ def build():
             '-DLWS_HAVE_MBEDTLS_NET_SOCKETS=1 '
             '-DCMAKE_CXX_STANDARD=20 '
             f'-DCMAKE_INSTALL_PREFIX="{install_dir}" -B build .')
-        os.system(f"cmake --build build --config={build_type}")
-        os.system(f"cmake --install build --config={build_type}")
+        os.system(f"cmake --build build --config {build_type}")
+        os.system(f"cmake --install build --config {build_type}")
     except Exception as e:
         return False
     finally:

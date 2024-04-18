@@ -56,9 +56,12 @@ endif()
 
 
 def __remove_readonly(func, path, _):
-    "Clear the readonly bit and reattempt the removal"
-    os.chmod(path, stat.S_IWRITE)
-    func(path)
+    try:
+        os.chmod(path, stat.S_IWRITE | stat.S_IREAD)
+        func(path)
+    except Exception as e:
+        print(path)
+        print(e)
 
 
 def fix_cmake(cmakefile):
@@ -77,17 +80,16 @@ def fix_cmake(cmakefile):
 
 
 def remove_dir(dir):
-    try:
+    # try:
         shutil.rmtree(dir, onerror=__remove_readonly)
-    except Exception as e:
-        pass
+    # except Exception as e:
+    #     print(f"RM: Exception: {e}")
 
 
 def remake_dir(dir):
     remove_dir(dir)
     try:
         os.makedirs(dir)
-        os.chmod(dir, stat.S_IWRITE)
     except Exception as e:
         print(f"MK: Exception: {e}")
         return False
