@@ -3,6 +3,7 @@
 import sys
 import os
 import shutil
+import _cmake_util as cu
 
 MIN_PY_VERSION_MAJOR = 3
 MIN_PY_VERSION_MINOR = 7
@@ -29,7 +30,6 @@ def check_tag_file():
         return False
     return True
 
-
 def check_env():
     valid = check_version() and check_tag_file()
     if not valid:
@@ -38,15 +38,16 @@ def check_env():
     print("Basic dependency checked.")
     return True
 
-
 def remake_dir(dir):
     try:
-        shutil.rmtree(dir)
+        shutil.rmtree(dir, onerror=cu.remove_readonly)
     except Exception as e:
+        print(f"RM: Exception: {e}")
         pass
     try:
         os.mkdir(dir)
     except Exception as e:
+        print(f"MK: Exception: {e}")
         return False
     return True
 

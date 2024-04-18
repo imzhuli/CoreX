@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import _cmake_util as cu
 import _unzip_source as us
 import os
 import shutil
@@ -25,8 +26,8 @@ def build():
             '-Wno-dev '
             '-DBUILD_SHARED_LIBS=OFF '
             f'-DCMAKE_INSTALL_PREFIX="{install_dir}" -B build . ')
-        os.system(f"cmake --build build -- all")
-        os.system(f"cmake --build build -- install")
+        os.system(f"cmake --build build")
+        os.system(f"cmake --install build")
     except Exception as e:
         print(f"{libname} error: %s" % e)
         return False
@@ -39,8 +40,12 @@ def post_build():
     try:
         src_include_dir = unzipped_src_dir + "/glm"
         target_include_dir = install_dir + "/include/glm"
+
+        print(src_include_dir)
+        print(target_include_dir)
+
         shutil.rmtree(target_include_dir)
-        shutil.copytree(src_include_dir, target_include_dir)
+        shutil.copytree(src_include_dir, f'"target_include_dir"')
     except Exception as e:
         print(f"Exception: {e}")
         return False

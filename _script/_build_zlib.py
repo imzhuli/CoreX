@@ -46,8 +46,8 @@ def build():
             '-DZLIB_BUILD_EXAMPLES=OFF '
             '-DCMAKE_CXX_STANDARD=20 '
             f'-DCMAKE_INSTALL_PREFIX="{install_dir}" -B build . ')
-        os.system(f"cmake --build build -- all")
-        os.system(f"cmake --build build -- install")
+        os.system(f"cmake --build build ")
+        os.system(f"cmake --install build")
     except Exception as e:
         print(f"{libname} error: %s" % e)
         return False

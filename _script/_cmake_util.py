@@ -18,7 +18,7 @@ endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # GNU only begin
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-class-memaccess") 
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-class-memaccess")
     # GNU only end
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
@@ -62,3 +62,10 @@ def fix_cmake(cmakefile):
     except Exception as e:
         return False
     return True
+
+
+def remove_readonly(func, path, _):
+    "Clear the readonly bit and reattempt the removal"
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+
