@@ -30,7 +30,7 @@ server_side_lib_only = "OFF"
 j_threads = ""
 try:
     argv = sys.argv[1:]
-    opts, args = getopt.getopt(argv, "sj:")
+    opts, args = getopt.getopt(argv, "srj:")
 except getopt.GetoptError:
     sys.exit(2)
 for opt, arg in opts:
@@ -39,6 +39,9 @@ for opt, arg in opts:
         print("server-side lib only")
     if opt == "-j":
         j_threads = " -j%s " % arg
+    if opt == '-r':
+        os.environ["CMAKE_BUILD_TYPE"] = "Release"
+        print("set CMAKE_BUILD_TYPE to Release")
     pass
 prepare = \
     'cmake -Wno-dev ' \

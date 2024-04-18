@@ -11,7 +11,6 @@ src_file = f"{cwd}/_3rd_source/zlib-1.3.1.tar.gz"
 unzipped_src_dir = f"{unzip_dir}/zlib-1.3.1"
 install_dir = f"{cwd}/_3rd_installed"
 
-
 def disable_installing_shared_lib():
     cmakefile = f"{unzipped_src_dir}/CMakeLists.txt"
     try:
@@ -28,6 +27,11 @@ def disable_installing_shared_lib():
 
 
 def build():
+    if os.getenv("CMAKE_BUILD_TYPE") is None:
+        os.environ["CMAKE_BUILD_TYPE"]="Debug"
+    build_type=os.getenv("CMAKE_BUILD_TYPE")
+    print(f"=============> {build_type}")
+
     try:
         file = tarfile.open(src_file)
         file.extractall(unzip_dir)
@@ -46,8 +50,8 @@ def build():
             '-DZLIB_BUILD_EXAMPLES=OFF '
             '-DCMAKE_CXX_STANDARD=20 '
             f'-DCMAKE_INSTALL_PREFIX="{install_dir}" -B build . ')
-        os.system(f"cmake --build build ")
-        os.system(f"cmake --install build")
+        os.system(f"cmake --build build --config={build_type}")
+        os.system(f"cmake --install build --config={build_type}")
     except Exception as e:
         print(f"{libname} error: %s" % e)
         return False

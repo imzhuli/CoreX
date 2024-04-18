@@ -21,13 +21,16 @@ if __name__ != "__main__":
 server_side_lib_only = "OFF"
 try:
     argv = sys.argv[1:]
-    opts, args = getopt.getopt(argv, "s")
+    opts, args = getopt.getopt(argv, "sr")
 except getopt.GetoptError:
     sys.exit(2)
 for opt, arg in opts:
     if opt == "-s":
         server_side_lib_only = "ON"
         print("server-side lib only")
+    if opt == '-r':
+        os.environ["CMAKE_BUILD_TYPE"] = "Release"
+        print("set CMAKE_BUILD_TYPE to Release")
     pass
 
 if not p3.prepare_3rd():
