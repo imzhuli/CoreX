@@ -47,4 +47,4 @@ prepare = \
     f'-DCMAKE_INSTALL_PREFIX="{full_install_path}" -B "{build_path}" .'
 os.system(prepare)
 os.system(f'cmake --build "{build_path}" -- {j_threads}')
-# os.system(f'cmake --build "{build_path}" -- install')
+os.system(f'cmake --build "{build_path}" -t install')
