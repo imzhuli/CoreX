@@ -8,7 +8,11 @@ if (NOT ${SERVER_SIDE_LIB_ONLY})
 	set(THIRD_LIBRARIES ${THIRD_LIBRARIES} ${Vulkan_LIBRARIES})
 endif()
 
-set(THIRD_LIBRARIES   ${THIRD_LIBRARIES} curl websockets everest freetype mbedcrypto mbedtls mbedx509 p256m z)
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+	set(THIRD_LIBRARIES ${THIRD_LIBRARIES} libcurl websockets_static everest freetype mbedcrypto mbedtls mbedx509 p256m zlibstatic)
+else()
+	set(THIRD_LIBRARIES ${THIRD_LIBRARIES} curl websockets everest freetype mbedcrypto mbedtls mbedx509 p256m z)
+endif()
 
 include_directories(
 	${Vulkan_INCLUDE_DIRS}

@@ -41,13 +41,17 @@ for opt, arg in opts:
         j_threads = " -j%s " % arg
     if opt == '-r':
         os.environ["CMAKE_BUILD_TYPE"] = "Release"
-        print("set CMAKE_BUILD_TYPE to Release")
     pass
+
+if os.getenv("CMAKE_BUILD_TYPE") is None:
+    os.environ["CMAKE_BUILD_TYPE"]="Debug"
+build_type=os.getenv("CMAKE_BUILD_TYPE")
+
 prepare = \
     'cmake -Wno-dev ' \
     '-DBUILD_SHARED_LIBS=OFF ' \
     f'-DSERVER_SIDE_LIB_ONLY={server_side_lib_only} ' \
     f'-DCMAKE_INSTALL_PREFIX="{full_install_path}" -B "{build_path}" .'
 os.system(prepare)
-os.system(f'cmake --build "{build_path}" -- {j_threads}')
-os.system(f'cmake --build "{build_path}" -t install')
+os.system(f'cmake --build "{build_path}" --config {build_type} -- {j_threads}')
+os.system(f'cmake --install "{build_path}" --config {build_type}')
