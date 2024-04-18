@@ -39,17 +39,7 @@ def check_env():
     return True
 
 def remake_dir(dir):
-    try:
-        shutil.rmtree(dir, onerror=cu.remove_readonly)
-    except Exception as e:
-        print(f"RM: Exception: {e}")
-        pass
-    try:
-        os.mkdir(dir)
-    except Exception as e:
-        print(f"MK: Exception: {e}")
-        return False
-    return True
+    return cu.remake_dir(dir)
 
 
 def remake_3rd_build_dir():

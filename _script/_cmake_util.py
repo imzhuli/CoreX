@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
+import os
 import re
+import shutil
+import stat
 
 __fix_compiler_flags = """
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
@@ -48,7 +51,6 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 """
 
-
 def fix_cmake(cmakefile):
     try:
         find_target = r"^PROJECT\(.+\)"
@@ -69,3 +71,15 @@ def remove_readonly(func, path, _):
     os.chmod(path, stat.S_IWRITE)
     func(path)
 
+def remake_dir(dir):
+    try:
+        shutil.rmtree(dir, onerror=remove_readonly)
+    except Exception as e:
+        pass
+    try:
+        os.makedirs(dir)
+        os.chmod(dir, stat.S_IWRITE)
+    except Exception as e:
+        print(f"MK: Exception: {e}")
+        return False
+    return True

@@ -3,6 +3,7 @@
 import _cmake_util as cu
 import _unzip_source as us
 import os
+import stat
 import shutil
 
 cwd = os.getcwd()
@@ -38,14 +39,9 @@ def build():
 
 def post_build():
     try:
-        src_include_dir = unzipped_src_dir + "/glm"
+        src_include_dir = unzipped_src_dir
         target_include_dir = install_dir + "/include/glm"
-
-        print(src_include_dir)
-        print(target_include_dir)
-
-        shutil.rmtree(target_include_dir)
-        shutil.copytree(src_include_dir, f'"target_include_dir"')
+        shutil.copytree(src_include_dir, target_include_dir)
     except Exception as e:
         print(f"Exception: {e}")
         return False
