@@ -51,6 +51,13 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 """
 
+
+def __remove_readonly(func, path, _):
+    "Clear the readonly bit and reattempt the removal"
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+
+
 def fix_cmake(cmakefile):
     try:
         find_target = r"^PROJECT\(.+\)"
@@ -66,16 +73,15 @@ def fix_cmake(cmakefile):
     return True
 
 
-def remove_readonly(func, path, _):
-    "Clear the readonly bit and reattempt the removal"
-    os.chmod(path, stat.S_IWRITE)
-    func(path)
-
-def remake_dir(dir):
+def remove_dir(dir):
     try:
-        shutil.rmtree(dir, onerror=remove_readonly)
+        shutil.rmtree(dir, onerror=__remove_readonly)
     except Exception as e:
         pass
+
+
+def remake_dir(dir):
+    remove_dir(dir)
     try:
         os.makedirs(dir)
         os.chmod(dir, stat.S_IWRITE)

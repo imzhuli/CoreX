@@ -41,6 +41,8 @@ def post_build():
     try:
         src_include_dir = unzipped_src_dir
         target_include_dir = install_dir + "/include/glm"
+        cu.remove_dir(unzipped_src_dir + "/build")
+        cu.remove_dir(target_include_dir)
         shutil.copytree(src_include_dir, target_include_dir)
     except Exception as e:
         print(f"Exception: {e}")
