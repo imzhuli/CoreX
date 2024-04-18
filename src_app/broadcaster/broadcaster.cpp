@@ -41,7 +41,7 @@ bool xBroadcasterService::Init(const xBroadcasterOptions & Options) {
 }
 
 void xBroadcasterService::Clean() {
-	MakeResourceCleaner(IoCtx, ProducerService, ObserverService);
+	Touch(MakeResourceCleaner(IoCtx, ProducerService, ObserverService));
 }
 
 void xBroadcasterService::Tick() {

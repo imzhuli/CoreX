@@ -59,7 +59,7 @@ bool xDispatcherService::Init(const xDispatcherOptions & Options) {
 }
 
 void xDispatcherService::Clean() {
-	MakeResourceCleaner(IoCtx, ProducerService, ConsumerService, RequestIdPool);
+	Touch(MakeResourceCleaner(IoCtx, ProducerService, ConsumerService, RequestIdPool));
 }
 
 void xDispatcherService::Tick() {
