@@ -83,9 +83,6 @@ public:
 	}
 
 protected:
-	X_API_MEMBER void FreeWriteBufferChain();
-
-protected:
 	xSocket NativeSocket = InvalidSocket;
 #if defined(X_SYSTEM_DARWIN) || defined(X_SYSTEM_LINUX)
 	xIoBuffer IBP;
