@@ -11,14 +11,14 @@
 #include <ws2def.h>
 
 X_NS {
-	typedef SSIZE_T                  ssize_t;
-	typedef int                      send_len_t;
-	typedef int                      recv_len_t;
-	typedef HANDLE                   xEventPoller;
-	typedef xVariable                xNativeEventType;
-	typedef SOCKET                   xSocket;
-	static inline const xEventPoller InvalidEventPoller = reinterpret_cast<xEventPoller>(INVALID_HANDLE_VALUE);
-	static inline const xSocket      InvalidSocket      = INVALID_SOCKET;
+	typedef SSIZE_T              ssize_t;
+	typedef int                  send_len_t;
+	typedef int                  recv_len_t;
+	typedef HANDLE               xEventPoller;
+	typedef xVariable            xNativeEventType;
+	typedef SOCKET               xSocket;
+	X_PRIVATE const xEventPoller InvalidEventPoller;
+	X_PRIVATE const xSocket      InvalidSocket;
 #define XelCloseSocket(sockfd) closesocket((sockfd))
 }
 

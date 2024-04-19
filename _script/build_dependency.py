@@ -63,6 +63,6 @@ if not bws.build():
     exit
 
 # remove temp dir
-cwd = os.getcwd()
-dependency_unzip_dir = f"{cwd}/_3rd_build"
-shutil.rmtree(dependency_unzip_dir)
+# cwd = os.getcwd()
+# dependency_unzip_dir = f"{cwd}/_3rd_build"
+# shutil.rmtree(dependency_unzip_dir)

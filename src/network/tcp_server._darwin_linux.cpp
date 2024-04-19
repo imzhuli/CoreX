@@ -3,6 +3,7 @@
 #include "./socket.hpp"
 #include "./tcp_connection.hpp"
 
+#if defined(X_SYSTEM_LINUX) || defined(X_SYSTEM_DARWIN)
 X_BEGIN
 
 bool xTcpServer::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, iListener * ListenerPtr) {
@@ -65,3 +66,4 @@ bool xTcpServer::TryAccept(xSocket & NewConnectionSocket) {
 }
 
 X_END
+#endif
