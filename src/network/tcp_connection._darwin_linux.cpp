@@ -94,6 +94,9 @@ xNetAddress xTcpConnection::GetLocalAddress() const {
 
 bool xTcpConnection::ReadData(xView<ubyte> & BufferView) {
 	Reset(BufferView);
+	auto & ReadBuffer   = IBP->ReadBuffer;
+	auto & ReadDataSize = IBP->ReadDataSize;
+
 	auto SpaceSize = sizeof(ReadBuffer) - ReadDataSize;
 	if (!SpaceSize) {
 		X_DEBUG_PRINTF("too many unprocessed bytes, treated as error");
@@ -117,8 +120,9 @@ bool xTcpConnection::ReadData(xView<ubyte> & BufferView) {
 }
 
 void xTcpConnection::PostData(const void * _, size_t DataSize) {
-	auto DataPtr = static_cast<const ubyte *>(_);
 	assert(DataSize);
+	auto   DataPtr          = static_cast<const ubyte *>(_);
+	auto & WriteBufferChain = IBP->WriteBufferChain;
 
 	auto HasNoPendingWrite = WriteBufferChain.IsEmpty();
 	if (HasNoPendingWrite) {
@@ -160,6 +164,7 @@ BUFFER_WRITE:
 }
 
 void xTcpConnection::FreeWriteBufferChain() {
+	auto & WriteBufferChain = IBP->WriteBufferChain;
 	while (auto BP = WriteBufferChain.Pop()) {
 		delete BP;
 	}
@@ -170,6 +175,9 @@ void xTcpConnection::OnIoEventError() {
 }
 
 bool xTcpConnection::OnIoEventInReady() {
+	auto & ReadBuffer   = IBP->ReadBuffer;
+	auto & ReadDataSize = IBP->ReadDataSize;
+
 	auto NewInput = xView<ubyte>();
 	while (true) {
 		if (!ReadData(NewInput)) {
@@ -195,6 +203,7 @@ bool xTcpConnection::OnIoEventOutReady() {
 		LP->OnConnected(this);
 		return true;
 	}
+	auto & WriteBufferChain = IBP->WriteBufferChain;
 	while (auto BP = WriteBufferChain.Peek()) {
 		auto WS = send(NativeSocket, BP->Buffer, BP->DataSize, XelNoWriteSignal);
 		if (-1 == WS) {

@@ -52,6 +52,7 @@ void xUdpChannel::PostData(const void * DataPtr, size_t DataSize, const xNetAddr
 
 bool xUdpChannel::OnIoEventInReady() {
 	// xUdpChannel * ChannelPtr, void * DataPtr, size_t DataSize, const xNetAddress & RemoteAddress)
+	auto & ReadBuffer = IBP->ReadBuffer;
 	while (true) {
 		sockaddr_storage SockAddr;
 		socklen_t        SockAddrLen = sizeof(SockAddr);

@@ -50,6 +50,10 @@ struct xIoBuffer {
 	size_t             ReadDataSize = 0;
 	xPacketBufferChain WriteBufferChain;
 	size_t             MaxWriteBufferSize = SIZE_MAX / 2;
+#if defined(X_SYSTEM_DARWIN) || defined(X_SYSTEM_LINUX)  // clang-format off
+	X_INLINE xIoBuffer * operator->() { return this; }
+	X_INLINE const xIoBuffer * operator->() const { return this; }
+#endif  // clang-format on
 };
 
 #if defined(X_SYSTEM_WINDOWS)
@@ -75,8 +79,7 @@ public:
 protected:
 	xSocket NativeSocket = InvalidSocket;
 #if defined(X_SYSTEM_DARWIN) || defined(X_SYSTEM_LINUX)
-	xIoBuffer             IoBuffer;
-	xOverlappedIoBuffer * IBP = &IoBuffer;
+	xIoBuffer IBP;
 #elif defined(X_SYSTEM_WINDOWS)
 	xOverlappedIoBuffer * IBP = nullptr;
 #endif
