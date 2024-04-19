@@ -69,7 +69,6 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & TargetA
 }
 
 void xTcpConnection::Clean() {
-	FreeWriteBufferChain();
 	this->ICP->Remove(*this);
 	DestroySocket(std::move(NativeSocket));
 	Reset(LP);
@@ -164,13 +163,6 @@ BUFFER_WRITE:
 		ICP->Update(*this, true, true);
 	}
 	return;
-}
-
-void xTcpConnection::FreeWriteBufferChain() {
-	auto & WriteBufferChain = IBP->WriteBufferChain;
-	while (auto BP = WriteBufferChain.Pop()) {
-		delete BP;
-	}
 }
 
 void xTcpConnection::OnIoEventError() {

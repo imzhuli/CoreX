@@ -50,7 +50,6 @@ protected:
 	X_API_MEMBER bool OnIoEventOutReady() override;
 
 	X_API_MEMBER bool ReadData(xView<ubyte> & BufferView);
-	X_API_MEMBER void FreeWriteBufferChain();
 
 private:
 	xIoContext * ICP   = nullptr;

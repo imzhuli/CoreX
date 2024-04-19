@@ -9,6 +9,18 @@ namespace __network_detail__ {
 
 }  // namespace __network_detail__
 
+#if defined(X_SYSTEM_WINDOWS)
+X_API void Retain(xOverlappedIoBuffer * IBP) {
+	++IBP->ReferenceCount;
+}
+X_API void Release(xOverlappedIoBuffer * IBP) {
+	assert(IBP->WriteBufferChain.IsEmpty());
+	if (!--IBP->ReferenceCount) {
+		delete Steal(IBP);
+	}
+};
+#endif
+
 X_API_MEMBER bool xSocketIoReactor::Init() {
 #if defined(X_SYSTEM_DARWIN) || defined(X_SYSTEM_LINUX)
 	return true;
@@ -19,12 +31,14 @@ X_API_MEMBER bool xSocketIoReactor::Init() {
 }
 
 X_API_MEMBER void xSocketIoReactor::Clean() {
+	auto & WriteBufferChain = IBP->WriteBufferChain;
+	while (auto BP = WriteBufferChain.Pop()) {
+		delete BP;
+	}
 #if defined(X_SYSTEM_DARWIN) || defined(X_SYSTEM_LINUX)
 	return;
 #elif defined(X_SYSTEM_WINDOWS)
-	if (!--IBP->ReferenceCount) {
-		delete Steal(IBP);
-	}
+	Release(Steal(IBP));
 #endif
 }
 

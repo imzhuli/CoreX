@@ -7,26 +7,34 @@
 X_BEGIN
 
 bool xTcpServer::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, iListener * ListenerPtr) {
-    return false;
+	if (!xSocketIoReactor::Init()) {
+		return false;
+	}
+	auto BaseG = xScopeGuard([this] { xSocketIoReactor::Clean(); });
+
+	Todo();
+
+	Dismiss(BaseG);
+	return true;
 }
 
 void xTcpServer::Clean() {
-    Todo();
+	Todo();
 }
 
 bool xTcpServer::OnIoEventInReady() {
-    Todo();
-    return false;
+	Todo();
+	return false;
 }
 
 bool xTcpServer::TryListen() {
-    Todo();
-    return false;
+	Todo();
+	return false;
 }
 
 bool xTcpServer::TryAccept(xSocket & NewConnectionSocket) {
-    Todo();
-    return false;
+	Todo();
+	return false;
 }
 
 X_END

@@ -58,11 +58,17 @@ struct xIoBuffer {
 
 #if defined(X_SYSTEM_WINDOWS)
 struct xOverlappedIoBuffer : xIoBuffer {
-	void *     Outter         = nullptr;
-	ssize_t    ReferenceCount = 1;
-	OVERLAPPED NativeOverlappedReadObject;
-	OVERLAPPED NativeOverlappedWriteObject;
+	void *           Outter         = nullptr;
+	ssize_t          ReferenceCount = 1;
+	OVERLAPPED       ReadObject;
+	sockaddr_storage ReadFromAddress;
+	int              ReadFromAddressLength;
+	WSABUF           ReadBufferUsage;
+	OVERLAPPED       WriteObject;
+	WSABUF           WriteBufferUsage;
 };
+X_API void Retain(xOverlappedIoBuffer * IBP);
+X_API void Release(xOverlappedIoBuffer * IBP);
 #endif
 
 class xSocketIoReactor
@@ -75,6 +81,9 @@ public:
 	X_INLINE xSocket GetNativeSocket() const {
 		return NativeSocket;
 	}
+
+protected:
+	X_API_MEMBER void FreeWriteBufferChain();
 
 protected:
 	xSocket NativeSocket = InvalidSocket;

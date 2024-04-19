@@ -13,6 +13,7 @@ bool xUdpChannel::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddres
 		return false;
 	}
 	auto BaseG = xScopeGuard([this] { xSocketIoReactor::Clean(); });
+
 	if (!CreateNonBlockingUdpSocket(NativeSocket, BindAddress)) {
 		return false;
 	}
@@ -34,6 +35,7 @@ void xUdpChannel::Clean() {
 	Reset(ActualBindAddress);
 	Reset(LP);
 	Reset(ICP);
+	xSocketIoReactor::Clean();
 }
 
 xNetAddress xUdpChannel::GetLocalAddress() const {

@@ -7,15 +7,33 @@
 X_BEGIN
 
 bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeSocket, iListener * ListenerPtr) {
-	return false;
+	if (!xSocketIoReactor::Init()) {
+		return false;
+	}
+	auto BaseG = xScopeGuard([this] { xSocketIoReactor::Clean(); });
+
+	Todo();
+
+	Dismiss(BaseG);
+	return true;
 }
 
 bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress, const xNetAddress & BindAddress, iListener * ListenerPtr) {
-	return false;
+	assert(TargetAddress.Type == BindAddress.Type);
+	if (!xSocketIoReactor::Init()) {
+		return false;
+	}
+	auto BaseG = xScopeGuard([this] { xSocketIoReactor::Clean(); });
+
+	Todo();
+
+	Dismiss(BaseG);
+	return true;
 }
 
 void xTcpConnection::Clean() {
 	Todo();
+	xSocketIoReactor::Clean();
 }
 
 xNetAddress xTcpConnection::GetRemoteAddress() const {
@@ -31,12 +49,6 @@ bool xTcpConnection::ReadData(xView<ubyte> & BufferView) {
 }
 
 void xTcpConnection::PostData(const void * _, size_t DataSize) {
-}
-
-void xTcpConnection::FreeWriteBufferChain() {
-	while (auto BP = IBP->WriteBufferChain.Pop()) {
-		delete BP;
-	}
 }
 
 void xTcpConnection::OnIoEventError() {

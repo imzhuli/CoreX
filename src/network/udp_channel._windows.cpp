@@ -7,6 +7,11 @@
 X_BEGIN
 
 bool xUdpChannel::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, iListener * ListenerPtr) {
+	if (!xSocketIoReactor::Init()) {
+		return false;
+	}
+	auto BaseG = xScopeGuard([this] { xSocketIoReactor::Clean(); });
+
 	if (!CreateNonBlockingUdpSocket(NativeSocket, BindAddress)) {
 		return false;
 	}
@@ -18,6 +23,8 @@ bool xUdpChannel::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddres
 	this->ActualBindAddress = GetLocalAddress();
 	ICP                     = IoContextPtr;
 	LP                      = ListenerPtr;
+
+	Dismiss(BaseG);
 	return true;
 }
 
@@ -27,6 +34,7 @@ void xUdpChannel::Clean() {
 	Reset(ActualBindAddress);
 	Reset(LP);
 	Reset(ICP);
+	xSocketIoReactor::Clean();
 }
 
 xNetAddress xUdpChannel::GetLocalAddress() const {
@@ -39,7 +47,21 @@ xNetAddress xUdpChannel::GetLocalAddress() const {
 }
 
 void xUdpChannel::AsyncAcquireInput() {
-	Todo();
+	auto & BU = IBP->ReadBufferUsage;
+	BU.buf    = (CHAR *)IBP->ReadBuffer;
+	BU.len    = (ULONG)sizeof(IBP->ReadBuffer);
+	memset(&IBP->ReadObject, 0, sizeof(IBP->ReadObject));
+	memset(&IBP->ReadFromAddress, 0, sizeof(IBP->ReadFromAddress));
+	IBP->ReadFromAddressLength = sizeof(IBP->ReadFromAddress);
+	if (WSARecvFrom(NativeSocket, &BU, 1, nullptr, X2P(DWORD(0)), (sockaddr *)&IBP->ReadFromAddress, &IBP->ReadFromAddressLength, &IBP->ReadObject, nullptr)) {
+		auto ErrorCode = WSAGetLastError();
+		if (ErrorCode != WSA_IO_PENDING) {
+			X_DEBUG_PRINTF("WSARecvFrom ErrorCode: %u\n", ErrorCode);
+			ICP->DeferError(*this);
+			return;
+		}
+	}
+	Retain(IBP);
 }
 
 void xUdpChannel::PostData(const void * DataPtr, size_t DataSize, const xNetAddress & Address) {
@@ -54,9 +76,9 @@ void xUdpChannel::PostData(const void * DataPtr, size_t DataSize, const xNetAddr
 }
 
 bool xUdpChannel::OnIoEventInReady() {
-	Todo();
-
-	void AsyncAcquireInput();
+	auto RemoteAddress = xNetAddress::Parse((sockaddr *)&IBP->ReadFromAddress);
+	LP->OnData(this, IBP->ReadBuffer, IBP->ReadDataSize, RemoteAddress);
+	AsyncAcquireInput();
 	return true;
 }
 
