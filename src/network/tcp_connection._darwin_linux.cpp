@@ -10,6 +10,8 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeSocket, iL
 	if (!xSocketIoReactor::Init()) {
 		return false;
 	}
+	auto BaseG = xScopeGuard([this] { xSocketIoReactor::Clean(); });
+
 	this->NativeSocket = NativeSocket;
 	SetSocketNonBlocking(NativeSocket);
 	auto SG = xScopeGuard([this] { DestroySocket(std::move(this->NativeSocket)); });
@@ -23,7 +25,7 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeSocket, iL
 
 	this->ICP = IoContextPtr;
 	this->LP  = ListenerPtr;
-	SG.Dismiss();
+	Dismiss(BaseG, SG);
 	return true;
 }
 
@@ -32,6 +34,7 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & TargetA
 	if (!xSocketIoReactor::Init()) {
 		return false;
 	}
+	auto BaseG = xScopeGuard([this] { xSocketIoReactor::Clean(); });
 
 	if (!CreateNonBlockingTcpSocket(NativeSocket, BindAddress)) {
 		return false;
@@ -61,7 +64,7 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & TargetA
 
 	this->ICP = IoContextPtr;
 	this->LP  = ListenerPtr;
-	SG.Dismiss();
+	Dismiss(BaseG, SG);
 	return true;
 }
 

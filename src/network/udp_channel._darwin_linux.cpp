@@ -9,6 +9,10 @@
 X_BEGIN
 
 bool xUdpChannel::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, iListener * ListenerPtr) {
+	if (!xSocketIoReactor::Init()) {
+		return false;
+	}
+	auto BaseG = xScopeGuard([this] { xSocketIoReactor::Clean(); });
 	if (!CreateNonBlockingUdpSocket(NativeSocket, BindAddress)) {
 		return false;
 	}
@@ -20,6 +24,8 @@ bool xUdpChannel::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddres
 	this->ActualBindAddress = GetLocalAddress();
 	this->ICP               = IoContextPtr;
 	this->LP                = ListenerPtr;
+
+	BaseG.Dismiss();
 	return true;
 }
 
