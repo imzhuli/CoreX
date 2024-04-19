@@ -7,10 +7,16 @@
 X_BEGIN
 
 bool xTcpServer::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, iListener * ListenerPtr) {
+	this->ICP = IoContextPtr;
+	this->LP  = ListenerPtr;
 	if (!xSocketIoReactor::Init()) {
 		return false;
 	}
-	auto BaseG = xScopeGuard([this] { xSocketIoReactor::Clean(); });
+	auto BaseG = xScopeGuard([this] {
+		xSocketIoReactor::Clean();
+		Reset(ICP);
+		Reset(LP);
+	});
 
 	if (!CreateNonBlockingTcpSocket(NativeSocket, BindAddress)) {
 		return false;
@@ -26,8 +32,6 @@ bool xTcpServer::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress
 		return false;
 	}
 
-	this->ICP = IoContextPtr;
-	this->LP  = ListenerPtr;
 	Dismiss(BaseG, SG);
 	return true;
 }
@@ -35,9 +39,9 @@ bool xTcpServer::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress
 void xTcpServer::Clean() {
 	this->ICP->Remove(*this);
 	DestroySocket(std::move(NativeSocket));
-	Reset(LP);
-	Reset(ICP);
 	xSocketIoReactor::Clean();
+	Reset(ICP);
+	Reset(LP);
 }
 
 bool xTcpServer::OnIoEventInReady() {

@@ -7,19 +7,31 @@
 X_BEGIN
 
 bool xTcpServer::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, iListener * ListenerPtr) {
+	this->ICP = IoContextPtr;
+	this->LP  = ListenerPtr;
 	if (!xSocketIoReactor::Init()) {
 		return false;
 	}
-	auto BaseG = xScopeGuard([this] { xSocketIoReactor::Clean(); });
+	auto BaseG = xScopeGuard([this] {
+		xSocketIoReactor::Clean();
+		Reset(ICP);
+		Reset(LP);
+	});
 
 	Todo();
 
+	if (!IoContextPtr->Add(*this)) {
+		X_PFATAL("failed to register tcp server socket");
+		return false;
+	}
 	Dismiss(BaseG);
 	return true;
 }
 
 void xTcpServer::Clean() {
-	Todo();
+	xSocketIoReactor::Clean();
+	Reset(ICP);
+	Reset(LP);
 }
 
 bool xTcpServer::OnIoEventInReady() {
