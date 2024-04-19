@@ -7,35 +7,34 @@
 X_BEGIN
 
 bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeSocket, iListener * ListenerPtr) {
-    return false;
+	return false;
 }
 
 bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress, const xNetAddress & BindAddress, iListener * ListenerPtr) {
-    return false;
+	return false;
 }
 
 void xTcpConnection::Clean() {
-    Todo();
+	Todo();
 }
 
 xNetAddress xTcpConnection::GetRemoteAddress() const {
-    Todo();
+	Todo();
 }
 
 xNetAddress xTcpConnection::GetLocalAddress() const {
-    Todo();
+	Todo();
 }
 
 bool xTcpConnection::ReadData(xView<ubyte> & BufferView) {
-    return false;
+	return false;
 }
 
 void xTcpConnection::PostData(const void * _, size_t DataSize) {
 }
 
-
 void xTcpConnection::FreeWriteBufferChain() {
-	while (auto BP = WriteBufferChain.Pop()) {
+	while (auto BP = IBP->WriteBufferChain.Pop()) {
 		delete BP;
 	}
 }
@@ -45,8 +44,8 @@ void xTcpConnection::OnIoEventError() {
 }
 
 bool xTcpConnection::OnIoEventInReady() {
-    Todo();
-    return false;
+	Todo();
+	return false;
 	// auto NewInput = xView<ubyte>();
 	// while (true) {
 	// 	if (!ReadData(NewInput)) {
@@ -67,8 +66,8 @@ bool xTcpConnection::OnIoEventInReady() {
 }
 
 bool xTcpConnection::OnIoEventOutReady() {
-    Todo();
-    return false;
+	Todo();
+	return false;
 	// if (State == eState::CONNECTING) {
 	// 	State = eState::CONNECTED;
 	// 	LP->OnConnected(this);

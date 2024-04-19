@@ -40,8 +40,8 @@ public:
 
 	// clang-format off
 	X_INLINE bool IsConnected() const { return State == eState::CONNECTED; }
-	X_INLINE bool HasPendingWrites() const { return WriteBufferChain.GetSize(); }
-	X_INLINE void SetMaxWriteBufferSize(size_t NewLimit) { MaxWriteBufferSize = NewLimit; }
+	X_INLINE void SetMaxWriteBufferSize(size_t NewLimit) { IBP->MaxWriteBufferSize = NewLimit; }
+	X_INLINE bool HasPendingWrites() const { return IBP->WriteBufferChain.GetSize(); }
 	X_API_MEMBER void PostData(const void * DataPtr, size_t DataSize);
 	// clang-format on
 protected:
@@ -56,12 +56,6 @@ private:
 	xIoContext * ICP   = nullptr;
 	iListener *  LP    = nullptr;
 	eState       State = eState::UNSPEC;
-
-	ubyte  ReadBuffer[MaxPacketSize];
-	size_t ReadDataSize = 0;
-
-	xPacketBufferChain WriteBufferChain;
-	size_t             MaxWriteBufferSize = SIZE_MAX / 2;
 };
 
 X_END

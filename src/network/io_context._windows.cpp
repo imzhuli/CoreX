@@ -27,7 +27,7 @@ void xIoContext::DestroyPoller() {
 
 
 bool xIoContext::Add(xSocketIoReactor & SocketReactor, bool Read, bool Write) {
-    return false;
+    return true;
 	// assert(!SocketReactor.EventFlags);
 
 	// auto Socket       = SocketReactor.GetNativeSocket();

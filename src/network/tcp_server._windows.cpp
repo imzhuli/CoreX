@@ -7,7 +7,6 @@
 X_BEGIN
 
 bool xTcpServer::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, iListener * ListenerPtr) {
-    Todo();
     return false;
 }
 

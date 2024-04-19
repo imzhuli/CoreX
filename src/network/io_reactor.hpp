@@ -3,6 +3,8 @@
 #include "../core/core_value_util.hpp"
 #include "../core/list.hpp"
 #include "./base.hpp"
+#include "./packet.hpp"
+#include "./packet_buffer.hpp"
 
 X_BEGIN
 
@@ -43,14 +45,41 @@ protected:
 	}
 };
 
-class xSocketIoReactor : public xIoReactor {
+struct xIoBuffer {
+	ubyte              ReadBuffer[MaxPacketSize];
+	size_t             ReadDataSize = 0;
+	xPacketBufferChain WriteBufferChain;
+	size_t             MaxWriteBufferSize = SIZE_MAX / 2;
+};
+
+#if defined(X_SYSTEM_WINDOWS)
+struct xOverlappedIoBuffer : xIoBuffer {
+	void *     Outter         = nullptr;
+	ssize_t    ReferenceCount = 1;
+	OVERLAPPED NativeOverlappedReadObject;
+	OVERLAPPED NativeOverlappedWriteObject;
+};
+#endif
+
+class xSocketIoReactor
+	: public xIoReactor
+	, xNonCopyable {
 public:
+	X_API_MEMBER bool Init();
+	X_API_MEMBER void Clean();
+
 	X_INLINE xSocket GetNativeSocket() const {
 		return NativeSocket;
 	}
 
 protected:
 	xSocket NativeSocket = InvalidSocket;
+#if defined(X_SYSTEM_DARWIN) || defined(X_SYSTEM_LINUX)
+	xIoBuffer             IoBuffer;
+	xOverlappedIoBuffer * IBP = &IoBuffer;
+#elif defined(X_SYSTEM_WINDOWS)
+	xOverlappedIoBuffer * IBP = nullptr;
+#endif
 };
 
 X_END

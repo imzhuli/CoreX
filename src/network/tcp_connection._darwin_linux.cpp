@@ -7,6 +7,9 @@
 X_BEGIN
 
 bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeSocket, iListener * ListenerPtr) {
+	if (!xSocketIoReactor::Init()) {
+		return false;
+	}
 	this->NativeSocket = NativeSocket;
 	SetSocketNonBlocking(NativeSocket);
 	auto SG = xScopeGuard([this] { DestroySocket(std::move(this->NativeSocket)); });
@@ -26,6 +29,9 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeSocket, iL
 
 bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress, const xNetAddress & BindAddress, iListener * ListenerPtr) {
 	assert(TargetAddress.Type == BindAddress.Type);
+	if (!xSocketIoReactor::Init()) {
+		return false;
+	}
 
 	if (!CreateNonBlockingTcpSocket(NativeSocket, BindAddress)) {
 		return false;
@@ -65,6 +71,7 @@ void xTcpConnection::Clean() {
 	DestroySocket(std::move(NativeSocket));
 	Reset(LP);
 	Reset(ICP);
+	xSocketIoReactor::Clean();
 }
 
 xNetAddress xTcpConnection::GetRemoteAddress() const {

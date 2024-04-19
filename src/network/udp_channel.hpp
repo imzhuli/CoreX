@@ -30,12 +30,14 @@ private:
 
 	X_API_MEMBER xNetAddress GetLocalAddress() const;
 
+#ifdef X_SYSTEM_WINDOWS
+	X_API_MEMBER void AsyncAcquireInput();
+#endif
+
 private:
 	xIoContext * ICP               = nullptr;
 	iListener *  LP                = nullptr;
 	xNetAddress  ActualBindAddress = {};
-
-	ubyte ReadBuffer[MaxPacketSize];
 };
 
 X_END
