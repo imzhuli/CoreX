@@ -59,5 +59,6 @@ test_sub(test_string)
 
 if (NOT ${SERVER_SIDE_LIB_ONLY})
 build_app(env_check)
+target_link_options(_env_check PRIVATE "" ${RELEASE_LINK_OPTIONS_NO_CONSOLE})
 endif()
 
