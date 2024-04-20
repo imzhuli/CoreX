@@ -40,12 +40,12 @@ for opt, arg in opts:
     if opt == "-j":
         j_threads = " -j%s " % arg
     if opt == '-r':
-        os.environ["CMAKE_BUILD_TYPE"] = "Release"
+        os.environ["PS_BUILD_CONFIG_TYPE"] = "Release"
     pass
 
-if os.getenv("CMAKE_BUILD_TYPE") is None:
-    os.environ["CMAKE_BUILD_TYPE"]="Debug"
-build_type=os.getenv("CMAKE_BUILD_TYPE")
+if os.getenv("PS_BUILD_CONFIG_TYPE") is None:
+    os.environ["PS_BUILD_CONFIG_TYPE"]="Debug"
+build_type=os.getenv("PS_BUILD_CONFIG_TYPE")
 
 prepare = \
     'cmake -Wno-dev ' \

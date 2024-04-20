@@ -29,8 +29,8 @@ for opt, arg in opts:
         server_side_lib_only = "ON"
         print("server-side lib only")
     if opt == '-r':
-        os.environ["CMAKE_BUILD_TYPE"] = "Release"
-        print("set CMAKE_BUILD_TYPE to Release")
+        os.environ["PS_BUILD_CONFIG_TYPE"] = "Release"
+        print("set PS_BUILD_CONFIG_TYPE to Release")
     pass
 
 if not p3.prepare_3rd():

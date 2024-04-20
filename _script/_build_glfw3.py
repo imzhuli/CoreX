@@ -12,9 +12,9 @@ unzipped_src_dir = f"{unzip_dir}/glfw-3.3.9"
 install_dir = f"{cwd}/_3rd_installed"
 
 def build():
-    if os.getenv("CMAKE_BUILD_TYPE") is None:
-        os.environ["CMAKE_BUILD_TYPE"]="Debug"
-    build_type=os.getenv("CMAKE_BUILD_TYPE")
+    if os.getenv("PS_BUILD_CONFIG_TYPE") is None:
+        os.environ["PS_BUILD_CONFIG_TYPE"]="Debug"
+    build_type=os.getenv("PS_BUILD_CONFIG_TYPE")
     print(f"=============> {build_type}")
 
     if not us.unzip_source(unzip_dir, src_file):

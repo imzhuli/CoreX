@@ -27,9 +27,9 @@ def disable_installing_shared_lib():
 
 
 def build():
-    if os.getenv("CMAKE_BUILD_TYPE") is None:
-        os.environ["CMAKE_BUILD_TYPE"]="Debug"
-    build_type=os.getenv("CMAKE_BUILD_TYPE")
+    if os.getenv("PS_BUILD_CONFIG_TYPE") is None:
+        os.environ["PS_BUILD_CONFIG_TYPE"]="Debug"
+    build_type=os.getenv("PS_BUILD_CONFIG_TYPE")
     print(f"=============> {build_type}")
 
     try:
