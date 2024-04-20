@@ -9,9 +9,14 @@ if (NOT ${SERVER_SIDE_LIB_ONLY})
 endif()
 
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
-	set(THIRD_LIBRARIES ${THIRD_LIBRARIES} libcurl websockets_static everest freetype mbedcrypto mbedtls mbedx509 p256m bcrypt zlibstatic)
+	set(THIRD_LIBRARIES ${THIRD_LIBRARIES}
+		"freetype$<$<CONFIG:Debug>:d>"
+		"libcurl$<$<CONFIG:Debug>:-d>"
+		websockets_static
+		everest mbedcrypto mbedtls mbedx509 p256m bcrypt
+		"zlibstatic$<$<CONFIG:Debug>:d>")
 else()
-	set(THIRD_LIBRARIES ${THIRD_LIBRARIES} curl websockets everest freetype mbedcrypto mbedtls mbedx509 p256m z)
+	set(THIRD_LIBRARIES ${THIRD_LIBRARIES} freetype curl websockets everest mbedcrypto mbedtls mbedx509 p256m z)
 endif()
 
 include_directories(
