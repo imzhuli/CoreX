@@ -18,7 +18,7 @@ static constexpr const uint32_t PacketMagicMask  = 0xFF'000000u;
 static constexpr const uint32_t PacketMagicValue = 0xCD'000000u;
 static constexpr const uint32_t PacketSizeMask   = 0x00'FFFFFFu;
 
-static constexpr const size_t MaxPacketSize        = 4096 & PacketSizeMask;
+static constexpr const size_t MaxPacketSize        = 4400 & PacketSizeMask;
 static constexpr const size_t MaxPacketPayloadSize = MaxPacketSize - PacketHeaderSize;
 
 static constexpr const xPacketCommandId MaxDispatchableCommandId      = 0x0'FFFu;
