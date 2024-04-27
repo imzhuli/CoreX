@@ -28,6 +28,7 @@ public:
 	X_INLINE xIndexId() = default;
 	X_INLINE constexpr xIndexId(uint64_t Value)
 		: _Value(Value){};
+
 	X_INLINE constexpr operator uint64_t() const {
 		return _Value;
 	}
@@ -43,7 +44,7 @@ public:
 	}
 
 private:
-	uint64_t _Value;
+	uint64_t _Value = 0;
 
 	template <bool RandomKey>
 	friend class xIndexIdPool;
