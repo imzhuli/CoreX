@@ -72,7 +72,7 @@ namespace __detail__ {
 template <typename T>
 inline constexpr size_t AllocAlignSize = __detail__::__AllocAlignSize__<T>::value;
 
-class xAllocator {
+class xAllocator : xAbstract {
 public:
 	/**
 	 * @brief Allocat memory,
@@ -202,11 +202,6 @@ public:
 		}
 		this->Free(pStart);
 	}
-
-public:
-	xAllocator()              = default;
-	xAllocator(xAllocator &&) = delete;
-	virtual ~xAllocator();
 };
 
 X_API xAllocator DefaultAllocator;
