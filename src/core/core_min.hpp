@@ -316,18 +316,21 @@ struct xResourceGuardThrowable final
 template <typename T, typename... tArgs>
 xResourceGuardThrowable(T & Resource, tArgs &&... Args) -> xResourceGuardThrowable<T>;
 
-namespace __common_detail__ {
-	X_INLINE void CleanResource() {
-	}
-	template<typename T, typename... TOthers>
-	X_INLINE void CleanResource(T & Target, TOthers &...Others) {
-		CleanResource(Others...);
-		Target.Clean();
-	}
+X_INLINE void CleanResource() {}
+template<typename T, typename... TOthers>
+X_INLINE void CleanResource(T & Target, TOthers &...Others) {
+	Target.Clean();
+	CleanResource(Others...);
+}
+X_INLINE void CleanResourceReversed() {}
+template<typename T, typename... TOthers>
+X_INLINE void CleanResourceReversed(T & Target, TOthers &...Others) {
+	CleanResourceReversed(Others...);
+	Target.Clean();
 }
 template <typename...xTargets>
 [[nodiscard]] auto MakeResourceCleaner(xTargets &... Targets) {
-	return xScopeGuard([&Targets...] { __common_detail__::CleanResource(Targets...); });
+	return xScopeGuard([&Targets...] { CleanResourceReversed(Targets...); });
 }
 
 class xRunState final {
