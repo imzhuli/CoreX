@@ -72,6 +72,9 @@ private:
 	};
 
 public:
+	X_INLINE bool IsEmpty() const {
+		return !FirstPtr;
+	}
 	X_INLINE void Push(tNode & Node) {
 		auto & QueueNode = static_cast<xQueueNode &>(Node);
 		assert(!QueueNode.NextPtr);
