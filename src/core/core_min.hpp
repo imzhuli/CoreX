@@ -13,7 +13,6 @@
 #include <utility>
 // clang-format off
 
-#define X_NS namespace xel
 #define X_BEGIN namespace xel {
 #define X_END }
 #define X_COMMON_BEGIN namespace xel { inline namespace common {

@@ -33,9 +33,12 @@ namespace {
 #endif
 
 #if __cplusplus < 202002L && !defined(X_SYSTEM_WINDOWS)
-X_NS {
-	uint64_t GetTimestampUS() {
-		return Internal_MicroTimestamp();
-	}
+X_BEGIN
+uint64_t GetTimestampUS() {
+	return Internal_MicroTimestamp();
 }
+
+static_assert(std::is_signed_v<xTimer::xDuration::rep>);
+
+X_END
 #endif

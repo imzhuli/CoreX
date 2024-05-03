@@ -3,24 +3,24 @@
 
 #if defined(X_SYSTEM_WINDOWS)
 #define WIN32_LEAN_AND_MEAN
-#include <WinSock2.h>
-#include <Windows.h>
 #include <MSWSock.h>
 #include <WS2tcpip.h>
+#include <WinSock2.h>
+#include <Windows.h>
 #include <windef.h>
 #include <ws2def.h>
 
-X_NS {
-	typedef SSIZE_T              ssize_t;
-	typedef int                  send_len_t;
-	typedef int                  recv_len_t;
-	typedef HANDLE               xEventPoller;
-	typedef xVariable            xNativeEventType;
-	typedef SOCKET               xSocket;
-	X_PRIVATE const xEventPoller InvalidEventPoller;
-	X_PRIVATE const xSocket      InvalidSocket;
+X_BEGIN
+typedef SSIZE_T              ssize_t;
+typedef int                  send_len_t;
+typedef int                  recv_len_t;
+typedef HANDLE               xEventPoller;
+typedef xVariable            xNativeEventType;
+typedef SOCKET               xSocket;
+X_PRIVATE const xEventPoller InvalidEventPoller;
+X_PRIVATE const xSocket      InvalidSocket;
 #define XelCloseSocket(sockfd) closesocket((sockfd))
-}
+X_END
 
 #elif defined(X_SYSTEM_LINUX)
 #include <arpa/inet.h>
@@ -31,20 +31,20 @@ X_NS {
 #include <sys/types.h>
 #include <unistd.h>
 
-X_NS {
-	typedef size_t send_len_t;
-	typedef size_t recv_len_t;
-	typedef int    xEventPoller;  // epoll
+X_BEGIN
+typedef size_t send_len_t;
+typedef size_t recv_len_t;
+typedef int    xEventPoller;  // epoll
 #ifdef X_SYSTEM_ANDROID
-	typedef uint32_t xNativeEventType;
+typedef uint32_t xNativeEventType;
 #else
-	typedef enum EPOLL_EVENTS xNativeEventType;  // EPOLLIN EPOLLOUT EPOLLERR ...
+typedef enum EPOLL_EVENTS xNativeEventType;  // EPOLLIN EPOLLOUT EPOLLERR ...
 #endif
-	typedef int                  xSocket;
-	constexpr const xEventPoller InvalidEventPoller = ((xEventPoller)-1);
-	constexpr const xSocket      InvalidSocket      = ((xSocket)-1);
+typedef int                  xSocket;
+constexpr const xEventPoller InvalidEventPoller = ((xEventPoller)-1);
+constexpr const xSocket      InvalidSocket      = ((xSocket)-1);
 #define XelCloseSocket(sockfd) close((sockfd))
-}
+X_END
 
 #elif defined(X_SYSTEM_DARWIN)
 #include <arpa/inet.h>

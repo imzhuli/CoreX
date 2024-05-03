@@ -50,13 +50,13 @@ using xRetainable8  = xRetainableBase<false, int8_t>;
 using xRetainable16 = xRetainableBase<false, int16_t>;
 using xRetainable32 = xRetainableBase<false, int32_t>;
 using xRetainable64 = xRetainableBase<false, int64_t>;
-using xRetainable   = xRetainable64;
+using xRetainable   = xRetainable32;
 
 using xRetainableAtomic8  = xRetainableBase<true, int8_t>;
 using xRetainableAtomic16 = xRetainableBase<true, int16_t>;
 using xRetainableAtomic32 = xRetainableBase<true, int32_t>;
 using xRetainableAtomic64 = xRetainableBase<true, int64_t>;
-using xRetainableAtomic   = xRetainableAtomic64;
+using xRetainableAtomic   = xRetainableAtomic32;
 
 namespace __detail__ {
 	template <typename T>
