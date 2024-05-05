@@ -103,15 +103,9 @@ public:
 	}
 
 	X_INLINE void Clean() {
-		for (auto & block : _BlockList) {
-			/**
-			 * call to block.~xBlock() is omitted,
-			 * since all blocks hold nothing usable, except the block_list_node subobject,
-			 * which will be simply dropped in later call to _BlockList.release();
-			 */
-			hAlloc->Free(&block);
+		while (auto NP = _BlockList.PopHead()) {
+			hAlloc->Free(NP);
 		}
-		_BlockList.ReleaseUnsafe();
 		_NextFreeNode = nullptr;
 		_TotalSize    = 0;
 	}
