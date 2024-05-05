@@ -27,6 +27,13 @@ void QuickExit(int ExitCode) {
 #endif
 }
 
+void QuickExit(const char * PErrorMessage, int ExitCode){
+	if (PErrorMessage) {
+		fprintf(stderr, "%s\n", PErrorMessage);
+	}
+	QuickExit(ExitCode);
+}
+
 static auto DebugPrintMutex = std::mutex();
 void DebugPrintf(const char * Path, size_t Line, const char * FunctionName, const char * Fmt, ...) {
 	auto SS = std::ostringstream();

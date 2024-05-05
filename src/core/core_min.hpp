@@ -123,10 +123,11 @@ template <typename T, size_t L>
 [[nodiscard]] X_STATIC_INLINE constexpr T& LastOf(T (&Array)[L]) { return Array[SafeLength(Array)]; }
 
 [[noreturn]] X_API void QuickExit(int ExitCode = EXIT_FAILURE);
-[[noreturn]] X_STATIC_INLINE void Error(const char * message = nullptr) { throw message;}
-[[noreturn]] X_STATIC_INLINE void Fatal(const char * message = nullptr /* reason */) { throw message; }
-[[noreturn]] X_STATIC_INLINE void Todo(const char * info = nullptr) { Fatal(info); }
-[[noreturn]] X_STATIC_INLINE void Pure() { Fatal("placeholder of pure function called, which is not expected"); }
+[[noreturn]] X_API void QuickExit(const char * PErrorMessage, int ExitCode = EXIT_FAILURE);
+[[noreturn]] X_STATIC_INLINE void Error(const char * message) { QuickExit(message);}
+[[noreturn]] X_STATIC_INLINE void Fatal(const char * message) { QuickExit(message); }
+[[noreturn]] X_STATIC_INLINE void Todo(const char * info) { QuickExit(info); }
+[[noreturn]] X_STATIC_INLINE void Pure() { QuickExit("Pure funcion placeholder colled"); }
 
 X_API void Breakpoint();
 X_STATIC_INLINE void Pass() { }

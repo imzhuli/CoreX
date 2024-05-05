@@ -36,9 +36,8 @@ void xIoContext::DeferError(xIoReactor & Reactor) {
 void xIoContext::ProcessEventList() {
 	auto ProcessList = xIoContextEventList();
 	ProcessList.GrabListTail(EventList);
-	for (auto & N : ProcessList) {
-		xIoContextEventList::Remove(N);
-		auto RP = static_cast<xIoReactor *>(X_Entry(&N, __network_detail__::__xIoReactor__, EventNode));
+	while (auto NP = ProcessList.PopHead()) {
+		auto RP = static_cast<xIoReactor *>(X_Entry(NP, __network_detail__::__xIoReactor__, EventNode));
 		if (RP->EventFlags & xIoReactor::IO_EVENT_DISABLED) {
 			continue;
 		}

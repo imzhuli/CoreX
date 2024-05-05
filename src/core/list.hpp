@@ -90,139 +90,6 @@ public:
 		assert(IsEmpty());
 	}
 
-private:
-	template <bool isConst>
-	class xForwardIteratorTemplate {
-		using xBaseNode   = std::conditional_t<isConst, const xListNode, xListNode>;
-		using xExtendNode = std::conditional_t<isConst, const tNode, tNode>;
-
-	private:
-		xBaseNode * pTarget;
-		xBaseNode * pNext;
-
-	private:
-		X_INLINE xExtendNode * Ptr() const {
-			assert(pTarget);
-			return &static_cast<xExtendNode &>(*pTarget);
-		}
-		X_INLINE void Copy(xBaseNode * n) {
-			pTarget = n;
-			pNext   = n->pNext;
-		}
-
-	public:
-		// construct:
-		X_INLINE xForwardIteratorTemplate() = delete;
-		X_INLINE xForwardIteratorTemplate(xBaseNode * n) {
-			Copy(n);
-		}
-		// for use of xList::end(),
-		X_INLINE xForwardIteratorTemplate(xBaseNode * n, const std::nullptr_t &) {
-			pTarget = n, pNext = nullptr;
-		}
-
-		// Copy:
-		X_INLINE                            xForwardIteratorTemplate(const xForwardIteratorTemplate & it) = default;
-		X_INLINE xForwardIteratorTemplate & operator=(const xForwardIteratorTemplate & it)                = default;
-
-		// cast:
-		X_INLINE xExtendNode * operator->() const {
-			return Ptr();
-		}
-		X_INLINE xExtendNode & operator*() const {
-			return *Ptr();
-		}
-
-		// compare:
-		X_INLINE bool operator==(const xForwardIteratorTemplate & it) const {
-			return pTarget == it.pTarget;
-		}
-		X_INLINE bool operator!=(const xForwardIteratorTemplate & it) const {
-			return pTarget != it.pTarget;
-		}
-
-		// traversing:
-		X_INLINE xForwardIteratorTemplate operator++() {
-			Copy(pNext);
-			return *this;
-		}
-		X_INLINE xForwardIteratorTemplate operator++(int) {
-			xForwardIteratorTemplate ret(*this);
-			Copy(pNext);
-			return ret;
-		}
-	};
-
-private:
-	template <bool isConst>
-	class xBackwardIteratorTemplate {
-		using xBaseNode   = std::conditional_t<isConst, const xListNode, xListNode>;
-		using xExtendNode = std::conditional_t<isConst, const tNode, tNode>;
-
-	private:
-		xBaseNode * pTarget;
-		xBaseNode * pPrev;
-
-	private:
-		X_INLINE xExtendNode * Ptr() const {
-			assert(pTarget);
-			return &static_cast<xExtendNode &>(*pTarget);
-		}
-		X_INLINE void Copy(xBaseNode * n) {
-			pTarget = n;
-			pPrev   = n->pPrev;
-		}
-
-	public:
-		// construct:
-		X_INLINE xBackwardIteratorTemplate() = delete;
-		X_INLINE xBackwardIteratorTemplate(xBaseNode * n) {
-			Copy(n);
-		}
-		// for use of xList::end(),
-		X_INLINE xBackwardIteratorTemplate(xBaseNode * n, const std::nullptr_t &) {
-			pTarget = n, pPrev = nullptr;
-		}
-
-		// Copy:
-		X_INLINE                             xBackwardIteratorTemplate(const xBackwardIteratorTemplate & it) = default;
-		X_INLINE xBackwardIteratorTemplate & operator=(const xBackwardIteratorTemplate & it)                 = default;
-
-		// cast:
-		X_INLINE xExtendNode * operator->() const {
-			return Ptr();
-		}
-		X_INLINE xExtendNode & operator*() const {
-			return *Ptr();
-		}
-
-		// compare:
-		X_INLINE bool operator==(const xBackwardIteratorTemplate & it) const {
-			return pTarget == it.pTarget;
-		}
-		X_INLINE bool operator!=(const xBackwardIteratorTemplate & it) const {
-			return pTarget != it.pTarget;
-		}
-
-		// traversing:
-		X_INLINE xBackwardIteratorTemplate operator++() {
-			Copy(pPrev);
-			return *this;
-		}
-		X_INLINE xBackwardIteratorTemplate operator++(int) {
-			xBackwardIteratorTemplate ret(*this);
-			Copy(pPrev);
-			return ret;
-		}
-	};
-
-public:
-	using xForwardIterator      = xForwardIteratorTemplate<false>;
-	using xForwardConstIterator = xForwardIteratorTemplate<true>;
-
-	using xBackwardIterator      = xBackwardIteratorTemplate<false>;
-	using xBackwardConstIterator = xBackwardIteratorTemplate<true>;
-
 public:
 	X_INLINE bool IsEmpty() const {
 		return _Head.pNext == &_Head;
@@ -289,6 +156,20 @@ public:
 		ret->Detach();
 		return &static_cast<tNode &>(*ret);
 	}
+	template <typename tCond>
+	X_INLINE tNode * PopHead(const tCond & C) {
+		if (IsEmpty()) {
+			return nullptr;
+		}
+		auto   ret   = _Head.pNext;
+		auto & Node  = static_cast<tNode &>(*ret);
+		auto & CNode = static_cast<const tNode &>(Node);
+		if (!C(CNode)) {
+			return nullptr;
+		}
+		ret->Detach();
+		return &Node;
+	}
 	X_INLINE tNode * PopTail() {
 		if (IsEmpty()) {
 			return nullptr;
@@ -296,6 +177,20 @@ public:
 		auto ret = _Head.pPrev;
 		ret->Detach();
 		return &static_cast<tNode &>(*ret);
+	}
+	template <typename tCond>
+	X_INLINE tNode * PopTail(const tCond & C) {
+		if (IsEmpty()) {
+			return nullptr;
+		}
+		auto   ret   = _Head.pPrev;
+		auto & Node  = static_cast<tNode &>(*ret);
+		auto & CNode = static_cast<const tNode &>(Node);
+		if (!C(CNode)) {
+			return nullptr;
+		}
+		ret->Detach();
+		return &Node;
 	}
 
 	X_STATIC_INLINE void InsertBefore(tNode & Node, tNode & InsertPoint) {
@@ -307,34 +202,6 @@ public:
 
 	X_STATIC_INLINE void Remove(tNode & Node) {
 		Node.Detach();
-	}
-
-	X_INLINE xForwardIterator begin() {
-		return xForwardIterator(_Head.pNext);
-	}
-	X_INLINE xForwardIterator end() {
-		return xForwardIterator(&_Head, nullptr);
-	}
-
-	X_INLINE xForwardConstIterator begin() const {
-		return xForwardConstIterator(_Head.pNext);
-	}
-	X_INLINE xForwardConstIterator end() const {
-		return xForwardConstIterator(&_Head, nullptr);
-	}
-
-	X_INLINE xBackwardIterator rbegin() {
-		return xBackwardIterator(_Head.pPrev);
-	}
-	X_INLINE xBackwardIterator rend() {
-		return xBackwardIterator(&_Head, nullptr);
-	}
-
-	X_INLINE xBackwardConstIterator rbegin() const {
-		return xBackwardConstIterator(_Head.pPrev);
-	}
-	X_INLINE xBackwardConstIterator rend() const {
-		return xBackwardConstIterator(&_Head, nullptr);
 	}
 
 	X_INLINE void ReleaseUnsafe() {

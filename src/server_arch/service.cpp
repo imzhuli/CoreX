@@ -53,12 +53,9 @@ void xService::Tick() {
 void xService::Tick(uint64_t UpdatedNowMS) {
 	NowMS = UpdatedNowMS;
 
-	auto KillTimepoint = NowMS - KeepAliveTimeoutMS;
-	for (auto & Node : ServiceConnectionTimeoutList) {
-		if (SignedDiff(Node.TimestampMS, KillTimepoint) > 0) {
-			break;
-		}
-		ServiceConnectionKillList.GrabTail(Node);
+	auto Cond = [KillTimepoint = NowMS - KeepAliveTimeoutMS](const xServiceClientConnectionNode & N) { return SignedDiff(N.TimestampMS, KillTimepoint) < 0; };
+	while (auto NP = ServiceConnectionTimeoutList.PopHead(Cond)) {
+		ServiceConnectionKillList.GrabTail(*NP);
 	}
 	CleanupKilledConnections();
 }
@@ -72,9 +69,8 @@ void xService::CleanupConnection(xServiceClientConnection & Connection) {
 }
 
 void xService::CleanupKilledConnections() {
-	for (auto & Node : ServiceConnectionKillList) {
-		auto & Connection = Cast(Node);
-		CleanupConnection(Connection);
+	while (auto NP = ServiceConnectionKillList.PopHead()) {
+		CleanupConnection(Cast(*NP));
 	}
 }
 

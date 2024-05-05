@@ -266,7 +266,7 @@ public:
 	}
 	X_INLINE void Check() {
 		if (std::this_thread::get_id() != _ThreadId) {
-			Error();
+			X_PFATAL("thread id don't match!");
 		}
 	};
 

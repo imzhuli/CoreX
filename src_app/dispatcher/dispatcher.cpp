@@ -67,11 +67,9 @@ void xDispatcherService::Tick() {
 	IoCtx.LoopOnce();
 	ProducerService.Tick(NowMS);
 	ConsumerService.Tick(NowMS);
-	auto KillTimestamp = NowMS - REQUEST_TIMEOUT_MS;
-	for (auto & N : RequestTimeoutList) {
-		if (SignedDiff(KillTimestamp, N.TimestampMS) < 0) {
-			break;
-		}
+	auto C = [KillTimestamp = NowMS - REQUEST_TIMEOUT_MS](const xRequestMapping & N) { return SignedDiff(N.TimestampMS, KillTimestamp) < 0; };
+	while (auto NP = RequestTimeoutList.PopHead(C)) {
+		auto & N = *NP;
 		assert(N.ConsumerRequestId);
 		assert(RequestIdPool.CheckAndGet(N.ConsumerRequestId) == &N);
 		X_DEBUG_PRINTF("@%" PRIu64 ", Release timeout request: %s", NowMS / 1000, ToString(N).c_str());
