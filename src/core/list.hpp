@@ -192,6 +192,12 @@ public:
 		ret->Detach();
 		return &Node;
 	}
+	template <typename tProc>
+	X_INLINE void ForEach(const tProc & P) const {
+		for (auto NP = _Head.pNext; NP != &_Head; NP = NP->pNext) {
+			P(static_cast<tNode &>(*NP));
+		}
+	}
 
 	X_STATIC_INLINE void InsertBefore(tNode & Node, tNode & InsertPoint) {
 		Node.AppendTo(*InsertPoint.pPrev);
@@ -202,10 +208,6 @@ public:
 
 	X_STATIC_INLINE void Remove(tNode & Node) {
 		Node.Detach();
-	}
-
-	X_INLINE void ReleaseUnsafe() {
-		_Head.ResetUnsafe();
 	}
 };
 

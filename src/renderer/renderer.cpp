@@ -473,15 +473,14 @@ void xRenderer::UpdateAll() {
 		UpdateRendererList.GrabListTail(NewRendererList);
 	} while (false);
 
-	for (auto & Node : UpdateRendererList) {
-		auto & Renderer = static_cast<xRenderer &>(Node);
+	UpdateRendererList.ForEach([](xRendererListNode & N) {
+		auto & Renderer = static_cast<xRenderer &>(N);
 		Renderer.Render();
-	}
+	});
 
-	for (auto & Node : DeleteRendererList) {
-		auto & Renderer = static_cast<xRenderer &>(Node);
-		Renderer.Clean();
-		delete &Renderer;
+	while (auto RP = static_cast<xRenderer *>(DeleteRendererList.PopHead())) {
+		RP->Clean();
+		delete RP;
 	}
 }
 
@@ -492,10 +491,9 @@ void xRenderer::CleanAll() {
 		DeleteRendererList.GrabListTail(UpdateRendererList);
 	} while (false);
 
-	for (auto & Node : DeleteRendererList) {
-		auto & Renderer = static_cast<xRenderer &>(Node);
-		Renderer.Clean();
-		delete &Renderer;
+	while (auto RP = static_cast<xRenderer *>(DeleteRendererList.PopHead())) {
+		RP->Clean();
+		delete RP;
 	}
 }
 

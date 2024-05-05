@@ -35,9 +35,11 @@ int main(int argc, char ** argv) {
 	L.AddTail(S2);
 	L.AddTail(S3);
 
-	while (auto NP = L.PopHead([](const xS & S) { return S.i < 10; })) {
+	while (auto NP = L.PopHead([](const xS & S) { return S.i < 2; })) {
 		cout << NP->i << endl;
 	}
+	cout << "--- for all ---" << endl;
+	L.ForEach([](xS & S) { cout << S.i << endl; });
 
 	return 0;
 }

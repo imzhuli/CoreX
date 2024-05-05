@@ -83,8 +83,7 @@ bool xDesktopWindow::Init(const xWindowSettings & Settings) {
 	auto Monitor = (Settings.WindowMode == eWindowMode::FullScreen) ? glfwGetPrimaryMonitor() : nullptr;
 
 	auto win = glfwCreateWindow(
-		Settings.Size.Width, Settings.Size.Height, "XGameEngine",
-		(Settings.WindowMode == eWindowMode::FullScreen ? glfwGetPrimaryMonitor() : nullptr), nullptr
+		Settings.Size.Width, Settings.Size.Height, "XGameEngine", (Settings.WindowMode == eWindowMode::FullScreen ? glfwGetPrimaryMonitor() : nullptr), nullptr
 	);
 	if (!win) {
 		return false;
@@ -216,10 +215,10 @@ void xDesktopWindow::OnClosed() {
 
 void WSILoopOnce() {
 	glfwWaitEventsTimeout(0.05);
-	for (auto & Iter : WindowUpdateList) {
-		auto & Window = static_cast<xDesktopWindow &>(Iter);
+	WindowUpdateList.ForEach([](xWindowUpdateListNode & N) {
+		auto & Window = static_cast<xDesktopWindow &>(N);
 		Window.Update();
-	}
+	});
 	if (WindowUpdateList.IsEmpty()) {
 		StopXEngine();
 	}
