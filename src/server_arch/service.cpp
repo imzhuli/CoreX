@@ -133,6 +133,7 @@ size_t xService::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, 
 		if (Header.IsRequestKeepAlive()) {
 			// X_DEBUG_PRINTF("RequestKeepAlive: %" PRIx64 "", Connection.ConnectionId());
 			Connection.PostKeepAlive();
+			KeepAlive(Connection);
 		} else {
 			auto PayloadPtr  = xPacket::GetPayloadPtr(DataPtr);
 			auto PayloadSize = Header.GetPayloadSize();
