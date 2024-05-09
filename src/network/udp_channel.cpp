@@ -6,7 +6,7 @@ static ubyte KeepAliveRequestBuffer[PacketHeaderSize];
 static ubyte KeepAliveBuffer[PacketHeaderSize];
 
 static auto Init = xInstantRun([] {
-	xPacketHeader::MakeRequestKeepAlive(KeepAliveBuffer);
+	xPacketHeader::MakeRequestKeepAlive(KeepAliveRequestBuffer);
 	xPacketHeader::MakeKeepAlive(KeepAliveBuffer);
 });
 
