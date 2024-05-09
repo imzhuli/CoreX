@@ -43,6 +43,8 @@ public:
 	X_INLINE void SetMaxWriteBufferSize(size_t NewLimit) { IBP->MaxWriteBufferSize = NewLimit; }
 	X_INLINE bool HasPendingWrites() const { return IBP->WriteBufferChain.GetSize(); }
 	X_API_MEMBER void PostData(const void * DataPtr, size_t DataSize);
+	X_API_MEMBER void PostRequestKeepAlive();
+	X_API_MEMBER void PostKeepAlive();
 	// clang-format on
 protected:
 	X_API_MEMBER void OnIoEventError() override;

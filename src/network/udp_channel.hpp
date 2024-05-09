@@ -19,6 +19,8 @@ public:
 	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, iListener * ListenerPtr);
 	X_API_MEMBER void Clean();
 	X_API_MEMBER void PostData(const void * DataPtr, size_t DataSize, const xNetAddress & DestiationAddress);
+	X_API_MEMBER void PostRequestKeepAlive(const xNetAddress & DestiationAddress);
+	X_API_MEMBER void PostKeepAlive(const xNetAddress & DestiationAddress);
 
 	X_INLINE const xNetAddress & GetBindAddress() const {
 		return ActualBindAddress;

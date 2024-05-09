@@ -22,6 +22,7 @@ public:
 	X_API_MEMBER void SetKeepAliveTimeout(uint64_t TimeoutMS);
 	X_API_MEMBER void SetMaxWriteBuffer(size_t Size);
 	X_API_MEMBER void PostData(const void * DataPtr, size_t DataSize);
+	X_API_MEMBER void PostRequestKeepAlive();
 
 protected:
 	X_PRIVATE_MEMBER virtual void OnServerConnected();

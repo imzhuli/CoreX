@@ -11,9 +11,6 @@ static constexpr const uint64_t IdleTimeoutMS             = 30'000 + MaxKeepAliv
 static constexpr const int64_t  ReconnectTimeoutMS        = 15'000;
 static constexpr const int64_t  RequestKeepAliveTimeoutMS = 10'000;
 
-static ubyte  RequestKeepAliveBuffer[128];
-static size_t RequestKeepAliveSize = xPacketHeader::MakeRequestKeepAlive(RequestKeepAliveBuffer);
-
 bool xClient::Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress, const xNetAddress & BindAddress) {
 	assert(IoContextPtr);
 	assert(TargetAddress);
@@ -82,7 +79,7 @@ void xClient::Tick(uint64_t NowMS) {
 				// prevent continuously send request_keepalive
 				return;
 			}
-			PostData(RequestKeepAliveBuffer, RequestKeepAliveSize);
+			PostRequestKeepAlive();
 			LastRequestKeepAliveTimestampMS = NowMS;
 		}
 		return;
@@ -151,6 +148,13 @@ void xClient::SetKeepAliveTimeout(uint64_t TimeoutMS) {
 
 void xClient::SetMaxWriteBuffer(size_t Size) {
 	MaxWriteBufferLimitForEachConnection = (Size / sizeof(xPacketBuffer::Buffer)) + 1;
+}
+
+void xClient::PostRequestKeepAlive() {
+	if (!Connected || KillConnection) {
+		return;
+	}
+	Connection.PostRequestKeepAlive();
 }
 
 void xClient::PostData(const void * DataPtr, size_t DataSize) {

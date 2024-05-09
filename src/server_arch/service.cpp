@@ -13,9 +13,6 @@ static constexpr const uint64_t KeepAliveTimeoutMS     = 105'000;
 static constexpr const size_t   DefaultMinConnectionId = 1024;
 static constexpr const size_t   DefaultMaxConnectionId = 50'000;
 
-static ubyte  KeepAliveBuffer[128];
-static size_t KeepAliveSize = xPacketHeader::MakeKeepAlive(KeepAliveBuffer);
-
 bool xService::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, bool ReusePort) {
 	return Init(IoContextPtr, BindAddress, DefaultMaxConnectionId, ReusePort);
 }
@@ -135,8 +132,7 @@ size_t xService::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, 
 		}
 		if (Header.IsRequestKeepAlive()) {
 			// X_DEBUG_PRINTF("RequestKeepAlive: %" PRIx64 "", Connection.ConnectionId());
-			PostData(Connection, KeepAliveBuffer, KeepAliveSize);
-			KeepAlive(Connection);
+			Connection.PostKeepAlive();
 		} else {
 			auto PayloadPtr  = xPacket::GetPayloadPtr(DataPtr);
 			auto PayloadSize = Header.GetPayloadSize();
@@ -189,7 +185,7 @@ void xUdpService::OnData(xUdpChannel * ChannelPtr, void * DataPtr, size_t DataSi
 	}
 
 	if (Header.IsRequestKeepAlive()) {
-		ChannelPtr->PostData(KeepAliveBuffer, KeepAliveSize, RemoteAddress);
+		ChannelPtr->PostKeepAlive(RemoteAddress);
 		return;
 	}
 
