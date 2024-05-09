@@ -38,6 +38,7 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & TargetA
 	this->ICP = IoContextPtr;
 	this->LP  = ListenerPtr;
 	if (!xSocketIoReactor::Init()) {
+		X_PERROR("Failed to init ioreactor");
 		return false;
 	}
 	auto BaseG = xScopeGuard([this] {
@@ -47,6 +48,7 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & TargetA
 	});
 
 	if (!CreateNonBlockingTcpSocket(NativeSocket, BindAddress)) {
+		X_PERROR("Failed to create non blocking tcp socket");
 		return false;
 	}
 	auto SG = xScopeGuard([this] { DestroySocket(std::move(NativeSocket)); });
@@ -60,11 +62,13 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & TargetA
 	} else {
 		auto EN = errno;
 		if (EN != EINPROGRESS) {
+			X_PERROR("%s", strerror(EN));
 			return false;
 		}
 	}
 
 	if (!IoContextPtr->Add(*this, true, !Connected)) {
+		X_PERROR("failed to add to event poller");
 		return false;
 	}
 	State = eState::CONNECTING;
