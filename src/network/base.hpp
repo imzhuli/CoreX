@@ -3,12 +3,14 @@
 
 #if defined(X_SYSTEM_WINDOWS)
 #define WIN32_LEAN_AND_MEAN
-#include <MSWSock.h>
-#include <WS2tcpip.h>
+// clang-format off
 #include <WinSock2.h>
 #include <Windows.h>
+#include <MSWSock.h>
+#include <WS2tcpip.h>
 #include <windef.h>
 #include <ws2def.h>
+// clang-format on
 
 X_BEGIN
 typedef SSIZE_T              ssize_t;

@@ -1,45 +1,41 @@
-#include <condition_variable>
 #include <core/core_min.hpp>
+#include <core/core_time.hpp>
 #include <core/string.hpp>
-#include <cstdlib>
 #include <iostream>
-#include <mutex>
+#include <network/io_context.hpp>
 #include <network/udp_channel.hpp>
-#include <server_arch/message.hpp>
-#include <string>
 #include <thread>
 
 using namespace xel;
 using namespace std;
 
-struct xS : xListNode {
-	int i = 0;
+static auto IC = xIoContext();
+static auto UC = xUdpChannel();
+
+struct xObserver : xUdpChannel::iListener {  // clang-format off
+	void OnData(xUdpChannel * ChannelPtr, void * DataPtr, size_t DataSize, const xNetAddress & RemoteAddress) {
+		printf("OnData: from %s\n%s\n", RemoteAddress.ToString().c_str(), HexShow(DataPtr, DataSize).c_str());
+	}
 };
+static auto OB = xObserver();
 
 int main(int argc, char ** argv) {
 
-	xList<xS> L;
+	auto ICG           = xResourceGuard(IC);
+	auto UCG           = xResourceGuard(UC, &IC, xNetAddress::Make4(), &OB);
+	auto TargetAddress = xNetAddress::Parse("127.0.0.1:12345");
 
-	xS S0 = xS();
-	xS S1 = xS();
-	xS S2 = xS();
-	xS S3 = xS();
-
-	S0.i = 0;
-	S1.i = 1;
-	S2.i = 2;
-	S3.i = 3;
-
-	L.AddTail(S0);
-	L.AddTail(S1);
-	L.AddTail(S2);
-	L.AddTail(S3);
-
-	while (auto NP = L.PopHead([](const xS & S) { return S.i < 2; })) {
-		cout << NP->i << endl;
+	// std::this_thread::sleep_for(xSeconds(10));
+	auto Counter = size_t(0);
+	auto T       = xTimer();
+	while (true) {
+		if (T.TestAndTag(xSeconds(5))) {
+			char Buffer[256];
+			auto RSize = snprintf(Buffer, SafeLength(Buffer), "Hello world! Counter=%zi", ++Counter);
+			UC.PostData(Buffer, RSize, TargetAddress);
+		}
+		IC.LoopOnce();
 	}
-	cout << "--- for all ---" << endl;
-	L.ForEach([](xS & S) { cout << S.i << endl; });
 
 	return 0;
 }

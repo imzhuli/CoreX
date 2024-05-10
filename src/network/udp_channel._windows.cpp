@@ -23,7 +23,7 @@ bool xUdpChannel::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddres
 	this->ActualBindAddress = GetLocalAddress();
 	ICP                     = IoContextPtr;
 	LP                      = ListenerPtr;
-
+	AsyncAcquireInput();
 	Dismiss(BaseG);
 	return true;
 }
@@ -47,13 +47,18 @@ xNetAddress xUdpChannel::GetLocalAddress() const {
 }
 
 void xUdpChannel::AsyncAcquireInput() {
-	auto & BU = IBP->ReadBufferUsage;
-	BU.buf    = (CHAR *)IBP->ReadBuffer;
-	BU.len    = (ULONG)sizeof(IBP->ReadBuffer);
-	memset(&IBP->ReadObject, 0, sizeof(IBP->ReadObject));
-	memset(&IBP->ReadFromAddress, 0, sizeof(IBP->ReadFromAddress));
-	IBP->ReadFromAddressLength = sizeof(IBP->ReadFromAddress);
-	if (WSARecvFrom(NativeSocket, &BU, 1, nullptr, X2P(DWORD(0)), (sockaddr *)&IBP->ReadFromAddress, &IBP->ReadFromAddressLength, &IBP->ReadObject, nullptr)) {
+	IBP->ReadDataSize = 0;  // reset for every udp packet
+	memset(&IBP->Reader.Native.Overlapped, 0, sizeof(IBP->Reader.Native.Overlapped));
+	memset(&IBP->Reader.FromAddress, 0, sizeof(IBP->Reader.FromAddress));
+	IBP->Reader.FromAddressLength = sizeof(IBP->Reader.FromAddress);
+	IBP->Reader.BufferUsage.buf   = (CHAR *)IBP->ReadBuffer;
+	IBP->Reader.BufferUsage.len   = (ULONG)sizeof(IBP->ReadBuffer);
+	if (WSARecvFrom(  // clang-format off
+			NativeSocket, &IBP->Reader.BufferUsage, 1, nullptr, X2P(DWORD(0)),
+			(sockaddr *)&IBP->Reader.FromAddress, &IBP->Reader.FromAddressLength,
+			&IBP->Reader.Native.Overlapped,
+			nullptr
+		)) {  // clang-format on
 		auto ErrorCode = WSAGetLastError();
 		if (ErrorCode != WSA_IO_PENDING) {
 			X_DEBUG_PRINTF("WSARecvFrom ErrorCode: %u\n", ErrorCode);
@@ -76,7 +81,7 @@ void xUdpChannel::PostData(const void * DataPtr, size_t DataSize, const xNetAddr
 }
 
 bool xUdpChannel::OnIoEventInReady() {
-	auto RemoteAddress = xNetAddress::Parse((sockaddr *)&IBP->ReadFromAddress);
+	auto RemoteAddress = xNetAddress::Parse((sockaddr *)&IBP->Reader.FromAddress);
 	LP->OnData(this, IBP->ReadBuffer, IBP->ReadDataSize, RemoteAddress);
 	AsyncAcquireInput();
 	return true;

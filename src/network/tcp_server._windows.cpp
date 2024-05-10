@@ -18,7 +18,7 @@ bool xTcpServer::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress
 		Reset(LP);
 	});
 
-	Todo();
+	Todo("");
 
 	if (!IoContextPtr->Add(*this)) {
 		X_PFATAL("failed to register tcp server socket");
@@ -35,17 +35,17 @@ void xTcpServer::Clean() {
 }
 
 bool xTcpServer::OnIoEventInReady() {
-	Todo();
+	Todo("");
 	return false;
 }
 
 bool xTcpServer::TryListen() {
-	Todo();
+	Todo("");
 	return false;
 }
 
 bool xTcpServer::TryAccept(xSocket & NewConnectionSocket) {
-	Todo();
+	Todo("");
 	return false;
 }
 

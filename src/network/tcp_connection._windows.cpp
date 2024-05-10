@@ -12,7 +12,7 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeSocket, iL
 	}
 	auto BaseG = xScopeGuard([this] { xSocketIoReactor::Clean(); });
 
-	Todo();
+	Todo("");
 
 	Dismiss(BaseG);
 	return true;
@@ -25,23 +25,23 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & TargetA
 	}
 	auto BaseG = xScopeGuard([this] { xSocketIoReactor::Clean(); });
 
-	Todo();
+	Todo("");
 
 	Dismiss(BaseG);
 	return true;
 }
 
 void xTcpConnection::Clean() {
-	Todo();
+	Todo("");
 	xSocketIoReactor::Clean();
 }
 
 xNetAddress xTcpConnection::GetRemoteAddress() const {
-	Todo();
+	Todo("");
 }
 
 xNetAddress xTcpConnection::GetLocalAddress() const {
-	Todo();
+	Todo("");
 }
 
 bool xTcpConnection::ReadData(xView<ubyte> & BufferView) {
@@ -56,7 +56,7 @@ void xTcpConnection::OnIoEventError() {
 }
 
 bool xTcpConnection::OnIoEventInReady() {
-	Todo();
+	Todo("");
 	return false;
 	// auto NewInput = xView<ubyte>();
 	// while (true) {
@@ -78,7 +78,7 @@ bool xTcpConnection::OnIoEventInReady() {
 }
 
 bool xTcpConnection::OnIoEventOutReady() {
-	Todo();
+	Todo("");
 	return false;
 	// if (State == eState::CONNECTING) {
 	// 	State = eState::CONNECTED;

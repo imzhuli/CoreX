@@ -12,7 +12,6 @@ public:
 	X_API_MEMBER bool Init();
 	X_API_MEMBER void Clean();
 
-	// clang-format off
 	X_API_MEMBER void LoopOnce(int TimeoutMS = 50);
 	X_API_MEMBER void Interrupt();
 
@@ -32,7 +31,7 @@ private:
 	X_API_MEMBER void DestroyPoller();
 	X_API_MEMBER void ProcessEventList();
 
-private:  // clang-format on
+private:
 	xEventPoller        Poller = InvalidEventPoller;
 	xIoContextEventList EventList;
 

@@ -43,6 +43,10 @@ protected:
 		assert(!xListNode::IsLinked(EventNode));
 		EventFlags = IO_EVENT_NONE;
 	}
+#ifdef X_SYSTEM_WINDOWS
+	virtual void SetReadTransfered(size_t Size)  = 0;
+	virtual void SetWriteTransfered(size_t Size) = 0;
+#endif
 };
 
 struct xIoBuffer {
@@ -57,19 +61,35 @@ struct xIoBuffer {
 };
 
 #if defined(X_SYSTEM_WINDOWS)
-struct xOverlappedIoBuffer : xIoBuffer {
-	void *           Outter         = nullptr;
-	ssize_t          ReferenceCount = 1;
-	OVERLAPPED       ReadObject;
-	sockaddr_storage ReadFromAddress;
-	int              ReadFromAddressLength;
-	WSABUF           ReadBufferUsage;
-	OVERLAPPED       WriteObject;
-	WSABUF           WriteBufferUsage;
+
+struct xOverlappedObject;
+struct xOverlappedIoBuffer;
+
+struct xOverlappedObject : private xNonCopyable {
+	xOverlappedIoBuffer * Outter;
+	OVERLAPPED            Overlapped;
 };
-X_API void Retain(xOverlappedIoBuffer * IBP);
-X_API void Release(xOverlappedIoBuffer * IBP);
-#endif
+
+struct xOverlappedIoBuffer : xIoBuffer {
+	xIoReactor * Reactor        = nullptr;
+	ssize_t      ReferenceCount = 1;
+	bool         Enabled        = false;  // with reactor closed, multiple events might still be active, RefCount is not enough.
+	struct {
+		xOverlappedObject Native;
+		sockaddr_storage  FromAddress;
+		int               FromAddressLength;
+		WSABUF            BufferUsage;
+	} Reader;
+	struct {
+		xOverlappedObject Native;
+		WSABUF            BufferUsage;
+		size_t            LastWriteSize;
+	} Writer;
+};
+X_API void                  Retain(xOverlappedIoBuffer * IBP);
+X_API xOverlappedIoBuffer * Release(xOverlappedIoBuffer * IBP);  // null: object deleted
+
+#endif  // X_SYSTEM_WINDOWS
 
 class xSocketIoReactor
 	: public xIoReactor
@@ -87,7 +107,15 @@ protected:
 #if defined(X_SYSTEM_DARWIN) || defined(X_SYSTEM_LINUX)
 	xIoBuffer IBP;
 #elif defined(X_SYSTEM_WINDOWS)
+	friend class xIoContext;
 	xOverlappedIoBuffer * IBP = nullptr;
+
+	void SetReadTransfered(size_t Size) override {
+		IBP->ReadDataSize += Size;
+	}
+	void SetWriteTransfered(size_t Size) override {
+		IBP->Writer.LastWriteSize = Size;
+	}
 #endif
 };
 

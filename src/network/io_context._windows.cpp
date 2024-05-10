@@ -4,83 +4,82 @@
 X_BEGIN
 
 void xIoContext::Interrupt() {
-    PostQueuedCompletionStatus(Poller, 0, (ULONG_PTR)nullptr, nullptr);
+	PostQueuedCompletionStatus(Poller, 0, (ULONG_PTR) nullptr, nullptr);
 }
 
 bool xIoContext::CreatePoller() {
-    assert(Poller == InvalidEventPoller);
-    Poller = CreateIoCompletionPort(INVALID_HANDLE_VALUE,0,0,0);
+	assert(Poller == InvalidEventPoller);
+	Poller = CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
 	if (Poller == InvalidEventPoller) {
 		return false;
 	}
-    auto PollerGuard = xScopeGuard([&]{
-        CloseHandle(Steal(Poller, InvalidEventPoller));
-    });
+	auto PollerGuard = xScopeGuard([&] { CloseHandle(Steal(Poller, InvalidEventPoller)); });
 
 	PollerGuard.Dismiss();
 	return true;
 }
 
 void xIoContext::DestroyPoller() {
-    CloseHandle(Steal(Poller, InvalidEventPoller));
+	CloseHandle(Steal(Poller, InvalidEventPoller));
 }
 
-
 bool xIoContext::Add(xSocketIoReactor & SocketReactor, bool Read, bool Write) {
-    return true;
-	// assert(!SocketReactor.EventFlags);
-
-	// auto Socket       = SocketReactor.GetNativeSocket();
-	// auto IoReactorPtr = static_cast<xIoReactor *>(&SocketReactor);
-
-	// struct epoll_event Event = {};
-	// Event.data.ptr           = IoReactorPtr;
-	// Event.events             = EPOLLET | EPOLLIN | (Write ? EPOLLOUT : 0);
-	// if (-1 == epoll_ctl(Poller, EPOLL_CTL_ADD, Socket, &Event)) {
-	// 	X_DEBUG_PRINTF("failed to register epoll event\n");
-	// 	return false;
-	// }
-	// return true;
+	if (CreateIoCompletionPort((HANDLE)SocketReactor.GetNativeSocket(), Poller, (ULONG_PTR)&SocketReactor, 0) == NULL) {
+		return false;
+	}
+	SocketReactor.IBP->Enabled = true;
+	return true;
 }
 
 bool xIoContext::Update(xSocketIoReactor & SocketReactor, bool Read, bool Write) {
-    return false;
-	// auto Socket       = SocketReactor.GetNativeSocket();
-	// auto IoReactorPtr = static_cast<xIoReactor *>(&SocketReactor);
-
-	// struct epoll_event Event = {};
-	// Event.data.ptr           = IoReactorPtr;
-	// Event.events             = EPOLLET | EPOLLIN | (Write ? EPOLLOUT : 0);
-	// if (-1 == epoll_ctl(Poller, EPOLL_CTL_MOD, Socket, &Event)) {
-	// 	X_PFATAL("failed to update epoll\n");
-	// 	return false;
-	// }
-	// return true;
+	return true;
 }
 
 void xIoContext::Remove(xSocketIoReactor & SocketReactor) {
-	// auto Socket = SocketReactor.GetNativeSocket();
-	// epoll_ctl(Poller, EPOLL_CTL_DEL, Socket, nullptr);
-
-	// EventList.Remove(SocketReactor.EventNode);
-	// SocketReactor.ResetReactorEvents();
+	SocketReactor.IBP->Enabled = false;
+	return;
 }
 
 void xIoContext::LoopOnce(int TimeoutMS) {
-    Todo();
-	// struct epoll_event Events[128];
-	// int                Total = epoll_wait(Poller, Events, (int)Length(Events), TimeoutMS < 0 ? -1 : TimeoutMS);
-	// for (int i = 0; i < Total; ++i) {
-	// 	auto & EV         = Events[i];
-	// 	auto   ReactorPtr = (xIoReactor *)EV.data.ptr;
-	// 	if (EV.events & (EPOLLERR | EPOLLHUP)) {
-	// 		ReactorPtr->EventFlags |= xIoReactor::IO_EVENT_ERROR;
-	// 	} else {
-	// 		ReactorPtr->EventFlags |= ((EV.events & EPOLLIN) ? xIoReactor::IO_EVENT_READ : xIoReactor::IO_EVENT_NONE);
-	// 		ReactorPtr->EventFlags |= ((EV.events & EPOLLOUT) ? xIoReactor::IO_EVENT_WRITE : xIoReactor::IO_EVENT_NONE);
-	// 	}
-	// 	EventList.GrabTail(ReactorPtr->EventNode);
-	// }
+	OVERLAPPED_ENTRY EventEntries[256];
+	ULONG            EventCount = 0;
+	BOOL Result = GetQueuedCompletionStatusEx(Poller, EventEntries, (ULONG)Length(EventEntries), &EventCount, (TimeoutMS < 0 ? INFINITE : (DWORD)TimeoutMS), FALSE);
+
+	if (!Result) {
+		if (ERROR_ABANDONED_WAIT_0 == GetLastError()) {
+			X_PFATAL("Invalid Poller");
+		}
+		return;
+	}
+
+	for (ULONG i = 0; i < EventCount; ++i) {
+		auto & Event         = EventEntries[i];
+		auto   OverlappedPtr = Event.lpOverlapped;
+
+		// Get Outter object and see, if ioevent should be ignored:
+		auto OverlappedBlockPtr = X_Entry(OverlappedPtr, xOverlappedObject, Overlapped);
+		if (!OverlappedBlockPtr) {  // User Trigger event does not have overlapped object
+			continue;
+		}
+		auto IBP = Release(OverlappedBlockPtr->Outter);
+		if (!IBP || !IBP->Enabled) {  // object deleted
+			continue;
+		}
+
+		auto ReactorPtr = IBP->Reactor;
+		if (OverlappedBlockPtr == &IBP->Reader.Native) {
+			ReactorPtr->EventFlags |= xIoReactor::IO_EVENT_READ;
+			ReactorPtr->SetReadTransfered(Event.dwNumberOfBytesTransferred);
+		} else if (OverlappedBlockPtr == &IBP->Writer.Native) {
+			ReactorPtr->EventFlags |= xIoReactor::IO_EVENT_WRITE;
+			ReactorPtr->SetWriteTransfered(Event.dwNumberOfBytesTransferred);
+		} else {
+			X_PFATAL("Invalid event");
+		}
+
+		EventList.GrabTail(ReactorPtr->EventNode);
+	}
+
 	ProcessEventList();
 }
 

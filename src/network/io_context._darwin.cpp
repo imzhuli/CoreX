@@ -1,12 +1,12 @@
 
 #include "./io_context.hpp"
 
-#include <cinttypes>
-
 #ifdef X_SYSTEM_DARWIN
 
 #include <sys/event.h>
 #include <sys/types.h>
+
+#include <cinttypes>
 
 X_BEGIN
 

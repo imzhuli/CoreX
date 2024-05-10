@@ -13,11 +13,13 @@ namespace __network_detail__ {
 X_API void Retain(xOverlappedIoBuffer * IBP) {
 	++IBP->ReferenceCount;
 }
-X_API void Release(xOverlappedIoBuffer * IBP) {
+X_API xOverlappedIoBuffer * Release(xOverlappedIoBuffer * IBP) {
 	assert(IBP->WriteBufferChain.IsEmpty());
 	if (!--IBP->ReferenceCount) {
-		delete Steal(IBP);
+		delete IBP;
+		return nullptr;
 	}
+	return IBP;
 };
 #endif
 
@@ -25,8 +27,13 @@ X_API_MEMBER bool xSocketIoReactor::Init() {
 #if defined(X_SYSTEM_DARWIN) || defined(X_SYSTEM_LINUX)
 	return true;
 #elif defined(X_SYSTEM_WINDOWS)
-	IBP = new (std::nothrow) std::decay_t<decltype(*IBP)>;
-	return IBP;
+	IBP = new (std::nothrow) std::decay_t<decltype(*IBP)>();
+	if (!IBP) {
+		return false;
+	}
+	IBP->Reactor              = this;
+	IBP->Reader.Native.Outter = IBP;
+	return true;
 #endif
 }
 
