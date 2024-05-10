@@ -139,6 +139,9 @@ void xTcpConnection::PostData(const void * _, size_t DataSize) {
 	auto & WriteBufferChain = IBP->WriteBufferChain;
 
 	auto HasNoPendingWrite = WriteBufferChain.IsEmpty();
+	if (State != eState::CONNECTED) {
+		goto BUFFER_WRITE;
+	}
 	if (HasNoPendingWrite) {
 		ssize_t FirstSend = send(NativeSocket, DataPtr, DataSize, XelNoWriteSignal);
 		if (-1 == FirstSend) {
@@ -208,7 +211,6 @@ bool xTcpConnection::OnIoEventOutReady() {
 	if (State == eState::CONNECTING) {
 		State = eState::CONNECTED;
 		LP->OnConnected(this);
-		return true;
 	}
 	auto & WriteBufferChain = IBP->WriteBufferChain;
 	while (auto BP = WriteBufferChain.Peek()) {
