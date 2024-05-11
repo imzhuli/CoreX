@@ -362,7 +362,7 @@ X_COMMON_END
 
 #ifndef NDEBUG
 #define X_DEBUG
-#define X_DEBUG_INIT(...)         = { __VA_ARGS__ }
+#define X_DEBUG_INIT(...) = __VA_ARGS__
 #define X_DEBUG_STEAL(Param, ...) (::xel::Steal(Param, ##__VA_ARGS__))
 #define X_DEBUG_RESET(Param, ...) (::xel::Reset(Param, ##__VA_ARGS__))
 #define X_DEBUG_PRINTF(fmt, ...)  ::xel::DebugPrintf(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)

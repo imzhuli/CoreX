@@ -53,13 +53,10 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & TargetA
 	}
 	auto SG = xScopeGuard([this] { DestroySocket(std::move(NativeSocket)); });
 
-	auto Connected = false;
-	auto SA        = sockaddr_storage();
-	auto SL        = TargetAddress.Dump(&SA);
-	auto CR        = connect(NativeSocket, (sockaddr *)&SA, (socklen_t)SL);
-	if (0 == CR) {  // connected:
-		Connected = true;
-	} else {
+	auto SA = sockaddr_storage();
+	auto SL = TargetAddress.Dump(&SA);
+	auto CR = connect(NativeSocket, (sockaddr *)&SA, (socklen_t)SL);
+	if (!CR) {
 		auto EN = errno;
 		if (EN != EINPROGRESS) {
 			// X_PERROR("%s", strerror(EN));
@@ -67,15 +64,11 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & TargetA
 		}
 	}
 
-	if (!IoContextPtr->Add(*this, true, !Connected)) {
+	if (!IoContextPtr->Add(*this, true, true)) {
 		// X_PERROR("failed to add to event poller");
 		return false;
 	}
 	State = eState::CONNECTING;
-	if (Connected) {
-		IoContextPtr->DeferWrite(*this);
-	}
-
 	Dismiss(BaseG, SG);
 	return true;
 }
@@ -161,7 +154,8 @@ void xTcpConnection::PostData(const void * _, size_t DataSize) {
 		auto PS   = LPBP->Push(DataPtr, DataSize);
 		DataPtr  += PS;
 		DataSize -= PS;
-	}
+	};
+
 BUFFER_WRITE:
 	while (DataSize) {
 		auto BP = new (std::nothrow) xPacketBuffer();
