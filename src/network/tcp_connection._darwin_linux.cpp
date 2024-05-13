@@ -221,6 +221,7 @@ bool xTcpConnection::OnIoEventOutReady() {
 		return true;
 	}
 	ICP->Update(*this);
+	LP->OnFlush(this);
 	return true;
 }
 
