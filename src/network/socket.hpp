@@ -12,4 +12,7 @@ X_API void SetSocketNonBlocking(xSocket Socket);
 X_API void SetSocketNoDelay(xSocket Socket, bool EnableNoDelay);
 X_API void SetSocketReuseAddress(xSocket Socket);
 
+X_API void ResizeSendBuffer(xSocket Socket, size_t Size);
+X_API void ResizeRecvBuffer(xSocket Socket, size_t Size);
+
 X_END

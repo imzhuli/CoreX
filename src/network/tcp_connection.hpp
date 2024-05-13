@@ -40,6 +40,8 @@ public:
 
 	// clang-format off
 	X_INLINE bool IsConnected() const { return State == eState::CONNECTED; }
+	X_INLINE void ResizeSendBuffer(size_t Size) { xel::ResizeSendBuffer(NativeSocket, Size); };
+	X_INLINE void ResizeRecvBuffer(size_t Size) { xel::ResizeRecvBuffer(NativeSocket, Size); };
 	X_INLINE void SetMaxWriteBufferSize(size_t NewLimit) { IBP->MaxWriteBufferSize = NewLimit; }
 	X_INLINE bool HasPendingWrites() const { return IBP->WriteBufferChain.GetSize(); }
 	X_API_MEMBER void PostData(const void * DataPtr, size_t DataSize);
