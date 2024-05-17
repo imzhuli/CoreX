@@ -14,7 +14,6 @@ X_API void Retain(xOverlappedIoBuffer * IBP) {
 	++IBP->ReferenceCount;
 }
 X_API xOverlappedIoBuffer * Release(xOverlappedIoBuffer * IBP) {
-	assert(IBP->WriteBufferChain.IsEmpty());
 	if (!--IBP->ReferenceCount) {
 		delete IBP;
 		return nullptr;
@@ -33,6 +32,7 @@ X_API_MEMBER bool xSocketIoReactor::Init() {
 	}
 	IBP->Reactor              = this;
 	IBP->Reader.Native.Outter = IBP;
+	IBP->Writer.Native.Outter = IBP;
 	return true;
 #endif
 }

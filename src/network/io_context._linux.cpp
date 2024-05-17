@@ -1,11 +1,11 @@
 
 #include "./io_context.hpp"
 
-#include <cinttypes>
-
 #ifdef X_SYSTEM_LINUX
 
 #include <sys/eventfd.h>
+
+#include <cinttypes>
 
 X_BEGIN
 

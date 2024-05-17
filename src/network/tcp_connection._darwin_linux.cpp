@@ -1,17 +1,18 @@
 #include "./tcp_connection.hpp"
 
+#if defined(X_SYSTEM_DARWIN) || defined(X_SYSTEM_LINUX)
+
 #include "../core/string.hpp"
 #include "./socket.hpp"
 
-#if defined(X_SYSTEM_DARWIN) || defined(X_SYSTEM_LINUX)
 X_BEGIN
 
 bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeSocket, iListener * ListenerPtr) {
-	this->ICP = IoContextPtr;
-	this->LP  = ListenerPtr;
 	if (!xSocketIoReactor::Init()) {
 		return false;
 	}
+	this->ICP  = IoContextPtr;
+	this->LP   = ListenerPtr;
 	auto BaseG = xScopeGuard([this] {
 		xSocketIoReactor::Clean();
 		Reset(ICP);
@@ -35,12 +36,12 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeSocket, iL
 
 bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress, const xNetAddress & BindAddress, iListener * ListenerPtr) {
 	assert(TargetAddress.Type == BindAddress.Type);
-	this->ICP = IoContextPtr;
-	this->LP  = ListenerPtr;
 	if (!xSocketIoReactor::Init()) {
 		// X_PERROR("Failed to init ioreactor");
 		return false;
 	}
+	this->ICP  = IoContextPtr;
+	this->LP   = ListenerPtr;
 	auto BaseG = xScopeGuard([this] {
 		xSocketIoReactor::Clean();
 		Reset(ICP);
