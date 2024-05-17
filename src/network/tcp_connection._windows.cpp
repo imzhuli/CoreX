@@ -1,16 +1,29 @@
 #include "./tcp_connection.hpp"
 
+#ifdef X_SYSTEM_WINDOWS
+
 #include "../core/string.hpp"
 #include "./socket.hpp"
 
-#ifdef X_SYSTEM_WINDOWS
+#include <atomic>
+#include <mutex>
+
 X_BEGIN
+
+std::atomic<LPFN_CONNECTEX> AtomicConnectEx = nullptr;
+std::mutex                  ConnectExLoaderMutex;
 
 bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeSocket, iListener * ListenerPtr) {
 	if (!xSocketIoReactor::Init()) {
 		return false;
 	}
-	auto BaseG = xScopeGuard([this] { xSocketIoReactor::Clean(); });
+	this->ICP  = IoContextPtr;
+	this->LP   = ListenerPtr;
+	auto BaseG = xScopeGuard([this] {
+		xSocketIoReactor::Clean();
+		Reset(ICP);
+		Reset(LP);
+	});
 
 	Todo("");
 
@@ -19,21 +32,81 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeSocket, iL
 }
 
 bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress, const xNetAddress & BindAddress, iListener * ListenerPtr) {
-	assert(TargetAddress.Type == BindAddress.Type);
+	auto AddressType = BindAddress.Type;
+	assert(AddressType && AddressType == TargetAddress.Type);
 	if (!xSocketIoReactor::Init()) {
 		return false;
 	}
-	auto BaseG = xScopeGuard([this] { xSocketIoReactor::Clean(); });
+	this->ICP  = IoContextPtr;
+	this->LP   = ListenerPtr;
+	auto BaseG = xScopeGuard([this] {
+		xSocketIoReactor::Clean();
+		Reset(ICP);
+		Reset(LP);
+	});
 
-	Todo("");
+	if (!CreateNonBlockingTcpSocket(NativeSocket, BindAddress)) {
+		// X_PERROR("Failed to create non blocking tcp socket");
+		return false;
+	}
+	auto SG = xScopeGuard([this] { DestroySocket(std::move(NativeSocket)); });
 
-	Dismiss(BaseG);
+	LPFN_CONNECTEX ConnectEx = AtomicConnectEx.load();
+	// load ConnectEx for async connect
+	if (!ConnectEx) {
+		do {
+			auto LockGuard = std::lock_guard(ConnectExLoaderMutex);
+			if (ConnectEx = AtomicConnectEx.load()) {
+				break;
+			}
+			GUID  guid      = WSAID_CONNECTEX;
+			DWORD dwBytes   = 0;
+			auto  LoadError = WSAIoctl(NativeSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), &ConnectEx, sizeof(ConnectEx), &dwBytes, NULL, NULL);
+			if (LoadError) {
+				auto ErrorCode = WSAGetLastError();
+				Touch(ErrorCode);
+				X_DEBUG_PRINTF("ErrorCode: %u\n", ErrorCode);
+				return false;
+			}
+			X_DEBUG_PRINTF("ConnectEx: %p\n", ConnectEx);
+			AtomicConnectEx = ConnectEx;
+		} while (false);
+	}
+
+	sockaddr_storage AddrStorage = {};
+	size_t           AddrLen     = TargetAddress.Dump(&AddrStorage);
+	auto             Success     = ConnectEx(NativeSocket, (SOCKADDR *)(&AddrStorage), (int)AddrLen, NULL, NULL, NULL, &IBP->Writer.Native.Overlapped);
+	if (!Success) {
+		auto ErrorCode = WSAGetLastError();
+		if (ErrorCode != ERROR_IO_PENDING) {
+			X_DEBUG_PRINTF("Failed to build connection ErrorCode: %u (ERROR_IO_PENDING == 997L)\n", ErrorCode);
+			return false;
+		} else {
+			X_DEBUG_PRINTF("PENDING");
+		}
+	} else {
+		X_DEBUG_PRINTF("Success");
+	}
+
+	// add to event loop
+	if (!IoContextPtr->Add(*this)) {
+		X_DEBUG_PRINTF("Failed to add connection to IoContext");
+		return false;
+	}
+	auto EG = xScopeGuard([this] { this->ICP->Remove(*this); });
+	Retain(IBP);
+
+	State = eState::CONNECTING;
+	Dismiss(BaseG, SG, EG);
 	return true;
 }
 
 void xTcpConnection::Clean() {
-	Todo("");
+	this->ICP->Remove(*this);
+	DestroySocket(std::move(NativeSocket));
 	xSocketIoReactor::Clean();
+	Reset(ICP);
+	Reset(LP);
 }
 
 xNetAddress xTcpConnection::GetRemoteAddress() const {
@@ -78,7 +151,7 @@ bool xTcpConnection::OnIoEventInReady() {
 }
 
 bool xTcpConnection::OnIoEventOutReady() {
-	Todo("");
+	X_DEBUG_PRINTF("");
 	return false;
 	// if (State == eState::CONNECTING) {
 	// 	State = eState::CONNECTED;

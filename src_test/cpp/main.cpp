@@ -25,7 +25,7 @@ int main(int argc, char ** argv) {
 
 	auto ICG = xResourceGuard(IC);
 	auto TA  = xNetAddress::Parse("183.2.172.185:80");
-	auto BA  = xNetAddress::Parse("192.168.5.13:0");
+	auto BA  = xNetAddress::Make4();
 	auto TCG = xResourceGuard(TC, &IC, TA, BA, &OB);
 
 	const char * Get = "GET / HTTP/1.1\r\n\r\n";

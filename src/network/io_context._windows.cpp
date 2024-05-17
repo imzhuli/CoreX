@@ -63,6 +63,7 @@ void xIoContext::LoopOnce(int TimeoutMS) {
 		}
 		auto IBP = Release(OverlappedBlockPtr->Outter);
 		if (!IBP || !IBP->Enabled) {  // object deleted
+			X_DEBUG_PRINTF("Hit disabled ibp");
 			continue;
 		}
 
