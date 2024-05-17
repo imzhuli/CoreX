@@ -27,7 +27,7 @@ def PostCheck():
     global cmake_build_type
     global cmake_build_config
     cmake_use_single_build=(platform.system() != 'Windows')
-    if not cmake_use_single_build: # XCode or windows
+    if not cmake_use_single_build: #windows
         cmake_build_type = ""
     pass
 
