@@ -5,11 +5,7 @@ import getopt
 import os
 import shutil
 import sys
-
-import platform
-
-using_single_build=(platform.system() != 'Windows')
-print(f"using_single_build={using_single_build}")
+import xsetup
 
 if __name__ != "__main__":
     print("not valid entry, name=%s" % (__name__))
@@ -45,23 +41,17 @@ for opt, arg in opts:
     if opt == "-j":
         j_threads = " -j%s " % arg
     if opt == '-r':
-        os.environ["PS_BUILD_CONFIG_TYPE"] = "Release"
+        xsetup.Release()
     pass
 
-if os.getenv("PS_BUILD_CONFIG_TYPE") is None:
-    os.environ["PS_BUILD_CONFIG_TYPE"]="Debug"
-build_type=os.getenv("PS_BUILD_CONFIG_TYPE")
-
-config_setup=""
-if using_single_build:
-    config_setup=f"-DCMAKE_BUILD_TYPE={build_type}"
-
+xsetup.Output()
 prepare = \
-    'cmake -Wno-dev ' \
+    'cmake ' \
+    f'{xsetup.cmake_build_type} ' \
+    '-Wno-dev ' \
     '-DBUILD_SHARED_LIBS=OFF ' \
-    f'{config_setup} ' \
     f'-DSERVER_SIDE_LIB_ONLY={server_side_lib_only} ' \
     f'-DCMAKE_INSTALL_PREFIX="{full_install_path}" -B "{build_path}" .'
 os.system(prepare)
-os.system(f'cmake --build "{build_path}" --config {build_type} -- {j_threads}')
-os.system(f'cmake --install "{build_path}" --config {build_type}')
+os.system(f'cmake --build "{build_path}" {xsetup.cmake_build_config} -- {j_threads}')
+os.system(f'cmake --install "{build_path}" {xsetup.cmake_build_config}')

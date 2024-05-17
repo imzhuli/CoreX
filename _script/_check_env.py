@@ -5,9 +5,6 @@ import os
 import shutil
 import _cmake_util as cu
 
-if os.getenv("PS_BUILD_CONFIG_TYPE") is None:
-    os.environ["PS_BUILD_CONFIG_TYPE"]="Debug"
-
 MIN_PY_VERSION_MAJOR = 3
 MIN_PY_VERSION_MINOR = 7
 

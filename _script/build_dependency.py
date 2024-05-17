@@ -13,6 +13,7 @@ import getopt
 import os
 import shutil
 import sys
+import xsetup
 
 if __name__ != "__main__":
     print("not valid entry, name=%s" % (__name__))
@@ -29,9 +30,9 @@ for opt, arg in opts:
         server_side_lib_only = "ON"
         print("server-side lib only")
     if opt == '-r':
-        os.environ["PS_BUILD_CONFIG_TYPE"] = "Release"
-        print("set PS_BUILD_CONFIG_TYPE to Release")
+        xsetup.Release()
     pass
+xsetup.Output()
 
 if not p3.prepare_3rd():
     exit

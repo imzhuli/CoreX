@@ -5,6 +5,7 @@ import _unzip_source as us
 import os
 import stat
 import shutil
+import xsetup
 
 cwd = os.getcwd()
 unzip_dir = f"{cwd}/_3rd_build"
@@ -15,11 +16,6 @@ unzipped_src_dir = f"{unzip_dir}/glm"
 install_dir = f"{cwd}/_3rd_installed"
 
 def build():
-    if os.getenv("PS_BUILD_CONFIG_TYPE") is None:
-        os.environ["PS_BUILD_CONFIG_TYPE"]="Debug"
-    build_type=os.getenv("PS_BUILD_CONFIG_TYPE")
-    print(f"=============> {build_type}")
-
     if not us.unzip_source(unzip_dir, src_file):
         print("failed to unzip source: %s" % src_file)
         return False
@@ -28,11 +24,12 @@ def build():
         os.chdir(unzipped_src_dir)
         os.system(
             'cmake '
+            f'{xsetup.cmake_build_type} ' \
             '-Wno-dev '
             '-DBUILD_SHARED_LIBS=OFF '
             f'-DCMAKE_INSTALL_PREFIX="{install_dir}" -B build . ')
-        os.system(f"cmake --build build --config {build_type}")
-        os.system(f"cmake --install build --config {build_type}")
+        os.system(f"cmake --build build {xsetup.cmake_build_config}")
+        os.system(f"cmake --install build {xsetup.cmake_build_config}")
     except Exception as e:
         print(f"{libname} error: %s" % e)
         return False
