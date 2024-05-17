@@ -46,6 +46,7 @@ for opt, arg in opts:
 if os.getenv("PS_BUILD_CONFIG_TYPE") is None:
     os.environ["PS_BUILD_CONFIG_TYPE"]="Debug"
 build_type=os.getenv("PS_BUILD_CONFIG_TYPE")
+print(f"bulid_type={build_type}")
 
 prepare = \
     'cmake -Wno-dev ' \
