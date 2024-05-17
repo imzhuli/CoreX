@@ -37,7 +37,7 @@ bool xIoContext::xUserEventReactor::OnIoEventInReady() {
 
 void xIoContext::Interrupt() {
 	uint64_t PseudoData = 1;
-	write(UserEventReactor.UserEventFd, &PseudoData, 8);
+	Ignore(write(UserEventReactor.UserEventFd, &PseudoData, 8));
 }
 
 bool xIoContext::CreatePoller() {

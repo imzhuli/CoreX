@@ -15,14 +15,13 @@ static auto TC = xTcpConnection();
 
 struct xObserver : xTcpConnection::iListener {  // clang-format off
 	size_t OnData(xTcpConnection * CP, void * DataPtr, size_t DataSize) {
-		printf("OnData: from %s\n%s\n", CP->GetRemoteAddress().ToString().c_str(), HexShow(DataPtr, DataSize).c_str());
+		// printf("OnData: from %s\n%s\n", CP->GetRemoteAddress().ToString().c_str(), HexShow(DataPtr, DataSize).c_str());
 		return DataSize;
 	}
 };  // clang-format on
 static auto OB = xObserver();
 
 int main(int argc, char ** argv) {
-
 	X_DEBUG_PRINTF("TEST_NDEBUG");
 
 	auto ICG = xResourceGuard(IC);

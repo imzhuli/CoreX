@@ -6,6 +6,13 @@ import os
 import shutil
 import sys
 
+import platform
+
+using_single_build=False
+if platform.system() == 'Linux':
+    using_single_build=True
+print(f"using_single_build={using_single_build}")
+
 if __name__ != "__main__":
     print("not valid entry, name=%s" % (__name__))
     exit
@@ -46,11 +53,15 @@ for opt, arg in opts:
 if os.getenv("PS_BUILD_CONFIG_TYPE") is None:
     os.environ["PS_BUILD_CONFIG_TYPE"]="Debug"
 build_type=os.getenv("PS_BUILD_CONFIG_TYPE")
-print(f"bulid_type={build_type}")
+
+config_setup=""
+if using_single_build:
+    config_setup=f"-DCMAKE_BUILD_TYPE={build_type}"
 
 prepare = \
     'cmake -Wno-dev ' \
     '-DBUILD_SHARED_LIBS=OFF ' \
+    f'{config_setup} ' \
     f'-DSERVER_SIDE_LIB_ONLY={server_side_lib_only} ' \
     f'-DCMAKE_INSTALL_PREFIX="{full_install_path}" -B "{build_path}" .'
 os.system(prepare)

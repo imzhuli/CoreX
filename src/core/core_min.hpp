@@ -148,6 +148,8 @@ template <typename T>
 X_STATIC_INLINE constexpr bool IsDefaultValue(const T & Target) { return Target == T{}; }
 
 template <typename...T>
+X_STATIC_INLINE void Ignore(const T&...) {}
+template <typename...T>
 X_STATIC_INLINE void Touch(const T&...) {}
 template <typename T>
 X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget) { ExpiringTarget = T(); }
