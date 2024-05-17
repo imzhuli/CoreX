@@ -55,6 +55,10 @@ protected:
 
 	X_API_MEMBER bool ReadData(xView<ubyte> & BufferView);
 
+#ifdef X_SYSTEM_WINDOWS
+	X_API_MEMBER void AsyncAcquireInput();
+#endif
+
 private:
 	xIoContext * ICP   = nullptr;
 	iListener *  LP    = nullptr;

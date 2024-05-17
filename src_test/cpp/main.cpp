@@ -23,6 +23,8 @@ static auto OB = xObserver();
 
 int main(int argc, char ** argv) {
 
+	X_DEBUG_PRINTF("TEST_NDEBUG");
+
 	auto ICG = xResourceGuard(IC);
 	auto TA  = xNetAddress::Parse("183.2.172.185:80");
 	auto BA  = xNetAddress::Make4();

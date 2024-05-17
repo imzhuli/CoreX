@@ -104,6 +104,7 @@ public:
 
 protected:
 	xSocket NativeSocket = InvalidSocket;
+
 #if defined(X_SYSTEM_DARWIN) || defined(X_SYSTEM_LINUX)
 	xIoBuffer IBP;
 #elif defined(X_SYSTEM_WINDOWS)

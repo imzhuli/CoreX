@@ -51,50 +51,50 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & TargetA
 	}
 	auto SG = xScopeGuard([this] { DestroySocket(std::move(NativeSocket)); });
 
-	LPFN_CONNECTEX ConnectEx = AtomicConnectEx.load();
-	// load ConnectEx for async connect
-	if (!ConnectEx) {
-		do {
-			auto LockGuard = std::lock_guard(ConnectExLoaderMutex);
-			if (ConnectEx = AtomicConnectEx.load()) {
-				break;
-			}
-			GUID  guid      = WSAID_CONNECTEX;
-			DWORD dwBytes   = 0;
-			auto  LoadError = WSAIoctl(NativeSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), &ConnectEx, sizeof(ConnectEx), &dwBytes, NULL, NULL);
-			if (LoadError) {
-				auto ErrorCode = WSAGetLastError();
-				Touch(ErrorCode);
-				X_DEBUG_PRINTF("ErrorCode: %u\n", ErrorCode);
-				return false;
-			}
-			X_DEBUG_PRINTF("ConnectEx: %p\n", ConnectEx);
-			AtomicConnectEx = ConnectEx;
-		} while (false);
-	}
-
-	sockaddr_storage AddrStorage = {};
-	size_t           AddrLen     = TargetAddress.Dump(&AddrStorage);
-	auto             Success     = ConnectEx(NativeSocket, (SOCKADDR *)(&AddrStorage), (int)AddrLen, NULL, NULL, NULL, &IBP->Writer.Native.Overlapped);
-	if (!Success) {
-		auto ErrorCode = WSAGetLastError();
-		if (ErrorCode != ERROR_IO_PENDING) {
-			X_DEBUG_PRINTF("Failed to build connection ErrorCode: %u (ERROR_IO_PENDING == 997L)\n", ErrorCode);
-			return false;
-		} else {
-			X_DEBUG_PRINTF("PENDING");
-		}
-	} else {
-		X_DEBUG_PRINTF("Success");
-	}
-
 	// add to event loop
 	if (!IoContextPtr->Add(*this)) {
 		X_DEBUG_PRINTF("Failed to add connection to IoContext");
 		return false;
 	}
 	auto EG = xScopeGuard([this] { this->ICP->Remove(*this); });
-	Retain(IBP);
+
+	do {  // async connect
+		LPFN_CONNECTEX ConnectEx = AtomicConnectEx.load();
+		// load ConnectEx for async connect
+		if (!ConnectEx) {
+			do {
+				auto LockGuard = std::lock_guard(ConnectExLoaderMutex);
+				if (ConnectEx = AtomicConnectEx.load()) {
+					break;
+				}
+				GUID  guid      = WSAID_CONNECTEX;
+				DWORD dwBytes   = 0;
+				auto  LoadError = WSAIoctl(NativeSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), &ConnectEx, sizeof(ConnectEx), &dwBytes, NULL, NULL);
+				if (LoadError) {
+					auto ErrorCode = WSAGetLastError();
+					Touch(ErrorCode);
+					X_DEBUG_PRINTF("ErrorCode: %u\n", ErrorCode);
+					return false;
+				}
+				X_DEBUG_PRINTF("ConnectEx: %p\n", ConnectEx);
+				AtomicConnectEx = ConnectEx;
+			} while (false);
+		}
+		sockaddr_storage AddrStorage = {};
+		size_t           AddrLen     = TargetAddress.Dump(&AddrStorage);
+		auto             Success     = ConnectEx(NativeSocket, (SOCKADDR *)(&AddrStorage), (int)AddrLen, NULL, NULL, NULL, &IBP->Writer.Native.Overlapped);
+		if (!Success) {
+			auto ErrorCode = WSAGetLastError();
+			if (ErrorCode != ERROR_IO_PENDING) {
+				X_DEBUG_PRINTF("Failed to build connection ErrorCode: %u (ERROR_IO_PENDING == 997L)\n", ErrorCode);
+				return false;
+			} else {
+				X_DEBUG_PRINTF("PENDING");
+			}
+		}
+		Retain(IBP);
+	} while (false);
+	AsyncAcquireInput();
 
 	State = eState::CONNECTING;
 	Dismiss(BaseG, SG, EG);
@@ -115,6 +115,35 @@ xNetAddress xTcpConnection::GetRemoteAddress() const {
 
 xNetAddress xTcpConnection::GetLocalAddress() const {
 	Todo("");
+}
+
+void xTcpConnection::AsyncAcquireInput() {
+	auto StartOffset = IBP->ReadDataSize;
+	auto RemainSpace = sizeof(IBP->ReadBuffer) - StartOffset;
+	auto TryRecvSize = std::min(100, RemainSize);  // for debug
+
+	Todo("");
+
+	IBP->ReadDataSize = 0;
+	memset(&IBP->Reader.Native.Overlapped, 0, sizeof(IBP->Reader.Native.Overlapped));
+	memset(&IBP->Reader.FromAddress, 0, sizeof(IBP->Reader.FromAddress));
+	IBP->Reader.FromAddressLength = sizeof(IBP->Reader.FromAddress);
+	IBP->Reader.BufferUsage.buf   = (CHAR *)IBP->ReadBuffer;
+	IBP->Reader.BufferUsage.len   = (ULONG)sizeof(IBP->ReadBuffer);
+	if (WSARecvFrom(  // clang-format off
+			NativeSocket, &IBP->Reader.BufferUsage, 1, nullptr, X2P(DWORD(0)),
+			(sockaddr *)&IBP->Reader.FromAddress, &IBP->Reader.FromAddressLength,
+			&IBP->Reader.Native.Overlapped,
+			nullptr
+		)) {  // clang-format on
+		auto ErrorCode = WSAGetLastError();
+		if (ErrorCode != WSA_IO_PENDING) {
+			X_DEBUG_PRINTF("WSARecvFrom ErrorCode: %u\n", ErrorCode);
+			ICP->DeferError(*this);
+			return;
+		}
+	}
+	Retain(IBP);
 }
 
 bool xTcpConnection::ReadData(xView<ubyte> & BufferView) {
