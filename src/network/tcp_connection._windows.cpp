@@ -17,13 +17,15 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeSocket, iL
 	if (!xSocketIoReactor::Init()) {
 		return false;
 	}
-	this->ICP  = IoContextPtr;
-	this->LP   = ListenerPtr;
-	auto BaseG = xScopeGuard([this] {
-		xSocketIoReactor::Clean();
-		Reset(ICP);
-		Reset(LP);
-	});
+	this->ICP          = IoContextPtr;
+	this->LP           = ListenerPtr;
+	this->NativeSocket = NativeSocket;
+	auto BaseG         = xScopeGuard([this] {
+        DestroySocket(std::move(this->NativeSocket));
+        xSocketIoReactor::Clean();
+        Reset(ICP);
+        Reset(LP);
+    });
 
 	// add to event loop
 	if (!IoContextPtr->Add(*this)) {
@@ -31,6 +33,8 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeSocket, iL
 		return false;
 	}
 	auto EG = xScopeGuard([this] { this->ICP->Remove(*this); });
+
+	State = eState::CONNECTED;
 	AsyncAcquireInput();
 
 	Dismiss(BaseG, EG);
@@ -206,6 +210,7 @@ bool xTcpConnection::OnIoEventInReady() {
 }
 
 bool xTcpConnection::OnIoEventOutReady() {
+	X_DEBUG_PRINTF("");
 	if (State == eState::CONNECTING) {
 		State = eState::CONNECTED;
 		LP->OnConnected(this);

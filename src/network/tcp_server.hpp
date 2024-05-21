@@ -24,8 +24,12 @@ private:  // clang-format off
 	X_API_MEMBER void OnIoEventError() override { X_PFATAL("TcpServerError"); }
 	X_API_MEMBER bool OnIoEventInReady() override;
 
+#ifdef X_SYSTEM_WINDOWS
+	X_API_MEMBER void TryPreAccept();
+#else
 	X_API_MEMBER bool TryListen();
 	X_API_MEMBER bool TryAccept(xSocket & NewConnectionSocket);
+#endif
 
 	// clang-format on
 private:

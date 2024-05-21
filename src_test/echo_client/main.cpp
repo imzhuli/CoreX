@@ -10,7 +10,7 @@ struct xHelloWorldClient : xClient {};
 
 static xIoContext        IoCtx;
 static xHelloWorldClient Client;
-static xNetAddress       ServerAddress = xNetAddress::Parse("0.0.0.0", 10000);
+static xNetAddress       ServerAddress = xNetAddress::Parse("127.0.0.1", 10000);
 
 int main(int argc, char ** argv) {
 	auto IR = xResourceGuard(IoCtx);

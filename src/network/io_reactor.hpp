@@ -64,6 +64,7 @@ struct xIoBuffer {
 
 struct xOverlappedObject;
 struct xOverlappedIoBuffer;
+using xIOBCleaner = void(xOverlappedIoBuffer *);
 
 struct xOverlappedObject : private xNonCopyable {
 	xOverlappedIoBuffer * Outter;
@@ -78,14 +79,15 @@ struct xOverlappedIoBuffer : xIoBuffer {
 		xOverlappedObject Native;
 		sockaddr_storage  FromAddress;
 		int               FromAddressLength;
-		WSABUF            BufferUsage;
+		WSABUF            BufferUsage;  // reused as tcp server PreAcceptPointer
 	} Reader = {};
 	struct {
 		xOverlappedObject Native;
 		WSABUF            BufferUsage;
 		size_t            LastWriteSize;
 		bool              AsyncOpMark;
-	} Writer = {};
+	} Writer              = {};
+	xIOBCleaner * Cleaner = nullptr;
 };
 X_API void                  Retain(xOverlappedIoBuffer * IBP);
 X_API xOverlappedIoBuffer * Release(xOverlappedIoBuffer * IBP);  // null: object deleted

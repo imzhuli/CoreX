@@ -15,6 +15,9 @@ X_API void Retain(xOverlappedIoBuffer * IBP) {
 }
 X_API xOverlappedIoBuffer * Release(xOverlappedIoBuffer * IBP) {
 	if (!--IBP->ReferenceCount) {
+		if (IBP->Cleaner) {
+			(*IBP->Cleaner)(IBP);
+		}
 		delete IBP;
 		return nullptr;
 	}
