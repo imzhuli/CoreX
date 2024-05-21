@@ -15,8 +15,12 @@ static auto TC = xTcpConnection();
 
 struct xObserver : xTcpConnection::iListener {  // clang-format off
 	size_t OnData(xTcpConnection * CP, void * DataPtr, size_t DataSize) {
-		// printf("OnData: from %s\n%s\n", CP->GetRemoteAddress().ToString().c_str(), HexShow(DataPtr, DataSize).c_str());
+		printf("OnData: from %s\n%s\n", CP->GetRemoteAddress().ToString().c_str(), HexShow(DataPtr, DataSize).c_str());
 		return DataSize;
+	}
+	void OnPeerClose(xTcpConnection * CP) {
+		printf("PeerClose\n");
+		return;
 	}
 };  // clang-format on
 static auto OB = xObserver();
@@ -35,7 +39,7 @@ int main(int argc, char ** argv) {
 	// std::this_thread::sleep_for(xSeconds(10));
 	auto T = xTimer();
 	while (true) {
-		if (T.TestAndTag(xSeconds(5))) {
+		if (T.TestAndTag(xSeconds(60))) {
 			break;
 		}
 		IC.LoopOnce();

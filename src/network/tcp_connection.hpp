@@ -15,7 +15,6 @@ public:
 		UNSPEC,
 		CONNECTING,
 		CONNECTED,
-		CLOSING,
 	};
 
 	struct iListener {  // clang-format off
@@ -53,10 +52,11 @@ protected:
 	X_API_MEMBER bool OnIoEventInReady() override;
 	X_API_MEMBER bool OnIoEventOutReady() override;
 
-	X_API_MEMBER bool ReadData(xView<ubyte> & BufferView);
-
 #ifdef X_SYSTEM_WINDOWS
 	X_API_MEMBER void AsyncAcquireInput();
+	X_API_MEMBER void AsyncAcquirePost();
+#else
+	X_API_MEMBER bool ReadData(xView<ubyte> & BufferView);
 #endif
 
 private:

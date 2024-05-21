@@ -25,9 +25,15 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeSocket, iL
 		Reset(LP);
 	});
 
-	Todo("");
+	// add to event loop
+	if (!IoContextPtr->Add(*this)) {
+		X_DEBUG_PRINTF("Failed to add connection to IoContext");
+		return false;
+	}
+	auto EG = xScopeGuard([this] { this->ICP->Remove(*this); });
+	AsyncAcquireInput();
 
-	Dismiss(BaseG);
+	Dismiss(BaseG, EG);
 	return true;
 }
 
@@ -94,7 +100,6 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & TargetA
 		}
 		Retain(IBP);
 	} while (false);
-	AsyncAcquireInput();
 
 	State = eState::CONNECTING;
 	Dismiss(BaseG, SG, EG);
@@ -109,36 +114,22 @@ void xTcpConnection::Clean() {
 	Reset(LP);
 }
 
-xNetAddress xTcpConnection::GetRemoteAddress() const {
-	Todo("");
-}
-
-xNetAddress xTcpConnection::GetLocalAddress() const {
-	Todo("");
-}
-
 void xTcpConnection::AsyncAcquireInput() {
 	auto StartOffset = IBP->ReadDataSize;
 	auto RemainSpace = sizeof(IBP->ReadBuffer) - StartOffset;
-	auto TryRecvSize = std::min(100, RemainSize);  // for debug
+	auto TryRecvSize = RemainSpace;
+	assert(TryRecvSize);
 
-	Todo("");
-
-	IBP->ReadDataSize = 0;
-	memset(&IBP->Reader.Native.Overlapped, 0, sizeof(IBP->Reader.Native.Overlapped));
-	memset(&IBP->Reader.FromAddress, 0, sizeof(IBP->Reader.FromAddress));
-	IBP->Reader.FromAddressLength = sizeof(IBP->Reader.FromAddress);
-	IBP->Reader.BufferUsage.buf   = (CHAR *)IBP->ReadBuffer;
-	IBP->Reader.BufferUsage.len   = (ULONG)sizeof(IBP->ReadBuffer);
-	if (WSARecvFrom(  // clang-format off
-			NativeSocket, &IBP->Reader.BufferUsage, 1, nullptr, X2P(DWORD(0)),
-			(sockaddr *)&IBP->Reader.FromAddress, &IBP->Reader.FromAddressLength,
-			&IBP->Reader.Native.Overlapped,
-			nullptr
-		)) {  // clang-format on
+	auto & BU         = IBP->Reader.BufferUsage;
+	BU.buf            = (CHAR *)IBP->ReadBuffer + IBP->ReadDataSize;
+	BU.len            = (ULONG)TryRecvSize;
+	auto & Overlapped = IBP->Reader.Native.Overlapped;
+	memset(&Overlapped, 0, sizeof(Overlapped));
+	auto Error = WSARecv(NativeSocket, &BU, 1, nullptr, X2P(DWORD(0)), &Overlapped, nullptr);
+	if (Error) {  // clang-format on
 		auto ErrorCode = WSAGetLastError();
 		if (ErrorCode != WSA_IO_PENDING) {
-			X_DEBUG_PRINTF("WSARecvFrom ErrorCode: %u\n", ErrorCode);
+			X_DEBUG_PRINTF("WSARecv ErrorCode: %u\n", ErrorCode);
 			ICP->DeferError(*this);
 			return;
 		}
@@ -146,11 +137,52 @@ void xTcpConnection::AsyncAcquireInput() {
 	Retain(IBP);
 }
 
-bool xTcpConnection::ReadData(xView<ubyte> & BufferView) {
-	return false;
+void xTcpConnection::AsyncAcquirePost() {
+	if (State != eState::CONNECTED || IBP->Writer.AsyncOpMark) {
+		return;
+	}
+	auto WriteBufferPtr = IBP->WriteBufferChain.Pop();
+	if (!WriteBufferPtr) {
+		return;
+	}
+
+	auto & BU = IBP->Writer.BufferUsage;
+	BU.buf    = (CHAR *)WriteBufferPtr->Buffer;
+	BU.len    = (ULONG)WriteBufferPtr->DataSize;
+	memset(&IBP->Writer.Native.Overlapped, 0, sizeof(IBP->Writer.Native.Overlapped));
+	auto Error = WSASend(NativeSocket, &BU, 1, nullptr, 0, &IBP->Writer.Native.Overlapped, nullptr);
+	if (Error) {
+		auto ErrorCode = WSAGetLastError();
+		if (ErrorCode != WSA_IO_PENDING) {
+			X_DEBUG_PRINTF("ErrorCode: %u\n", ErrorCode);
+			ICP->DeferError(*this);
+			return;
+		}
+	}
+	IBP->Writer.AsyncOpMark = true;
+	Retain(IBP);
+	return;
 }
 
 void xTcpConnection::PostData(const void * _, size_t DataSize) {
+	auto DataPtr = static_cast<const ubyte *>(_);
+	if (auto LPBP = IBP->WriteBufferChain.GetLast()) {
+		auto PS   = LPBP->Push(DataPtr, DataSize);
+		DataPtr  += PS;
+		DataSize -= PS;
+	}
+	while (DataSize) {
+		auto BP = new (std::nothrow) xPacketBuffer();
+		if (!BP) {
+			ICP->DeferError(*this);
+			return;
+		}
+		auto PS   = BP->Push(DataPtr, DataSize);
+		DataPtr  += PS;
+		DataSize -= PS;
+		IBP->WriteBufferChain.Push(BP);
+	}
+	AsyncAcquirePost();
 }
 
 void xTcpConnection::OnIoEventError() {
@@ -158,50 +190,40 @@ void xTcpConnection::OnIoEventError() {
 }
 
 bool xTcpConnection::OnIoEventInReady() {
-	Todo("");
-	return false;
-	// auto NewInput = xView<ubyte>();
-	// while (true) {
-	// 	if (!ReadData(NewInput)) {
-	// 		return false;
-	// 	}
-	// 	if (!NewInput) {
-	// 		break;
-	// 	}
-	// 	auto ProcessedDataSize = LP->OnData(this, NewInput.Data(), NewInput.Size());
-	// 	if (ProcessedDataSize == InvalidDataSize) {
-	// 		return false;
-	// 	}
-	// 	if ((ReadDataSize -= ProcessedDataSize)) {
-	// 		memmove(ReadBuffer, ReadBuffer + ProcessedDataSize, ReadDataSize);
-	// 	}
-	// }
-	// return true;
+	X_DEBUG_PRINTF("ReadDataSize: %zi", IBP->ReadDataSize);
+	if (!IBP->ReadDataSize) {
+		return false;
+	}
+	auto ProcessedDataSize = LP->OnData(this, IBP->ReadBuffer, IBP->ReadDataSize);
+	if (ProcessedDataSize == InvalidDataSize) {
+		return false;
+	}
+	if ((IBP->ReadDataSize -= ProcessedDataSize)) {
+		memmove(IBP->ReadBuffer, IBP->ReadBuffer + ProcessedDataSize, IBP->ReadDataSize);
+	}
+	AsyncAcquireInput();
+	return true;
 }
 
 bool xTcpConnection::OnIoEventOutReady() {
-	X_DEBUG_PRINTF("");
-	return false;
-	// if (State == eState::CONNECTING) {
-	// 	State = eState::CONNECTED;
-	// 	LP->OnConnected(this);
-	// 	return true;
-	// }
-	// while (auto BP = WriteBufferChain.Peek()) {
-	// 	auto WS = send(NativeSocket, BP->Buffer, BP->DataSize, XelNoWriteSignal);
-	// 	if (-1 == WS) {
-	// 		return (EAGAIN == errno);
-	// 	}
-	// 	if (!(BP->DataSize -= WS)) {
-	// 		WriteBufferChain.RemoveFront();
-	// 		delete BP;
-	// 		continue;
-	// 	}
-	// 	memmove(BP->Buffer, BP->Buffer + WS, BP->DataSize);
-	// 	return true;
-	// }
-	// ICP->Update(*this);
-	// return true;
+	if (State == eState::CONNECTING) {
+		State = eState::CONNECTED;
+		LP->OnConnected(this);
+		AsyncAcquireInput();
+	}
+	if (auto PostBuffer = (ubyte *)Steal(IBP->Writer.BufferUsage.buf)) {
+		auto WBP = X_Entry(PostBuffer, xPacketBuffer, Buffer);
+		delete WBP;
+
+		if (Steal(IBP->Writer.LastWriteSize) != Steal(IBP->Writer.BufferUsage.len)) {
+			return false;
+		}
+
+		assert(IBP->Writer.AsyncOpMark);
+		Reset(IBP->Writer.AsyncOpMark);
+	}
+	AsyncAcquirePost();
+	return true;
 }
 
 X_END

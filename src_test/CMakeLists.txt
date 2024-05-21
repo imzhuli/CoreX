@@ -54,9 +54,6 @@ build_app(echo_client)
 build_app(echo_server)
 build_app(rsa)
 
-build_app(test_string)
-test_sub(test_string)
-
 if (NOT ${SERVER_SIDE_LIB_ONLY})
 build_app(env_check)
 target_link_options(_env_check PRIVATE "" ${RELEASE_LINK_OPTIONS_NO_CONSOLE})

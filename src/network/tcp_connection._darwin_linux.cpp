@@ -82,24 +82,6 @@ void xTcpConnection::Clean() {
 	Reset(LP);
 }
 
-xNetAddress xTcpConnection::GetRemoteAddress() const {
-	sockaddr_storage SockAddr;
-	socklen_t        SockAddrLen = sizeof(SockAddr);
-	if (getpeername(NativeSocket, (sockaddr *)&SockAddr, &SockAddrLen)) {
-		return {};
-	}
-	return xNetAddress::Parse(&SockAddr);
-}
-
-xNetAddress xTcpConnection::GetLocalAddress() const {
-	sockaddr_storage SockAddr;
-	socklen_t        SockAddrLen = sizeof(SockAddr);
-	if (getsockname(NativeSocket, (sockaddr *)&SockAddr, &SockAddrLen)) {
-		return {};
-	}
-	return xNetAddress::Parse(&SockAddr);
-}
-
 bool xTcpConnection::ReadData(xView<ubyte> & BufferView) {
 	Reset(BufferView);
 	auto & ReadBuffer   = IBP->ReadBuffer;

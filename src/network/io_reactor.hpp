@@ -79,12 +79,13 @@ struct xOverlappedIoBuffer : xIoBuffer {
 		sockaddr_storage  FromAddress;
 		int               FromAddressLength;
 		WSABUF            BufferUsage;
-	} Reader;
+	} Reader = {};
 	struct {
 		xOverlappedObject Native;
 		WSABUF            BufferUsage;
 		size_t            LastWriteSize;
-	} Writer;
+		bool              AsyncOpMark;
+	} Writer = {};
 };
 X_API void                  Retain(xOverlappedIoBuffer * IBP);
 X_API xOverlappedIoBuffer * Release(xOverlappedIoBuffer * IBP);  // null: object deleted
@@ -112,6 +113,10 @@ protected:
 	xOverlappedIoBuffer * IBP = nullptr;
 
 	void SetReadTransfered(size_t Size) override {
+		if (!Size) {
+			IBP->ReadDataSize = 0;
+			return;
+		}
 		IBP->ReadDataSize += Size;
 	}
 	void SetWriteTransfered(size_t Size) override {
