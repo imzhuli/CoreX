@@ -17,6 +17,9 @@ public:
 	X_INLINE bool IsConnected() const {
 		return Connected;
 	}
+	X_INLINE uint64_t GetTickTimeMS() const {
+		return NowMS;
+	}
 	X_API_MEMBER void DisableKeepAliveOnTick();
 	X_API_MEMBER void SetDefaultKeepAliveTimeout();
 	X_API_MEMBER void SetKeepAliveTimeout(uint64_t TimeoutMS);

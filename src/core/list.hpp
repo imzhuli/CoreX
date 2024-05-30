@@ -22,12 +22,16 @@ protected:
 	X_INLINE xListNode(const xListNode & Other) noexcept {
 		ResetUnsafe();
 	}
+	X_INLINE xListNode(xListNode && Other) noexcept {
+		TakePlaceOfUnsafe(Other);
+	}
 	X_INLINE ~xListNode() noexcept {
 		DetachUnsafe();
 	}
 	X_INLINE xListNode & operator=(const xListNode & Other) noexcept {
 		return *this;
 	}
+	X_INLINE xListNode & operator=(xListNode && Other) = delete;
 
 public:
 	X_STATIC_INLINE bool IsLinked(const xListNode & Node) {
@@ -48,8 +52,9 @@ private:
 	}
 
 	X_INLINE void TakePlaceOf(xListNode & other) {
+		assert(pPrev == this && pNext == this);
+		assert(IsLinked(other));
 		TakePlaceOfUnsafe(other);
-		other.ResetUnsafe();
 	}
 
 	X_INLINE void AppendTo(xListNode & prev_node) {
@@ -70,6 +75,7 @@ private:
 		pNext        = other.pNext;
 		pNext->pPrev = this;
 		pPrev->pNext = this;
+		other.ResetUnsafe();
 	}
 };
 
