@@ -63,6 +63,17 @@ if not blibcurl.build():
 if not bws.build():
     exit
 
+def check_installed_lib_and_rename(old_file_name, new_file_name):
+    lib_path ="./_3rd_installed/lib/"
+    old_file_name = lib_path + old_file_name
+    new_file_name = lib_path + new_file_name
+    if os.path.exists(old_file_name):
+        os.rename(old_file_name, new_file_name)
+
+# post build:
+check_installed_lib_and_rename("libcurl-d.a", "libcurl.a")
+check_installed_lib_and_rename("libfreetyped.a", "libfreetype.a")
+
 # remove temp dir
 # cwd = os.getcwd()
 # dependency_unzip_dir = f"{cwd}/_3rd_build"
