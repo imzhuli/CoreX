@@ -6,6 +6,8 @@
 #include "../vk/vk_init.hpp"
 #include "../xengine/engine.hpp"
 
+#include <cmath>
+
 X_BEGIN
 
 static auto RendererListLock   = xSpinlock();
@@ -305,10 +307,10 @@ bool xRenderer::CreateFrameBuffers() {
 
 	// grab how many images we have in the swapchain
 	assert(FrameBuffers.empty());
-	const uint32_t swapchain_imagecount = SwapchainImages.size();
+	const auto  swapchain_imagecount = (uint32_t)SwapchainImages.size();
 
 	// create framebuffers for each of the swapchain image views
-	for (int i = 0; i < swapchain_imagecount; i++) {
+	for (uint32_t i = 0; i < swapchain_imagecount; i++) {
 		fb_info.pAttachments = &SwapchainImageViews[i];
 		VkFramebuffer FrameBuffer;
 		if (VK_SUCCESS != vkCreateFramebuffer(Device, &fb_info, nullptr, &FrameBuffer)) {
