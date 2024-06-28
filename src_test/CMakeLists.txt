@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.14)
 project (test_corex)
 set(core_libname xel)
 
-set(THIRD_LIBRARIES mbedtls mbedcrypto)
 if (NOT ${SERVER_SIDE_LIB_ONLY})
 	set(THIRD_LIBRARIES glfw3 ${THIRD_LIBRARIES} )
 endif()
@@ -23,20 +22,6 @@ set(shared_lib_dependency_private
 	${THIRD_LIBRARIES}
 )
 
-# enable specific macors by system type:
-if (CMAKE_SYSTEM_NAME MATCHES "Windows")
-	set(PLATFORM_LIBRARIES ws2_32 Mswsock)
-elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
-	set(PLATFORM_LIBRARIES dl)
-	if (NOT ${SERVER_SIDE_LIB_ONLY})
-		set(PLATFORM_LIBRARIES ${PLATFORM_LIBRARIES} X11)
-	endif()
-elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-	find_library(COCOA_LIBRARY Cocoa REQUIRED)
-	find_library(IOKIT_LIBRARY IOKit REQUIRED)
-	set(PLATFORM_LIBRARIES dl ${IOKIT_LIBRARY} ${COCOA_LIBRARY})
-endif()
-
 if (NOT ${BUILD_SHARED_LIBS}) #static lib:
 	set(X_OPTION X_OPTION_STATIC)
 endif()
@@ -47,7 +32,6 @@ function(build_app sub_dir_name)
 	target_compile_definitions(_${sub_dir_name} PRIVATE ${X_OPTION})
 	target_link_libraries(_${sub_dir_name} PRIVATE ${core_libname})
 	target_link_libraries(_${sub_dir_name} PRIVATE ${shared_lib_dependency_private})
-	target_link_libraries(_${sub_dir_name} PRIVATE ${PLATFORM_LIBRARIES})
 endfunction()
 
 function(test_sub sub_dir_name)

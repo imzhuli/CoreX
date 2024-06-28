@@ -4,7 +4,11 @@ set(libname xel)
 
 if (NOT ${SERVER_SIDE_LIB_ONLY})
 	find_package(Vulkan REQUIRED)
-	set(THIRD_LIBRARIES ${THIRD_LIBRARIES} glfw3)
+	if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+		set(THIRD_LIBRARIES ${THIRD_LIBRARIES} glfw3 X11)
+	else()
+		set(THIRD_LIBRARIES ${THIRD_LIBRARIES} glfw3)
+	endif()
 	set(THIRD_LIBRARIES ${THIRD_LIBRARIES} ${Vulkan_LIBRARIES})
 endif()
 
