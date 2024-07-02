@@ -15,18 +15,20 @@ private:
 	template <typename tNode>
 	friend class xList;
 
-protected:
+public:
 	X_INLINE xListNode() noexcept {
 		ResetUnsafe();
 	}
+	X_INLINE ~xListNode() noexcept {
+		DetachUnsafe();
+	}
+
+protected:
 	X_INLINE xListNode(const xListNode & Other) noexcept {
 		ResetUnsafe();
 	}
 	X_INLINE xListNode(xListNode && Other) noexcept {
 		TakePlaceOfUnsafe(Other);
-	}
-	X_INLINE ~xListNode() noexcept {
-		DetachUnsafe();
 	}
 	X_INLINE xListNode & operator=(const xListNode & Other) noexcept {
 		return *this;

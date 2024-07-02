@@ -2,11 +2,6 @@ cmake_minimum_required(VERSION 3.14)
 project (test_corex)
 set(core_libname xel)
 
-set(THIRD_LIBRARIES mbedtls mbedcrypto)
-if (NOT ${SERVER_SIDE_LIB_ONLY})
-	set(THIRD_LIBRARIES glfw3 ${THIRD_LIBRARIES} )
-endif()
-
 include_directories(
 	../src
 )
