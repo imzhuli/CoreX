@@ -40,6 +40,7 @@ void xTimerWheel::Clean() {
 
 void xTimerWheel::Forward() {
 	uint64_t NowMS = GetTimestampMS();
+	DispatchEvent(Lists[CurrentListIndex], NextTimestampMS);
 	for (; NextTimestampMS <= NowMS; NextTimestampMS += TimeGapMS) {
 		if (++CurrentListIndex >= TotalListNode) {
 			CurrentListIndex = 0;
@@ -57,6 +58,7 @@ void xTimerWheel::ScheduleByOffset(xTimerWheelNode * NP, size_t Offset, TimerNod
 		assert(Position < TotalListNode);
 	}
 	Lists[Position].AddTail(NP->Node);
+	NP->Callback = Callback;
 }
 
 void xTimerWheel::ScheduleByTimeoutMS(xTimerWheelNode * NP, uint64_t TimeoutMS, TimerNodeCallback Callback) {
@@ -66,7 +68,6 @@ void xTimerWheel::ScheduleByTimeoutMS(xTimerWheelNode * NP, uint64_t TimeoutMS, 
 void xTimerWheel::DispatchEvent(xList<xListNode> & List, uint64_t TimestampMS) {
 	while (auto NP = List.PopHead()) {
 		auto Real = X_Entry(NP, xTimerWheelNode, Node);
-		Real->Callback(Real, TimestampMS);
 		X_DEBUG_STEAL(Real->Callback)(Real, TimestampMS);
 	}
 }
