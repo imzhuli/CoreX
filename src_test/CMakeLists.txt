@@ -42,6 +42,7 @@ build_app(cpp)
 build_app(echo_client)
 build_app(echo_server)
 build_app(rsa)
+build_app(timer_wheel)
 
 build_app(mp)
 

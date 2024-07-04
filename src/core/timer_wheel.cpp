@@ -8,7 +8,9 @@ bool xTimerWheel::Init(size_t Total, uint64_t GapMS) {
 	assert(!Lists);
 	assert(!CurrentListIndex);
 	assert(!TotalListNode);
+	assert(Total != size_t(-1));
 
+	++Total;
 	if (!(Lists = new (std::nothrow) xList<xListNode>[Total])) {
 		return false;
 	}
@@ -64,6 +66,7 @@ void xTimerWheel::ScheduleByTimeoutMS(xTimerWheelNode * NP, uint64_t TimeoutMS, 
 void xTimerWheel::DispatchEvent(xList<xListNode> & List, uint64_t TimestampMS) {
 	while (auto NP = List.PopHead()) {
 		auto Real = X_Entry(NP, xTimerWheelNode, Node);
+		Real->Callback(Real, TimestampMS);
 		X_DEBUG_STEAL(Real->Callback)(Real, TimestampMS);
 	}
 }
