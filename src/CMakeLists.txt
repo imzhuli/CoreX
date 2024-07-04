@@ -17,10 +17,10 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		"freetype$<$<CONFIG:Debug>:d>"
 		"libcurl$<$<CONFIG:Debug>:-d>"
 		websockets_static
-		everest mbedcrypto mbedtls mbedx509 p256m bcrypt
+		everest mbedtls mbedcrypto mbedx509 p256m bcrypt
 		"zlibstatic$<$<CONFIG:Debug>:d>")
 else()
-	set(THIRD_LIBRARIES ${THIRD_LIBRARIES} freetype curl websockets everest mbedcrypto mbedtls mbedx509 p256m z)
+	set(THIRD_LIBRARIES ${THIRD_LIBRARIES} freetype curl websockets everest mbedtls mbedcrypto mbedx509 p256m z)
 endif()
 
 include_directories(
@@ -36,7 +36,7 @@ link_directories(
 set(shared_lib_dependency_private
 	${THIRD_LIBRARIES}
 )
-if (${BUILD_SHARED_LIBS})
+if (NOT ${BUILD_SHARED_LIBS})
 	set(exposed_lib_dependency ${shared_lib_dependency_private})
 	set(shared_lib_dependency_private)
 endif()

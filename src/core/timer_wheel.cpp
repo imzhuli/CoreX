@@ -40,7 +40,7 @@ void xTimerWheel::Clean() {
 
 void xTimerWheel::Forward() {
 	uint64_t NowMS = GetTimestampMS();
-	DispatchEvent(Lists[CurrentListIndex], NextTimestampMS);
+	DispatchEvent(Lists[CurrentListIndex], 0 /* scheduled by offset 0, immediate event */);
 	for (; NextTimestampMS <= NowMS; NextTimestampMS += TimeGapMS) {
 		if (++CurrentListIndex >= TotalListNode) {
 			CurrentListIndex = 0;
@@ -49,20 +49,20 @@ void xTimerWheel::Forward() {
 	}
 }
 
-void xTimerWheel::ScheduleByOffset(xTimerWheelNode * NP, size_t Offset, TimerNodeCallback Callback) {
-	assert(!xListNode::IsLinked(NP->Node) && !NP->Callback);
+void xTimerWheel::ScheduleByOffset(xTimerWheelNode & NR, TimerNodeCallback Callback, size_t Offset) {
+	assert(!xListNode::IsLinked(NR.Node) && !NR.Callback);
 	assert(Offset < TotalListNode);
 	auto Position = CurrentListIndex + Offset;
 	if (Position >= TotalListNode) {
 		Position -= TotalListNode;
 		assert(Position < TotalListNode);
 	}
-	Lists[Position].AddTail(NP->Node);
-	NP->Callback = Callback;
+	Lists[Position].AddTail(NR.Node);
+	NR.Callback = Callback;
 }
 
-void xTimerWheel::ScheduleByTimeoutMS(xTimerWheelNode * NP, uint64_t TimeoutMS, TimerNodeCallback Callback) {
-	ScheduleByOffset(NP, (TimeoutMS + TimeGapMS - 1) / TimeGapMS, Callback);
+void xTimerWheel::ScheduleByTimeoutMS(xTimerWheelNode & NR, TimerNodeCallback Callback, uint64_t TimeoutMS) {
+	ScheduleByOffset(NR, Callback, (TimeoutMS + TimeGapMS - 1) / TimeGapMS);
 }
 
 void xTimerWheel::DispatchEvent(xList<xListNode> & List, uint64_t TimestampMS) {

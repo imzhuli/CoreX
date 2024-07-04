@@ -15,15 +15,21 @@ void Test(xTimerWheelNode * NP, uint64_t TimestampMS) {
 }
 
 xAA AA;
+xAA AA1;
+xAA A1;
+xAA A5;
 
 int main(int argc, char ** argv) {
 
 	cout << "Hello world" << endl;
 
 	xTimerWheel TW;
-	TW.Init(1);
+	TW.Init(10);
 
-	TW.ScheduleByOffset(&AA, 0, Test);
+	TW.ScheduleByOffset(AA, Test, 0);
+	TW.ScheduleByOffset(AA1, Test);
+	TW.ScheduleByTimeoutMS(A1, Test, 1);
+	TW.ScheduleByTimeoutMS(A5, Test, 5);
 	for (size_t i = 0; i < 10; ++i) {
 		cout << "Loop: " << i << endl;
 		TW.Forward();

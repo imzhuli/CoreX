@@ -23,8 +23,13 @@ public:
 	X_API_MEMBER bool Init(size_t Total, uint64_t GapMS = 0);
 	X_API_MEMBER void Clean();
 	X_API_MEMBER void Forward();
-	X_API_MEMBER void ScheduleByOffset(xTimerWheelNode * NP, size_t Offset, TimerNodeCallback Callback);
-	X_API_MEMBER void ScheduleByTimeoutMS(xTimerWheelNode * NP, uint64_t TimeoutMS, TimerNodeCallback Callback);
+	X_API_MEMBER void ScheduleByOffset(xTimerWheelNode & NP, TimerNodeCallback Callback, size_t Offset = 1);
+	X_API_MEMBER void ScheduleByTimeoutMS(xTimerWheelNode & NP, TimerNodeCallback Callback, uint64_t TimeoutMS);
+
+	X_INLINE void Remove(xTimerWheelNode & NR) {
+		xList<xListNode>::Remove(NR.Node);
+		X_DEBUG_RESET(NR.Callback);
+	};
 
 private:
 	X_API_MEMBER void DispatchEvent(xList<xListNode> & List, uint64_t TimestampMS);
