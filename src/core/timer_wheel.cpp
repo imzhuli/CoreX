@@ -52,8 +52,8 @@ void xTimerWheel::Forward() {
 	}
 }
 
-void xTimerWheel::ScheduleByOffset(xTimerWheelNode & NR, TimerNodeCallback Callback, size_t Offset) {
-	assert(!xListNode::IsLinked(NR.Node) && !NR.Callback);
+void xTimerWheel::ScheduleByOffset(xTimerWheelNode & NR, xTimerWheelNodeCallback Callback, size_t Offset) {
+	assert(!xListNode::IsLinked(NR.Node) && !NR.Callback.Function);
 	assert(Offset < TotalListNode);
 	auto Position = CurrentListIndex + Offset;
 	if (Position >= TotalListNode) {
@@ -64,14 +64,14 @@ void xTimerWheel::ScheduleByOffset(xTimerWheelNode & NR, TimerNodeCallback Callb
 	NR.Callback = Callback;
 }
 
-void xTimerWheel::ScheduleByTimeoutMS(xTimerWheelNode & NR, TimerNodeCallback Callback, uint64_t TimeoutMS) {
+void xTimerWheel::ScheduleByTimeoutMS(xTimerWheelNode & NR, xTimerWheelNodeCallback Callback, uint64_t TimeoutMS) {
 	ScheduleByOffset(NR, Callback, (TimeoutMS + TimeGapMS - 1) / TimeGapMS);
 }
 
 void xTimerWheel::DispatchEvent(xList<xListNode> & List, uint64_t TimestampMS) {
 	while (auto NP = List.PopHead()) {
 		auto Real = X_Entry(NP, xTimerWheelNode, Node);
-		X_DEBUG_STEAL(Real->Callback)(Real, TimestampMS);
+		X_DEBUG_STEAL(Real->Callback.Function)(X_DEBUG_STEAL(Real->Callback.Context), Real, TimestampMS);
 	}
 }
 

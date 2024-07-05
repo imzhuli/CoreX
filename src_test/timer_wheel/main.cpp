@@ -9,9 +9,9 @@ struct xAA : xTimerWheelNode {
 	uint64_t T = 0;
 };
 
-void Test(xTimerWheelNode * NP, uint64_t TimestampMS) {
+void Test(xVariable Context, xTimerWheelNode * NP, uint64_t TimestampMS) {
 	auto P = (xAA *)NP;
-	cout << "T:" << P->T << " : " << TimestampMS << endl;
+	cout << "C: " << Context.I << " T:" << P->T << " : " << TimestampMS << endl;
 }
 
 xAA AA;
@@ -26,10 +26,10 @@ int main(int argc, char ** argv) {
 	xTimerWheel TW;
 	TW.Init(5);
 
-	TW.ScheduleByOffset(AA, Test, 0);
-	TW.ScheduleByOffset(AA1, Test);
-	TW.ScheduleByTimeoutMS(A1, Test, 1);
-	TW.ScheduleByTimeoutMS(A5, Test, 5);
+	TW.ScheduleByOffset(AA, { Test, { .I = 0 } }, 0);
+	TW.ScheduleByOffset(AA1, { Test, { .I = 1 } });
+	TW.ScheduleByTimeoutMS(A1, { Test, { .I = 1 } }, 1);
+	TW.ScheduleByTimeoutMS(A5, { Test, { .I = 5 } }, 5);
 	for (size_t i = 0; i < 10; ++i) {
 		cout << "Loop: " << i << endl;
 		TW.Forward();
