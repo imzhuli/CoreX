@@ -62,6 +62,7 @@ set(shared_lib_dependency_public
 
 aux_source_directory(./algorithm/ X_SRC)
 aux_source_directory(./core/          X_SRC)
+aux_source_directory(./config/        X_SRC)
 aux_source_directory(./crypto/        X_SRC)
 aux_source_directory(./locale/        X_SRC)
 aux_source_directory(./network/       X_SRC)
