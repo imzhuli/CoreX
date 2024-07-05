@@ -8,16 +8,18 @@ bool xTimerWheel::Init(size_t Total, uint64_t GapMS) {
 	assert(!Lists);
 	assert(!CurrentListIndex);
 	assert(!TotalListNode);
-	assert(Total != size_t(-1));
+	assert(!MaxTimeout);
 
-	++Total;
-	if (!(Lists = new (std::nothrow) xList<xListNode>[Total])) {
+	auto WheelSize = Total + 1;
+	assert(WheelSize);
+	if (!(Lists = new (std::nothrow) xList<xListNode>[WheelSize])) {
 		return false;
 	}
 	CurrentListIndex = 0;
-	TotalListNode    = Total;
+	TotalListNode    = WheelSize;
 	TimeGapMS        = GapMS ? GapMS : 1;
 	NextTimestampMS  = GetTimestampMS() + TimeGapMS;
+	MaxTimeout       = Total * TimeGapMS;
 	return true;
 }
 
@@ -36,6 +38,7 @@ void xTimerWheel::Clean() {
 	X_DEBUG_RESET(TotalListNode, 0);
 	X_DEBUG_RESET(TimeGapMS, 0);
 	X_DEBUG_RESET(NextTimestampMS, 0);
+	X_DEBUG_RESET(MaxTimeout, 0);
 }
 
 void xTimerWheel::Forward() {

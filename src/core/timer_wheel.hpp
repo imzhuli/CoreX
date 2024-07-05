@@ -26,6 +26,9 @@ public:
 	X_API_MEMBER void ScheduleByOffset(xTimerWheelNode & NR, TimerNodeCallback Callback, size_t Offset = 1);
 	X_API_MEMBER void ScheduleByTimeoutMS(xTimerWheelNode & NR, TimerNodeCallback Callback, uint64_t TimeoutMS);
 
+	X_INLINE uint64_t GetMaxTimeout() const {
+		return MaxTimeout;
+	}
 	X_INLINE void Remove(xTimerWheelNode & NR) {
 		xList<xListNode>::Remove(NR.Node);
 		X_DEBUG_RESET(NR.Callback);
@@ -48,6 +51,7 @@ private:
 	size_t TotalListNode     X_DEBUG_INIT(0);
 	uint64_t TimeGapMS       X_DEBUG_INIT(0);
 	uint64_t NextTimestampMS X_DEBUG_INIT(0);
+	uint64_t MaxTimeout      X_DEBUG_INIT(0);
 };
 
 X_END

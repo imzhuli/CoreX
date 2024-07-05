@@ -24,7 +24,7 @@ int main(int argc, char ** argv) {
 	cout << "Hello world" << endl;
 
 	xTimerWheel TW;
-	TW.Init(10);
+	TW.Init(5);
 
 	TW.ScheduleByOffset(AA, Test, 0);
 	TW.ScheduleByOffset(AA1, Test);

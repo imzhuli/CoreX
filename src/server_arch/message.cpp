@@ -9,7 +9,7 @@ size_t xBinaryMessage::Serialize(void * Dst, size_t Size) {
 	_Writer.Reset(Dst);
 	_RemainSize = SSize;
 	SerializeMembers();
-	return (Steal(_RemainSize) < 0) ? 0 : _Writer.Offset();
+	return X_DEBUG_STEAL(_RemainSize) < 0 ? 0 : _Writer.Offset();
 }
 
 size_t xBinaryMessage::Deserialize(const void * Src, size_t Size) {
@@ -19,7 +19,7 @@ size_t xBinaryMessage::Deserialize(const void * Src, size_t Size) {
 	_Reader.Reset(Src);
 	_RemainSize = SSize;
 	DeserializeMembers();
-	return Steal(_RemainSize) < 0 ? 0 : _Reader.Offset();
+	return X_DEBUG_STEAL(_RemainSize) < 0 ? 0 : _Reader.Offset();
 }
 
 void xBinaryMessage::SerializeMembers() {
