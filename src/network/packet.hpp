@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../core/core_min.h"
+#include "../core/core_min.hpp"
 #include "../core/core_stream.hpp"
 
 #include <algorithm>

@@ -1,5 +1,5 @@
 #pragma once
-#include "./core_min.h"
+#include "./C/core_min.h"
 
 #include <atomic>
 #include <cassert>
