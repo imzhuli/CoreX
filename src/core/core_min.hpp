@@ -81,7 +81,7 @@ X_INLINE std::enable_if_t<std::is_pointer_v<T> && std::is_function_v<std::remove
 	return reinterpret_cast<function_holder_t>(FP);
 }
 
-struct xPass final { X_INLINE void operator()() const {} };
+struct xPass final { public: void operator()() const {} };
 struct xVBase { protected: constexpr xVBase() = default; virtual ~xVBase() = default; };
 struct xAbstract { protected: constexpr xAbstract() = default; virtual ~xAbstract() = default; xAbstract(xAbstract &&) = delete; };
 struct xNonCopyable { protected: constexpr xNonCopyable() = default; ~xNonCopyable() = default; xNonCopyable(xNonCopyable &&) = delete; };
