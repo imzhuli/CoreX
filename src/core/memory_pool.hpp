@@ -90,13 +90,13 @@ public:
 	X_INLINE bool Init(const xMemoryPoolOptions & Options) {
 		assert(Options.Allocator);
 		assert(Options.InitSize == Options.MaxPoolSize || Options.MultiplierBy100th || Options.Addend);
-		assert(Options.InitSize >= 1 && Options.MaxSizeIncrement > 0);
+		assert(Options.InitSize >= 1);
 
 		hAlloc             = Options.Allocator;
 		cInitSize          = std::min(Options.InitSize, Options.MaxPoolSize);
 		cAddend            = Options.Addend;
 		cMultiplierBy100th = Options.MultiplierBy100th;
-		cMaxSizeIncrement  = Options.MaxSizeIncrement;
+		cMaxSizeIncrement  = Options.MaxSizeIncrement ? Options.MaxSizeIncrement : std::min(Options.InitSize, Options.Addend);
 		cMaxPoolSize       = Options.MaxPoolSize;
 
 		return AllocBlock(cInitSize) != nullptr;

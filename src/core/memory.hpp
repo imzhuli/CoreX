@@ -93,38 +93,44 @@ public:
 
 	template <typename T>
 	X_INLINE T * Create() {
-		void * p = this->Alloc(sizeof(T), AllocAlignSize<T>);
-		try {
-			new (p) T;
-		} catch (...) {
-			this->Free(p);
-			throw;
+		if (auto p = this->Alloc(sizeof(T), AllocAlignSize<T>)) {
+			try {
+				new (p) T;
+			} catch (...) {
+				this->Free(p);
+				throw;
+			}
+			return (T *)p;
 		}
-		return (T *)p;
+		return nullptr;
 	}
 
 	template <typename T, typename... Args>
 	X_INLINE T * CreateValue(Args &&... args) {
-		void * p = this->Alloc(sizeof(T), AllocAlignSize<T>);
-		try {
-			new (p) T(std::forward<Args>(args)...);
-		} catch (...) {
-			this->Free(p);
-			throw;
+		if (auto p = this->Alloc(sizeof(T), AllocAlignSize<T>)) {
+			try {
+				new (p) T(std::forward<Args>(args)...);
+			} catch (...) {
+				this->Free(p);
+				throw;
+			}
+			return (T *)p;
 		}
-		return (T *)p;
+		return nullptr;
 	}
 
 	template <typename T, typename... Args>
 	X_INLINE T * CreateValueWithList(Args &&... args) {
-		void * p = this->Alloc(sizeof(T), AllocAlignSize<T>);
-		try {
-			new (p) T{ std::forward<Args>(args)... };
-		} catch (...) {
-			this->Free(p);
-			throw;
+		if (auto p = this->Alloc(sizeof(T), AllocAlignSize<T>)) {
+			try {
+				new (p) T{ std::forward<Args>(args)... };
+			} catch (...) {
+				this->Free(p);
+				throw;
+			}
+			return (T *)p;
 		}
-		return (T *)p;
+		return nullptr;
 	}
 
 	template <typename T>
