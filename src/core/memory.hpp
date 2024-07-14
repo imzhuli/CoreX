@@ -85,7 +85,11 @@ public:
 	/**
 	 * @brief Free Allocated memory, null pointer should be accepted
 	 */
-	X_API_MEMBER virtual void Free(const void * vpObject) noexcept;
+	X_API_MEMBER virtual void Free(void * vpObject) noexcept;
+
+	X_INLINE void Free(const void * vpObject) noexcept {
+		Free(const_cast<void *>(vpObject));
+	}
 
 	template <typename T>
 	X_INLINE T * Create() {
