@@ -89,7 +89,7 @@ public:
 
 	X_INLINE bool Init(const xMemoryPoolOptions & Options) {
 		assert(Options.Allocator);
-		assert(Options.MultiplierBy100th || Options.Addend);
+		assert(Options.InitSize == Options.MaxPoolSize || Options.MultiplierBy100th || Options.Addend);
 		assert(Options.InitSize >= 1 && Options.MaxSizeIncrement > 0);
 
 		hAlloc             = Options.Allocator;
