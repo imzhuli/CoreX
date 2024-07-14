@@ -93,49 +93,55 @@ public:
 
 	template <typename T>
 	X_INLINE T * Create() {
-		if (auto p = this->Alloc(sizeof(T), AllocAlignSize<T>)) {
-			try {
-				new (p) T;
-			} catch (...) {
-				this->Free(p);
-				throw;
-			}
-			return (T *)p;
+		auto p = this->Alloc(sizeof(T), AllocAlignSize<T>);
+		if (X_UNLIKELY(!p)) {
+			return nullptr;
 		}
-		return nullptr;
+		try {
+			new (p) T;
+		} catch (...) {
+			this->Free(p);
+			throw;
+		}
+		return (T *)p;
 	}
 
 	template <typename T, typename... Args>
 	X_INLINE T * CreateValue(Args &&... args) {
-		if (auto p = this->Alloc(sizeof(T), AllocAlignSize<T>)) {
-			try {
-				new (p) T(std::forward<Args>(args)...);
-			} catch (...) {
-				this->Free(p);
-				throw;
-			}
-			return (T *)p;
+		auto p = this->Alloc(sizeof(T), AllocAlignSize<T>);
+		if (X_UNLIKELY(!p)) {
+			return nullptr;
 		}
-		return nullptr;
+		try {
+			new (p) T(std::forward<Args>(args)...);
+		} catch (...) {
+			this->Free(p);
+			throw;
+		}
+		return (T *)p;
 	}
 
 	template <typename T, typename... Args>
 	X_INLINE T * CreateValueWithList(Args &&... args) {
-		if (auto p = this->Alloc(sizeof(T), AllocAlignSize<T>)) {
-			try {
-				new (p) T{ std::forward<Args>(args)... };
-			} catch (...) {
-				this->Free(p);
-				throw;
-			}
-			return (T *)p;
+		auto p = this->Alloc(sizeof(T), AllocAlignSize<T>);
+		if (X_UNLIKELY(!p)) {
+			return nullptr;
 		}
-		return nullptr;
+		try {
+			new (p) T{ std::forward<Args>(args)... };
+		} catch (...) {
+			this->Free(p);
+			throw;
+		}
+		return (T *)p;
 	}
 
 	template <typename T>
 	X_INLINE T * AlignedCreate(size_t vxAlignment) {
-		void * p = this->Alloc(sizeof(T), vxAlignment);
+		auto p = this->Alloc(sizeof(T), vxAlignment);
+		if (X_UNLIKELY(!p)) {
+			return nullptr;
+		}
 		try {
 			new (p) T;
 		} catch (...) {
@@ -147,7 +153,10 @@ public:
 
 	template <typename T, typename... Args>
 	X_INLINE T * AlignedCreateValue(size_t vxAlignment, Args &&... args) {
-		void * p = this->Alloc(sizeof(T), vxAlignment);
+		auto p = this->Alloc(sizeof(T), vxAlignment);
+		if (X_UNLIKELY(!p)) {
+			return nullptr;
+		}
 		try {
 			new (p) T(std::forward<Args>(args)...);
 		} catch (...) {
@@ -159,7 +168,10 @@ public:
 
 	template <typename T, typename... Args>
 	X_INLINE T * AlignedCreateValueWithList(size_t vxAlignment, Args &&... args) {
-		void * p = this->Alloc(sizeof(T), vxAlignment);
+		auto p = this->Alloc(sizeof(T), vxAlignment);
+		if (X_UNLIKELY(!p)) {
+			return nullptr;
+		}
 		try {
 			new (p) T{ std::forward<Args>(args)... };
 		} catch (...) {
@@ -171,7 +183,10 @@ public:
 
 	template <typename T>
 	X_INLINE T * CreateArray(size_t n) {
-		void * p = this->Alloc(sizeof(T) * n, AllocAlignSize<T>);
+		auto p = this->Alloc(sizeof(T) * n, AllocAlignSize<T>);
+		if (X_UNLIKELY(!p)) {
+			return nullptr;
+		}
 		if constexpr (!std::is_trivially_constructible_v<T>) {
 			try {
 				new (p) T[n];
@@ -185,7 +200,10 @@ public:
 
 	template <typename T, typename... Args>
 	X_INLINE T * CreateValueArray(size_t n, Args &&... args) {
-		void * p = this->Alloc(sizeof(T) * n, AllocAlignSize<T>);
+		auto p = this->Alloc(sizeof(T) * n, AllocAlignSize<T>);
+		if (X_UNLIKELY(!p)) {
+			return nullptr;
+		}
 		try {
 			new (p) T[n]{ std::forward<Args>(args)... };
 		} catch (...) {
@@ -197,12 +215,14 @@ public:
 
 	template <typename T>
 	X_INLINE void Destroy(T * pObject) {
+		assert(pObject);
 		pObject->~T();
 		this->Free(pObject);
 	}
 
 	template <typename T>
 	X_INLINE void DestroyArray(T * pStart, size_t n) {
+		assert(pStart && n);
 		if constexpr (!std::is_trivially_destructible_v<T>) {
 			T * pObject = pStart;
 			for (size_t i = 0; i < n; ++i) {
@@ -213,7 +233,5 @@ public:
 		this->Free(pStart);
 	}
 };
-
-X_API xAllocator DefaultAllocator;
 
 X_END

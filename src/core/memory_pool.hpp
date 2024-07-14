@@ -13,7 +13,7 @@
 X_BEGIN
 
 struct xMemoryPoolOptions {
-	xAllocator * Allocator         = &DefaultAllocator;
+	xAllocator * Allocator         = nullptr;
 	size_t       InitSize          = 64;
 	size_t       Addend            = 128;
 	size_t       MultiplierBy100th = 0;
@@ -78,6 +78,9 @@ private:
 	xTypeWrapper * _NextFreeNode = nullptr;
 	size_t         _TotalSize    = 0;
 
+	// internal allocator, to avoid init sequence issue.
+	xAllocator _DefaultAllocator;
+
 public:
 	X_INLINE bool Init(const size_t MaxPoolSize, const size_t Addend = 128) {
 		assert(MaxPoolSize > 0);
@@ -88,11 +91,10 @@ public:
 	}
 
 	X_INLINE bool Init(const xMemoryPoolOptions & Options) {
-		assert(Options.Allocator);
 		assert(Options.InitSize == Options.MaxPoolSize || Options.MultiplierBy100th || Options.Addend);
 		assert(Options.InitSize >= 1);
 
-		hAlloc             = Options.Allocator;
+		hAlloc             = Options.Allocator ? Options.Allocator : &_DefaultAllocator;
 		cInitSize          = std::min(Options.InitSize, Options.MaxPoolSize);
 		cAddend            = Options.Addend;
 		cMultiplierBy100th = Options.MultiplierBy100th;
