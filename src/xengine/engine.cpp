@@ -21,7 +21,7 @@ using namespace std::chrono_literals;
 X_BEGIN
 
 static xBaseLogger EngineLogger;
-xLogger *          Logger = &EngineLogger;
+xLogger *          XELogger = &EngineLogger;
 
 static constexpr const uint8_t EngineState_NoInstance = 0;
 static constexpr const uint8_t EngineState_Running    = 0x01;

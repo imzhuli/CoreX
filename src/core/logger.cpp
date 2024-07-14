@@ -68,9 +68,8 @@ void xBaseLogger::Log(eLogLevel ll, const char * fmt, ...) {
 	do {  // synchronized block
 		auto guard = std::lock_guard{ _SyncMutex };
 		fprintf(
-			_LogFile, "%c<%016zx>%02d%02d%02d:%02d%02d%02d ", gcHint[static_cast<size_t>(ll)], hasher(std::this_thread::get_id()),
-			brokenTime.tm_year + 1900 - 2000, brokenTime.tm_mon + 1, brokenTime.tm_mday, brokenTime.tm_hour, brokenTime.tm_min,
-			brokenTime.tm_sec
+			_LogFile, "%c<%016zx>%02d%02d%02d:%02d%02d%02d ", gcHint[static_cast<size_t>(ll)], hasher(std::this_thread::get_id()), brokenTime.tm_year + 1900 - 2000,
+			brokenTime.tm_mon + 1, brokenTime.tm_mday, brokenTime.tm_hour, brokenTime.tm_min, brokenTime.tm_sec
 		);
 		vfprintf(_LogFile, fmt, vaList);
 		fputc('\n', _LogFile);
@@ -80,9 +79,6 @@ void xBaseLogger::Log(eLogLevel ll, const char * fmt, ...) {
 	va_end(vaList);
 	return;
 }
-
-static xNonLogger  NonLogger{};
-xNonLogger * const NonLoggerPtr = &NonLogger;
 
 xMemoryLogger::xMemoryLogger() {
 }
@@ -136,9 +132,8 @@ void xMemoryLogger::Log(eLogLevel ll, const char * fmt, ...) {
 
 	char LineLead[LineLeadBufferSize];
 	int  LineLeadSize = snprintf(
-        LineLead, SafeLength(LineLead), "%c<%016zx>%02d%02d%02d:%02d%02d%02d ", gcHint[static_cast<size_t>(ll)],
-        std::hash<std::thread::id>{}(std::this_thread::get_id()), brokenTime.tm_year + 1900 - 2000, brokenTime.tm_mon + 1,
-        brokenTime.tm_mday, brokenTime.tm_hour, brokenTime.tm_min, brokenTime.tm_sec
+        LineLead, SafeLength(LineLead), "%c<%016zx>%02d%02d%02d:%02d%02d%02d ", gcHint[static_cast<size_t>(ll)], std::hash<std::thread::id>{}(std::this_thread::get_id()),
+        brokenTime.tm_year + 1900 - 2000, brokenTime.tm_mon + 1, brokenTime.tm_mday, brokenTime.tm_hour, brokenTime.tm_min, brokenTime.tm_sec
     );
 
 	do {  // synchronized block

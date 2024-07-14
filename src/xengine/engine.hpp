@@ -12,6 +12,6 @@ struct XEngineScopeCallback {
 X_API void RunXEngine(XEngineScopeCallback Callbacks = {});
 X_API void StopXEngine();
 
-X_API xLogger * Logger;
+X_API xLogger * XELogger;  // X_Engine_Loger, only available after init is done.
 
 X_END

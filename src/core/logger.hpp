@@ -10,14 +10,14 @@
 #include <mutex>
 
 X_BEGIN
-enum struct eLogLevel : int_fast32_t {	// !!! Note: implementation may use the value as index of output string,
+enum struct eLogLevel : int_fast32_t {  // !!! Note: implementation may use the value as index of output string,
 										// so, ALWAYS increase values by ONE,
 	Verbose = 0,
-	Debug	= 1,
-	Info	= 2,
+	Debug   = 1,
+	Info    = 2,
 	Warning = 3,
-	Error	= 4,
-	Quiet	= 1024,
+	Error   = 4,
+	Quiet   = 1024,
 };
 
 class xLogger : xAbstract {
@@ -27,7 +27,7 @@ public:
 
 	X_API_MEMBER
 	virtual void UpdateConfig(const char * aConfigData, size_t cConfigDataSize);
-	virtual void SetLogLevel(eLogLevel ll)				  = 0;
+	virtual void SetLogLevel(eLogLevel ll)                = 0;
 	virtual void Log(eLogLevel ll, const char * fmt, ...) = 0;
 
 	// helper functions
@@ -106,9 +106,9 @@ public:
 
 private:
 	std::filesystem::path  _LogFilename;
-	std::mutex			   _SyncMutex;
+	std::mutex             _SyncMutex;
 	std::atomic<eLogLevel> _LogLevel{ eLogLevel::Debug };
-	FILE *				   _LogFile = nullptr;
+	FILE *                 _LogFile = nullptr;
 };
 
 class xMemoryLogger final : public xLogger {
@@ -126,22 +126,20 @@ public:
 	X_API_MEMBER void Output(FILE * fp = stdout);
 
 private:
-	xSpinlock			   _Spinlock;
+	xSpinlock              _Spinlock;
 	std::atomic<eLogLevel> _LogLevel{ eLogLevel::Debug };
 
-	size_t _LineSize	 = 0;
+	size_t _LineSize     = 0;
 	size_t _RealLineSize = 0;
 	char * _LogBufferPtr = nullptr;
 
-	size_t _LineNumber		 = 0;
+	size_t _LineNumber       = 0;
 	size_t _CurrentLineIndex = 0;
 
 	// Format:
 	// Length@size32_t + Output + "\n\0"
-	static constexpr const size_t ExtraSize			 = 2 /* \n\0 */;
+	static constexpr const size_t ExtraSize          = 2 /* \n\0 */;
 	static constexpr const size_t LineLeadBufferSize = 48;
 };
-
-X_API xNonLogger * const NonLoggerPtr;
 
 X_END
