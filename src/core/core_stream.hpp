@@ -7,10 +7,8 @@
 #include <architecture/byte_order.h>
 #include <libkern/OSByteOrder.h>
 #elif defined(__ANDROID_API__)
-#include <byteswap.h>
 #include <endian.h>
 #elif defined(_POSIX_C_SOURCE)
-#include <byteswap.h>
 #include <endian.h>
 #elif defined(_MSC_VER)
 #include <stdlib.h>
@@ -18,14 +16,18 @@
 #error "no supported byte order operations yet"
 #endif
 
-#if defined(__APPLE__)
+#if defined(__swap16) && defined(__swap32) && defined(__swap64)
+#define XByteSwap16 __swap16
+#define XByteSwap32 __swap32
+#define XByteSwap64 __swap64
+#elif defined(__bswap16) && defined(__bswap32) && defined(__bswap64)
+#define XByteSwap16 __bswap16
+#define XByteSwap32 __bswap32
+#define XByteSwap64 __bswap64
+#elif defined(__APPLE__)
 #define XelByteSwap16 OSSwapInt16
 #define XelByteSwap32 OSSwapInt32
 #define XelByteSwap64 OSSwapInt64
-#elif defined(__ANDROID_API__)
-#define XelByteSwap16 __swap16
-#define XelByteSwap32 __swap32
-#define XelByteSwap64 __swap64
 #elif defined(_POSIX_SOURCE) /* posix */
 #define XelByteSwap16 __bswap_16
 #define XelByteSwap32 __bswap_32
