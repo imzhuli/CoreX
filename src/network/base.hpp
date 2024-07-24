@@ -3,6 +3,9 @@
 
 #if defined(X_SYSTEM_WINDOWS)
 #define WIN32_LEAN_AND_MEAN
+/*
+!!! DO NOT reorder include files
+ */
 // clang-format off
 #include <WinSock2.h>
 #include <Windows.h>

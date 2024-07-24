@@ -1,18 +1,19 @@
 #pragma once
+// clang-format off
+
 #include "../core/core_min.hpp"
 
 #include <compare>
-
 X_BEGIN
 
 class xObjectId {
 private:
 	uint64_t						id = 0;
-	static constexpr const uint64_t RefCountMask = uint64_t(1) << 63;
+	static constexpr const uint64_t EnableRefCountMask = uint64_t(1) << 63;
 
 public:
 	X_INLINE	  operator uint64_t() const { return id; }
-	X_INLINE bool IsRefCounted() const { return (id & (uint64_t(1) << 63)) != 0; }
+	X_INLINE bool IsRefCounted() const { return (id & EnableRefCountMask != 0); }
 	X_INLINE bool IsValid() const { return id != 0; }
 	X_INLINE bool IsNull() const { return id == 0; }
 
