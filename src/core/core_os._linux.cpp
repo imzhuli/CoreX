@@ -6,8 +6,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include <cstdio>
-
 X_BEGIN
 
 void Daemonize() {
