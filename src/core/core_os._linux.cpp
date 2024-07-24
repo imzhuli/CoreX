@@ -2,6 +2,7 @@
 
 #ifdef X_SYSTEM_LINUX
 
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
