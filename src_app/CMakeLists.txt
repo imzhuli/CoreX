@@ -33,6 +33,7 @@ endfunction()
 build_app(abort)
 build_app(broadcaster)
 build_app(dispatcher)
+build_app(guard)
 
 install(TARGETS
 	x_abort
