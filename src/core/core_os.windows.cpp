@@ -31,8 +31,8 @@ void Daemonize() {
 			&pi
 		)  // Pointer to PROCESS_INFORMATION structure
 	) {
-		std::cerr << "CreateProcess failed (" << GetLastError() << ").\n";
-		exit(EXIT_FAILURE);
+		X_PFATAL("CreateProcess failed: %i", GetLastError());
+		return;
 	}
 
 	// Close process and thread handles.
