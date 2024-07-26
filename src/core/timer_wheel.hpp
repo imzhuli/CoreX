@@ -7,7 +7,7 @@ X_BEGIN
 class xTimerWheelNode;
 class xTimerWheel;
 struct xTimerWheelNodeCallback {
-	using xCallback = void (*)(xVariable CallbackUserContext, xTimerWheelNode * NP, uint64_t TimestampMS);
+	using xCallback = void (*)(xVariable CallbackUserContext, uint64_t TimestampMS);
 
 	X_INLINE xTimerWheelNodeCallback() = default;
 	X_INLINE xTimerWheelNodeCallback(xCallback CB, xVariable UC = {})

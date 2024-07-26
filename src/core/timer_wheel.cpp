@@ -71,7 +71,7 @@ void xTimerWheel::ScheduleByTimeoutMS(xTimerWheelNode & NR, xTimerWheelNodeCallb
 void xTimerWheel::DispatchEvent(xList<xListNode> & List, uint64_t TimestampMS) {
 	while (auto NP = List.PopHead()) {
 		auto Real = X_Entry(NP, xTimerWheelNode, Node);
-		X_DEBUG_STEAL(Real->Callback.Function)(X_DEBUG_STEAL(Real->Callback.Context), Real, TimestampMS);
+		X_DEBUG_STEAL(Real->Callback.Function)(X_DEBUG_STEAL(Real->Callback.Context), TimestampMS);
 	}
 }
 

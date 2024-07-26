@@ -9,9 +9,8 @@ struct xAA : xTimerWheelNode {
 	uint64_t T = 0;
 };
 
-void Test(xVariable Context, xTimerWheelNode * NP, uint64_t TimestampMS) {
-	auto P = (xAA *)NP;
-	cout << "C: " << Context.I << " T:" << P->T << " : " << TimestampMS << endl;
+void Test(xVariable Context, uint64_t TimestampMS) {
+	cout << "C: " << Context.I << " T:" << " : " << TimestampMS << endl;
 }
 
 xAA AA;
