@@ -41,11 +41,11 @@ endfunction()
 build_app(cpp)
 build_app(echo_client)
 build_app(echo_server)
+build_app(memory_pool)
+build_app(object_id_manager)
 build_app(rsa)
 build_app(timer_wheel)
-build_app(object_id_manager)
 
-build_app(mp)
 
 if (NOT ${SERVER_SIDE_LIB_ONLY})
 build_app(env_check)
