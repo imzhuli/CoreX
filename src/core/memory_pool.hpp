@@ -33,18 +33,18 @@ class xMemoryPool final {
 		xTypeWrapper * pNext;
 
 		X_INLINE T * Construct() noexcept {
-			return NoThrowConstruct<T>((void *)&xObjectHolder);
+			return ConstructAt<T>((void *)&xObjectHolder);
 		}
 		template <typename... CArgs>
 		X_INLINE T * ConstructWith(CArgs &&... cargs) noexcept {
-			return NoThrowConstructWith<T>((void *)&xObjectHolder, std::forward<CArgs>(cargs)...);
+			return ConstructAtWith<T>((void *)&xObjectHolder, std::forward<CArgs>(cargs)...);
 		}
 		template <typename... CArgs>
 		X_INLINE T * ConstructWithList(CArgs &&... cargs) noexcept {
-			return NoThrowConstructWithList<T>((void *)&xObjectHolder, std::forward<CArgs>(cargs)...);
+			return ConstructAtWithList<T>((void *)&xObjectHolder, std::forward<CArgs>(cargs)...);
 		}
 		X_INLINE void Destruct() noexcept {
-			NoThrowDestruct<T>((void *)&xObjectHolder);
+			DestructAt<T>((void *)&xObjectHolder);
 		}
 	};
 
@@ -107,64 +107,52 @@ public:
 
 	X_INLINE T * Create() {
 		if (_NextFreeNode) {
-			if (auto pTarget = _NextFreeNode->Construct()) {
-				_NextFreeNode = _NextFreeNode->pNext;
-				return pTarget;
-			}
-			return nullptr;
+			auto pTarget  = _NextFreeNode->Construct();
+			_NextFreeNode = _NextFreeNode->pNext;
+			return pTarget;
 		}
 		auto pLastBlock = _BlockList.Tail();
 		if (pLastBlock->Count == pLastBlock->InitCount && !(pLastBlock = ExtendPool())) {
 			return nullptr;
 		}
 		xTypeWrapper * pWrapper = &pLastBlock->ResourcePool[pLastBlock->InitCount];
-		if (auto pTarget = pWrapper->Construct()) {
-			++pLastBlock->InitCount;
-			return pTarget;
-		}
-		return nullptr;
+		auto           pTarget  = pWrapper->Construct();
+		++pLastBlock->InitCount;
+		return pTarget;
 	}
 
 	template <typename... CArgs>
 	X_INLINE T * CreateValue(CArgs &&... cargs) {
 		if (_NextFreeNode) {
-			if (auto pTarget = _NextFreeNode->ConstructWith(std::forward<CArgs>(cargs)...)) {
-				_NextFreeNode = _NextFreeNode->pNext;
-				return pTarget;
-			}
-			return nullptr;
+			auto pTarget  = _NextFreeNode->ConstructWith(std::forward<CArgs>(cargs)...);
+			_NextFreeNode = _NextFreeNode->pNext;
+			return pTarget;
 		}
 		auto pLastBlock = _BlockList.Tail();
 		if (pLastBlock->Count == pLastBlock->InitCount && !(pLastBlock = ExtendPool())) {
 			return nullptr;
 		}
 		xTypeWrapper * pWrapper = &pLastBlock->ResourcePool[pLastBlock->InitCount];
-		if (auto pTarget = pWrapper->ConstructWith(std::forward<CArgs>(cargs)...)) {
-			++pLastBlock->InitCount;
-			return pTarget;
-		}
-		return nullptr;
+		auto           pTarget  = pWrapper->ConstructWith(std::forward<CArgs>(cargs)...);
+		++pLastBlock->InitCount;
+		return pTarget;
 	}
 
 	template <typename... CArgs>
 	X_INLINE T * CreateValueWithList(CArgs &&... cargs) {
 		if (_NextFreeNode) {
-			if (auto pTarget = _NextFreeNode->ConstructWithList(std::forward<CArgs>(cargs)...)) {
-				_NextFreeNode = _NextFreeNode->pNext;
-				return pTarget;
-			}
-			return nullptr;
+			auto pTarget  = _NextFreeNode->ConstructWithList(std::forward<CArgs>(cargs)...);
+			_NextFreeNode = _NextFreeNode->pNext;
+			return pTarget;
 		}
 		auto pLastBlock = _BlockList.Tail();
 		if (pLastBlock->Count == pLastBlock->InitCount && !(pLastBlock = ExtendPool())) {
 			return nullptr;
 		}
 		xTypeWrapper * pWrapper = &pLastBlock->ResourcePool[pLastBlock->InitCount];
-		if (auto pTarget = pWrapper->ConstructWithList(std::forward<CArgs>(cargs)...)) {
-			++pLastBlock->InitCount;
-			return pTarget;
-		}
-		return nullptr;
+		auto           pTarget  = pWrapper->ConstructWithList(std::forward<CArgs>(cargs)...);
+		++pLastBlock->InitCount;
+		return pTarget;
 	}
 
 	X_INLINE void Destroy(T * pTarget) {
@@ -241,6 +229,50 @@ public:
 	}
 	X_INLINE void Clean() {
 		DestroyNodePool();
+	}
+
+	X_INLINE T * CreateInPool() {
+		auto NP = static_cast<xNode *>(AllocInPool());
+		if (!NP) {
+			return nullptr;
+		}
+		try {
+			new ((void *)&NP->Object) T;
+		} catch (...) {
+			Free(NP);
+			return nullptr;
+		}
+		return &NP->Object;
+	}
+
+	template <typename... tArgs>
+	X_INLINE T * CreateValueInPool(tArgs &&... Args) {
+		auto NP = static_cast<xNode *>(AllocInPool());
+		if (!NP) {
+			return nullptr;
+		}
+		try {
+			new ((void *)&NP->Object) T(std::forward<tArgs>(Args)...);
+		} catch (...) {
+			Free(NP);
+			return nullptr;
+		}
+		return &NP->Object;
+	}
+
+	template <typename... tArgs>
+	X_INLINE T * CreateValueInPoolWithList(tArgs &&... Args) {
+		auto NP = static_cast<xNode *>(AllocInPool());
+		if (!NP) {
+			return nullptr;
+		}
+		try {
+			new ((void *)&NP->Object) T{ std::forward<tArgs>(Args)... };
+		} catch (...) {
+			Free(NP);
+			return nullptr;
+		}
+		return &NP->Object;
 	}
 
 	X_INLINE T * Create() {

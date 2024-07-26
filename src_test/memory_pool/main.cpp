@@ -33,20 +33,18 @@ int main(int argc, char ** argv) {
 	Pool.Destroy(P3);
 	Pool.Destroy(P4);
 
-	P1 = Pool.CreateValue(1);
-	P2 = Pool.CreateValue(2);
-	P3 = Pool.CreateValue(3);
-	P4 = Pool.CreateValue(4);
+	P1 = Pool.CreateValueInPool(1);
+	P2 = Pool.CreateValueInPool(2);
+	P3 = Pool.CreateValueInPool(3);
+	P4 = Pool.CreateValueInPool(4);
 
 	cout << "P1: " << (void *)P1 << ", " << *P1 << endl;
 	cout << "P2: " << (void *)P2 << ", " << *P2 << endl;
-	cout << "P3: " << (void *)P3 << ", " << *P3 << endl;
-	cout << "P4: " << (void *)P4 << ", " << *P4 << endl;
+	cout << "P3: " << (void *)P3 << endl;
+	cout << "P4: " << (void *)P4 << endl;
 
 	Pool.Destroy(P1);
 	Pool.Destroy(P2);
-	Pool.Destroy(P3);
-	Pool.Destroy(P4);
 
 	auto PP = PoolSS.Create();
 	cout << "PP: " << (void *)PP << endl;
