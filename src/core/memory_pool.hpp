@@ -291,7 +291,7 @@ public:
 	}
 
 	template <typename... tArgs>
-	X_INLINE T * CreateWithList(tArgs &&... Args) {
+	X_INLINE T * CreateValueWithList(tArgs &&... Args) {
 		auto NP = static_cast<xNode *>(Alloc());
 		if (!NP) {
 			return nullptr;
@@ -306,6 +306,7 @@ public:
 	}
 
 	X_INLINE void Destroy(T * OP) {
+		OP->~T();
 		Free(X_Entry(OP, xNode, Object));
 	}
 };
