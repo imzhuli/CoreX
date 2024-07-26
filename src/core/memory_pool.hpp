@@ -254,10 +254,10 @@ private:
 	};
 
 public:
-	X_MEMBER bool Init(size_t PoolSize) {
+	X_INLINE bool Init(size_t PoolSize) {
 		return CreateNodePool(sizeof(xNode), PoolSize);
 	}
-	X_MEMBER void Clean() {
+	X_INLINE void Clean() {
 		DestroyNodePool();
 	}
 
