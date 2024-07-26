@@ -21,7 +21,7 @@ namespace __memory_pool__ {
 		Pool = nullptr;
 	}
 
-	void * xFixedObjectPoolBase::Alloc() {
+	void * xFixedObjectPoolBase::AllocInPool() {
 		if (auto OP = NextFreeNode) {  // there is pooled object
 			NextFreeNode = OP->NextFreeNode;
 			OP->IsPooled = true;
@@ -31,6 +31,13 @@ namespace __memory_pool__ {
 			auto OP      = reinterpret_cast<xPaddingNode *>(Pool + NodeSize * InitedSize++);  // first uninited object
 			OP->IsPooled = true;
 			return OP;
+		}
+		return nullptr;
+	}
+
+	void * xFixedObjectPoolBase::Alloc() {
+		if (auto P = AllocInPool()) {
+			return P;
 		}
 		auto P = ::malloc(NodeSize);
 		if (!P) {

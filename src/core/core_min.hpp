@@ -166,6 +166,24 @@ template <typename T>
 X_STATIC_INLINE void Destruct(T & ExpiringTarget) { ExpiringTarget.~T(); }
 
 template <typename T>
+X_INLINE T * NoThrowConstruct(void * P) noexcept {
+	try { new (P) T; } catch (...) { return nullptr; }
+	return static_cast<T *>(P);
+}
+template <typename T, typename... tArgs>
+X_INLINE T * NoThrowConstructWith(void * P, tArgs &&... Args) noexcept {
+	try { new (P) T(std::forward<tArgs>(Args)...); } catch (...) { return nullptr; }
+	return static_cast<T *>(P);
+}
+template <typename T, typename... tArgs>
+X_INLINE T * NoThrowConstructWithList(void * P, tArgs &&... Args) noexcept {
+	try { new (P) T{ std::forward<tArgs>(Args)... }; } catch (...) { return nullptr; }
+	return static_cast<T *>(P);
+}
+template <typename T>
+X_INLINE void NoThrowDestruct(T * P) noexcept { P->~T(); }
+
+template <typename T>
 X_STATIC_INLINE void Renew(T & ExpiringTarget) { ExpiringTarget.~T(); Construct(ExpiringTarget); }
 template <typename T, typename... tArgs>
 X_STATIC_INLINE void RenewValue(T & ExpiringTarget, tArgs &&... Args) { ExpiringTarget.~T(); ConstructValue(ExpiringTarget, std::forward<tArgs>(Args)...); }

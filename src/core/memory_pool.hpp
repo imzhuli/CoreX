@@ -32,38 +32,19 @@ class xMemoryPool final {
 		alignas(T) ubyte xObjectHolder[sizeof(T)];
 		xTypeWrapper * pNext;
 
-		X_INLINE T * Construct() {
-			auto pTarget = ((void *)&xObjectHolder);
-			try {
-				new (pTarget) T;
-			} catch (...) {
-				return nullptr;
-			}
-			return static_cast<T *>(pTarget);
+		X_INLINE T * Construct() noexcept {
+			return NoThrowConstruct<T>((void *)&xObjectHolder);
 		}
 		template <typename... CArgs>
-		X_INLINE T * ConstructWith(CArgs &&... cargs) {
-			auto pTarget = ((void *)&xObjectHolder);
-			try {
-				new (pTarget) T(std::forward<CArgs>(cargs)...);
-			} catch (...) {
-				return nullptr;
-			}
-			return static_cast<T *>(pTarget);
+		X_INLINE T * ConstructWith(CArgs &&... cargs) noexcept {
+			return NoThrowConstructWith<T>((void *)&xObjectHolder, std::forward<CArgs>(cargs)...);
 		}
 		template <typename... CArgs>
-		X_INLINE T * ConstructWithList(CArgs &&... cargs) {
-			auto pTarget = ((void *)&xObjectHolder);
-			try {
-				new (pTarget) T{ std::forward<CArgs>(cargs)... };
-			} catch (...) {
-				return nullptr;
-			}
-			return static_cast<T *>(pTarget);
+		X_INLINE T * ConstructWithList(CArgs &&... cargs) noexcept {
+			return NoThrowConstructWithList<T>((void *)&xObjectHolder, std::forward<CArgs>(cargs)...);
 		}
-
 		X_INLINE void Destruct() noexcept {
-			reinterpret_cast<T *>(&xObjectHolder)->~T();
+			NoThrowDestruct<T>((void *)&xObjectHolder);
 		}
 	};
 
@@ -231,6 +212,7 @@ namespace __memory_pool__ {
 	protected:
 		X_API_MEMBER bool   CreateNodePool(size_t NodeSize, size_t PoolSize);
 		X_API_MEMBER void   DestroyNodePool();
+		X_API_MEMBER void * AllocInPool();
 		X_API_MEMBER void * Alloc();
 		X_API_MEMBER void   Free(void * P);
 
