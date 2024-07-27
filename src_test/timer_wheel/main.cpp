@@ -24,14 +24,14 @@ xTimerWheelNode N;
 void IL(xVariable Context, uint64_t TimestampMS) {
 	cout << "IL: " << Context.I << endl;
 	if (Context.I++ < 10) {
-		TW.RescheduleByOffset(N, { IL, Context }, 0);
+		TW.ScheduleByOffset(N, { IL, Context }, 0);
 	}
 }
 
 void SN(xVariable Context, uint64_t TimestampMS) {
 	cout << "SN: " << Context.I << endl;
 	if (Context.I++ < 10) {
-		TW.RescheduleNext(N, { SN, Context });
+		TW.ScheduleNext(N, { SN, Context });
 	}
 }
 
