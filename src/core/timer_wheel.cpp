@@ -25,10 +25,13 @@ bool xTimerWheel::Init(size_t Total, uint64_t GapMS) {
 
 void xTimerWheel::Clean() {
 	assert(Lists);
+	while (auto P = NextEventList.PopHead()) {
+		Touch(P);
+	}
 	for (size_t i = 0; i < TotalListNode; ++i) {
 		auto & L = Lists[i];
-		while (L.PopHead()) {
-			Pass();
+		while (auto P = L.PopHead()) {
+			Touch(P);
 		}
 	}
 
@@ -43,6 +46,11 @@ void xTimerWheel::Clean() {
 
 void xTimerWheel::Forward() {
 	uint64_t NowMS = GetTimestampMS();
+	do {  // process: Next event list
+		auto TL = xList<>();
+		TL.GrabListTail(NextEventList);
+		DispatchEvent(TL, 0);
+	} while (false);
 	DispatchEvent(Lists[CurrentListIndex], 0 /* scheduled by offset 0, immediate event */);
 	for (; NextTimestampMS <= NowMS; NextTimestampMS += TimeGapMS) {
 		if (++CurrentListIndex >= TotalListNode) {
@@ -52,13 +60,17 @@ void xTimerWheel::Forward() {
 	}
 }
 
+void xTimerWheel::ScheduleNext(xTimerWheelNode & NR) {
+	assert(!xListNode::IsLinked(NR.Node) && NR.Callback.Function);
+	NextEventList.AddTail(NR.Node);
+}
+
 void xTimerWheel::ScheduleByOffset(xTimerWheelNode & NR, size_t Offset) {
 	assert(!xListNode::IsLinked(NR.Node) && NR.Callback.Function);
 	assert(Offset < TotalListNode);
 	auto Position = CurrentListIndex + Offset;
 	if (Position >= TotalListNode) {
 		Position -= TotalListNode;
-		assert(Position < TotalListNode);
 	}
 	Lists[Position].AddTail(NR.Node);
 }
@@ -70,7 +82,7 @@ void xTimerWheel::ScheduleByTimeoutMS(xTimerWheelNode & NR, uint64_t TimeoutMS) 
 void xTimerWheel::DispatchEvent(xList<xListNode> & List, uint64_t TimestampMS) {
 	while (auto NP = List.PopHead()) {
 		auto Real = X_Entry(NP, xTimerWheelNode, Node);
-		X_DEBUG_STEAL(Real->Callback.Function)(X_DEBUG_STEAL(Real->Callback.Context), TimestampMS);
+		Real->Callback.Function(Real->Callback.Context, TimestampMS);
 	}
 }
 

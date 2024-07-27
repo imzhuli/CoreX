@@ -36,6 +36,22 @@ void SetCallback(xTimerWheelNode & Node, xTimerWheelCallback Callback) {
 	Node.Callback = Callback;
 }
 
+/**
+	xTimerWheel:
+		schedule a callback at sometime later, by offset, or by timeout
+		ScheduleNext():
+			event is triggered next time Forward is called, no mater GapMS is reached
+		ScheduleByOffset():
+			when offset is not 0, event is scheduled at (offset * GapMS)
+			when offset 0, immediate event is scheduled,
+				note this behaves differently from ScheduleNext,
+				that this allows event that need self iteration to change itself multiple times in one loop
+		ScheduleByTimeoutMS():
+			event is scheduled by timeout, if timeout is smaller than GapMS,
+			event is scheduled by offset 1,
+			that means this function never schedule immediate event.
+
+ */
 class xTimerWheel : xNonCopyable {
 public:
 	X_INLINE xTimerWheel()  = default;
@@ -44,11 +60,17 @@ public:
 	X_API_MEMBER bool Init(size_t Total, uint64_t GapMS = 0);
 	X_API_MEMBER void Clean();
 	X_API_MEMBER void Forward();
+	X_API_MEMBER void ScheduleNext(xTimerWheelNode & NR);
 	X_API_MEMBER void ScheduleByOffset(xTimerWheelNode & NR, size_t Offset = 1);
 	X_API_MEMBER void ScheduleByTimeoutMS(xTimerWheelNode & NR, uint64_t TimeoutMS);
 
 	X_INLINE uint64_t GetMaxTimeout() const {
 		return MaxTimeout;
+	}
+
+	X_INLINE void ScheduleNext(xTimerWheelNode & NR, xTimerWheelCallback Callback) {
+		SetCallback(NR, Callback);
+		ScheduleNext(NR);
 	}
 
 	X_INLINE void ScheduleByOffset(xTimerWheelNode & NR, xTimerWheelCallback Callback, size_t Offset = 1) {
@@ -66,21 +88,29 @@ public:
 		X_DEBUG_RESET(NR.Callback);
 	};
 
+	X_INLINE void RescheduleNext(xTimerWheelNode & NR) {
+		Remove(NR);
+		ScheduleNext(NR);
+	}
+
+	X_INLINE void RescheduleNext(xTimerWheelNode & NR, xTimerWheelCallback Callback) {
+		Remove(NR);
+		ScheduleNext(NR, Callback);
+	}
+
 	X_INLINE void RescheduleByOffset(xTimerWheelNode & NR, size_t Offset = 1) {
 		Remove(NR);
 		ScheduleByOffset(NR, Offset);
+	}
+	X_INLINE void RescheduleByOffset(xTimerWheelNode & NR, xTimerWheelCallback Callback, size_t Offset = 1) {
+		Remove(NR);
+		ScheduleByOffset(NR, Callback, Offset);
 	}
 
 	X_INLINE void RescheduleByTimeoutMS(xTimerWheelNode & NR, uint64_t TimeoutMS) {
 		Remove(NR);
 		ScheduleByTimeoutMS(NR, TimeoutMS);
 	}
-
-	X_INLINE void RescheduleByOffset(xTimerWheelNode & NR, xTimerWheelCallback Callback, size_t Offset = 1) {
-		Remove(NR);
-		ScheduleByOffset(NR, Callback, Offset);
-	}
-
 	X_INLINE void RescheduleByTimeoutMS(xTimerWheelNode & NR, xTimerWheelCallback Callback, uint64_t TimeoutMS) {
 		Remove(NR);
 		ScheduleByTimeoutMS(NR, Callback, TimeoutMS);
@@ -90,7 +120,8 @@ private:
 	X_API_MEMBER void DispatchEvent(xList<xListNode> & List, uint64_t TimestampMS);
 
 private:
-	xList<xListNode> * Lists X_DEBUG_INIT(nullptr);
+	xList<>                  NextEventList;
+	xList<> * Lists          X_DEBUG_INIT(nullptr);
 	size_t CurrentListIndex  X_DEBUG_INIT(0);
 	size_t TotalListNode     X_DEBUG_INIT(0);
 	uint64_t TimeGapMS       X_DEBUG_INIT(0);

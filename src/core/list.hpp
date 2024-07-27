@@ -81,7 +81,7 @@ private:
 	}
 };
 
-template <typename tNode>
+template <typename tNode = xListNode>
 class xList {
 private:
 	static_assert(std::is_base_of_v<xListNode, tNode>);
