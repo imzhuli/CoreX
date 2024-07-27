@@ -45,13 +45,14 @@ void xTimerWheel::Clean() {
 }
 
 void xTimerWheel::Forward() {
-	uint64_t NowMS = GetTimestampMS();
 	do {  // process: Next event list
 		auto TL = xList<>();
 		TL.GrabListTail(NextEventList);
-		DispatchEvent(TL, 0);
+		DispatchEvent(TL, NextTimestampMS);
 	} while (false);
-	DispatchEvent(Lists[CurrentListIndex], 0 /* scheduled by offset 0, immediate event */);
+	DispatchEvent(Lists[CurrentListIndex], NextTimestampMS);
+
+	uint64_t NowMS = GetTimestampMS();
 	for (; NextTimestampMS <= NowMS; NextTimestampMS += TimeGapMS) {
 		if (++CurrentListIndex >= TotalListNode) {
 			CurrentListIndex = 0;
