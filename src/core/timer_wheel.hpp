@@ -6,24 +6,35 @@ X_BEGIN
 
 class xTimerWheelNode;
 class xTimerWheel;
-struct xTimerWheelNodeCallback {
-	using xCallback = void (*)(xVariable CallbackUserContext, uint64_t TimestampMS);
 
-	X_INLINE xTimerWheelNodeCallback() = default;
-	X_INLINE xTimerWheelNodeCallback(xCallback CB, xVariable UC = {})
+using xTimerWheelCallbackFunction = void (*)(xVariable Context, uint64_t TimestampMS);
+using xTimerWheelCallbackContext  = xVariable;
+
+struct xTimerWheelCallback {
+	using xCallback = xTimerWheelCallbackFunction;
+	using xContext  = xTimerWheelCallbackContext;
+
+	X_INLINE xTimerWheelCallback() = default;
+	X_INLINE xTimerWheelCallback(xCallback CB, xVariable UC = {})
 		: Function(CB), Context(UC) {
 	}
 
-	xCallback Function X_DEBUG_INIT({});
-	xVariable Context  X_DEBUG_INIT({});
+	xTimerWheelCallbackFunction Function;
+	xTimerWheelCallbackContext  Context;
 };
 
+X_INLINE void SetCallback(xTimerWheelNode & Node, xTimerWheelCallback Callback);
 class xTimerWheelNode {
 private:
+	friend void SetCallback(xTimerWheelNode &, xTimerWheelCallback);
 	friend class xTimerWheel;
-	xListNode               Node;
-	xTimerWheelNodeCallback Callback;
+
+	xListNode           Node;
+	xTimerWheelCallback Callback;
 };
+void SetCallback(xTimerWheelNode & Node, xTimerWheelCallback Callback) {
+	Node.Callback = Callback;
+}
 
 class xTimerWheel : xNonCopyable {
 public:
@@ -33,8 +44,17 @@ public:
 	X_API_MEMBER bool Init(size_t Total, uint64_t GapMS = 0);
 	X_API_MEMBER void Clean();
 	X_API_MEMBER void Forward();
-	X_API_MEMBER void ScheduleByOffset(xTimerWheelNode & NR, xTimerWheelNodeCallback Callback, size_t Offset = 1);
-	X_API_MEMBER void ScheduleByTimeoutMS(xTimerWheelNode & NR, xTimerWheelNodeCallback Callback, uint64_t TimeoutMS);
+	X_API_MEMBER void ScheduleByOffset(xTimerWheelNode & NR, size_t Offset = 1);
+	X_API_MEMBER void ScheduleByTimeoutMS(xTimerWheelNode & NR, uint64_t TimeoutMS);
+
+	X_INLINE void ScheduleByOffset(xTimerWheelNode & NR, xTimerWheelCallback Callback, size_t Offset = 1) {
+		SetCallback(NR, Callback);
+		ScheduleByOffset(NR, Offset);
+	}
+	X_INLINE void ScheduleByTimeoutMS(xTimerWheelNode & NR, xTimerWheelCallback Callback, uint64_t TimeoutMS) {
+		SetCallback(NR, Callback);
+		ScheduleByTimeoutMS(NR, TimeoutMS);
+	}
 
 	X_INLINE uint64_t GetMaxTimeout() const {
 		return MaxTimeout;
@@ -43,11 +63,11 @@ public:
 		xList<xListNode>::Remove(NR.Node);
 		X_DEBUG_RESET(NR.Callback);
 	};
-	X_INLINE void RescheduleByOffset(xTimerWheelNode & NR, xTimerWheelNodeCallback Callback, size_t Offset = 1) {
+	X_INLINE void RescheduleByOffset(xTimerWheelNode & NR, xTimerWheelCallback Callback, size_t Offset = 1) {
 		Remove(NR);
 		ScheduleByOffset(NR, Callback, Offset);
 	}
-	X_INLINE void RescheduleByTimeoutMS(xTimerWheelNode & NR, xTimerWheelNodeCallback Callback, uint64_t TimeoutMS) {
+	X_INLINE void RescheduleByTimeoutMS(xTimerWheelNode & NR, xTimerWheelCallback Callback, uint64_t TimeoutMS) {
 		Remove(NR);
 		ScheduleByTimeoutMS(NR, Callback, TimeoutMS);
 	}
