@@ -47,26 +47,40 @@ public:
 	X_API_MEMBER void ScheduleByOffset(xTimerWheelNode & NR, size_t Offset = 1);
 	X_API_MEMBER void ScheduleByTimeoutMS(xTimerWheelNode & NR, uint64_t TimeoutMS);
 
+	X_INLINE uint64_t GetMaxTimeout() const {
+		return MaxTimeout;
+	}
+
 	X_INLINE void ScheduleByOffset(xTimerWheelNode & NR, xTimerWheelCallback Callback, size_t Offset = 1) {
 		SetCallback(NR, Callback);
 		ScheduleByOffset(NR, Offset);
 	}
+
 	X_INLINE void ScheduleByTimeoutMS(xTimerWheelNode & NR, xTimerWheelCallback Callback, uint64_t TimeoutMS) {
 		SetCallback(NR, Callback);
 		ScheduleByTimeoutMS(NR, TimeoutMS);
 	}
 
-	X_INLINE uint64_t GetMaxTimeout() const {
-		return MaxTimeout;
-	}
 	X_INLINE void Remove(xTimerWheelNode & NR) {
 		xList<xListNode>::Remove(NR.Node);
 		X_DEBUG_RESET(NR.Callback);
 	};
+
+	X_INLINE void RescheduleByOffset(xTimerWheelNode & NR, size_t Offset = 1) {
+		Remove(NR);
+		ScheduleByOffset(NR, Offset);
+	}
+
+	X_INLINE void RescheduleByTimeoutMS(xTimerWheelNode & NR, uint64_t TimeoutMS) {
+		Remove(NR);
+		ScheduleByTimeoutMS(NR, TimeoutMS);
+	}
+
 	X_INLINE void RescheduleByOffset(xTimerWheelNode & NR, xTimerWheelCallback Callback, size_t Offset = 1) {
 		Remove(NR);
 		ScheduleByOffset(NR, Callback, Offset);
 	}
+
 	X_INLINE void RescheduleByTimeoutMS(xTimerWheelNode & NR, xTimerWheelCallback Callback, uint64_t TimeoutMS) {
 		Remove(NR);
 		ScheduleByTimeoutMS(NR, Callback, TimeoutMS);
