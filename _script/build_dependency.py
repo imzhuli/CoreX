@@ -79,8 +79,6 @@ check_installed_lib_and_rename("libfreetyped.lib", "libfreetype.lib")
 check_installed_lib_and_rename("websockets_static.lib", "websockets.lib")
 check_installed_lib_and_rename("zlibstaticd.lib", "zlib.lib")
 
-libwebsockets.a
-
 # remove temp dir
 # cwd = os.getcwd()
 # dependency_unzip_dir = f"{cwd}/_3rd_build"
