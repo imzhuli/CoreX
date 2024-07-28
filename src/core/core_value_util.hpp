@@ -99,8 +99,7 @@ public:
 		return X_Entry(PP, xHolder, _PlaceHolder);
 	}
 	X_STATIC_INLINE const xHolder * O2H(const T* Object) {
-		auto PP = reinterpret_cast<const ubyte*>(Object);
-		return X_Entry(PP, xHolder, _PlaceHolder);
+		return O2H(const_cast<T*>(Object));
 	}
 
 private:
