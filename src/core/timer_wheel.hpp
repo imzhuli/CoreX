@@ -10,7 +10,7 @@ class xTimerWheel;
 using xTimerWheelCallbackFunction = void (*)(xVariable Context, uint64_t TimestampMS);
 using xTimerWheelCallbackContext  = xVariable;
 
-struct xTimerWheelCallback {
+struct xTimerWheelCallback final {
 	using xCallback = xTimerWheelCallbackFunction;
 	using xContext  = xTimerWheelCallbackContext;
 
