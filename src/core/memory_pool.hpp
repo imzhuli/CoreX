@@ -1,5 +1,6 @@
 #pragma once
 
+#include "./core_value_util.hpp"
 #include "./list.hpp"
 #include "./memory.hpp"
 
@@ -220,7 +221,7 @@ private:
 	static_assert(!std::is_reference_v<T>);
 	struct xNode {
 		xPaddingNode Header;
-		T            Object;
+		xHolder<T>   Holder;
 	};
 
 public:
@@ -237,12 +238,12 @@ public:
 			return nullptr;
 		}
 		try {
-			new ((void *)&NP->Object) T;
+			new ((void *)NP->Holder.GetAddress()) T;
 		} catch (...) {
 			Free(NP);
 			return nullptr;
 		}
-		return &NP->Object;
+		return NP->Holder.GetAddress();
 	}
 
 	template <typename... tArgs>
@@ -252,12 +253,12 @@ public:
 			return nullptr;
 		}
 		try {
-			new ((void *)&NP->Object) T(std::forward<tArgs>(Args)...);
+			new ((void *)NP->Holder.GetAddress()) T(std::forward<tArgs>(Args)...);
 		} catch (...) {
 			Free(NP);
 			return nullptr;
 		}
-		return &NP->Object;
+		return NP->Holder.GetAddress();
 	}
 
 	template <typename... tArgs>
@@ -267,12 +268,12 @@ public:
 			return nullptr;
 		}
 		try {
-			new ((void *)&NP->Object) T{ std::forward<tArgs>(Args)... };
+			new ((void *)NP->Holder.GetAddress()) T{ std::forward<tArgs>(Args)... };
 		} catch (...) {
 			Free(NP);
 			return nullptr;
 		}
-		return &NP->Object;
+		return NP->Holder.GetAddress();
 	}
 
 	X_INLINE T * Create() {
@@ -281,12 +282,12 @@ public:
 			return nullptr;
 		}
 		try {
-			new ((void *)&NP->Object) T;
+			new ((void *)NP->Holder.GetAddress()) T;
 		} catch (...) {
 			Free(NP);
 			return nullptr;
 		}
-		return &NP->Object;
+		return NP->Holder.GetAddress();
 	}
 
 	template <typename... tArgs>
@@ -296,12 +297,12 @@ public:
 			return nullptr;
 		}
 		try {
-			new ((void *)&NP->Object) T(std::forward<tArgs>(Args)...);
+			new ((void *)NP->Holder.GetAddress()) T(std::forward<tArgs>(Args)...);
 		} catch (...) {
 			Free(NP);
 			return nullptr;
 		}
-		return &NP->Object;
+		return NP->Holder.GetAddress();
 	}
 
 	template <typename... tArgs>
@@ -311,17 +312,17 @@ public:
 			return nullptr;
 		}
 		try {
-			new ((void *)&NP->Object) T{ std::forward<tArgs>(Args)... };
+			new ((void *)NP->Holder.GetAddress()) T{ std::forward<tArgs>(Args)... };
 		} catch (...) {
 			Free(NP);
 			return nullptr;
 		}
-		return &NP->Object;
+		return NP->Holder.GetAddress();
 	}
 
 	X_INLINE void Destroy(T * OP) {
 		OP->~T();
-		Free(X_Entry(OP, xNode, Object));
+		Free(X_Entry(OP, xNode, Holder));
 	}
 };
 
