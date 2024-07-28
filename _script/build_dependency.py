@@ -75,9 +75,9 @@ check_installed_lib_and_rename("libcurl-d.a", "libcurl.a")
 check_installed_lib_and_rename("libfreetyped.a", "libfreetype.a")
 
 check_installed_lib_and_rename("libcurl-d.lib", "curl.lib")
-check_installed_lib_and_rename("libfreetyped.lib", "libfreetype.lib")
+check_installed_lib_and_rename("freetyped.lib", "freetype.lib")
 check_installed_lib_and_rename("websockets_static.lib", "websockets.lib")
-check_installed_lib_and_rename("zlibstaticd.lib", "zlib.lib")
+check_installed_lib_and_rename("zlibstaticd.lib", "z.lib")
 
 # remove temp dir
 # cwd = os.getcwd()
