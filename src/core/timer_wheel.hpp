@@ -38,6 +38,7 @@ private:
 void SetCallback(xTimerWheelNode & Node, xTimerWheelCallback Callback) {
 	Node.Callback = Callback;
 }
+using xTimerWheelNodeCleaner = void (*)(xVariable Context, xTimerWheelNode * Node);
 
 /**
 	xTimerWheel:
@@ -61,7 +62,7 @@ public:
 	X_INLINE ~xTimerWheel() = default;
 
 	X_API_MEMBER bool Init(size_t Total, uint64_t GapMS = 0);
-	X_API_MEMBER void Clean();
+	X_API_MEMBER void Clean(xTimerWheelNodeCleaner = nullptr, xVariable CleanerContext = {});
 	X_API_MEMBER void Forward();
 	X_API_MEMBER void ScheduleNext(xTimerWheelNode & NR);
 	X_API_MEMBER void ScheduleByOffset(xTimerWheelNode & NR, size_t Offset = 1);

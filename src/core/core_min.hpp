@@ -358,7 +358,7 @@ X_INLINE void CleanResourceReversed(T & Target, TOthers &...Others) {
 	Target.Clean();
 }
 template <typename...xTargets>
-[[nodiscard]] auto MakeResourceCleaner(xTargets &... Targets) {
+[[nodiscard]] X_INLINE auto MakeResourceCleaner(xTargets &... Targets) {
 	return xScopeGuard([&Targets...] { CleanResourceReversed(Targets...); });
 }
 

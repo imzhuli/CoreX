@@ -23,15 +23,24 @@ bool xTimerWheel::Init(size_t Total, uint64_t GapMS) {
 	return true;
 }
 
-void xTimerWheel::Clean() {
+void TrivialTimerWheelNodeCleaner(xVariable, xTimerWheelNode *) {
+	Pass();
+}
+
+void xTimerWheel::Clean(xTimerWheelNodeCleaner Cleaner, xVariable CleanerContext) {
 	assert(Lists);
+	if (!Cleaner) {
+		Cleaner = TrivialTimerWheelNodeCleaner;
+	}
 	while (auto P = NextEventList.PopHead()) {
-		Touch(P);
+		auto Node = X_Entry(P, xTimerWheelNode, Node);
+		Cleaner(CleanerContext, Node);
 	}
 	for (size_t i = 0; i < TotalListNode; ++i) {
 		auto & L = Lists[i];
 		while (auto P = L.PopHead()) {
-			Touch(P);
+			auto Node = X_Entry(P, xTimerWheelNode, Node);
+			Cleaner(CleanerContext, Node);
 		}
 	}
 

@@ -321,8 +321,9 @@ public:
 	}
 
 	X_INLINE void Destroy(T * OP) {
-		OP->~T();
-		Free(X_Entry(OP, xNode, Holder));
+		auto PH = xHolder<T>::O2H(OP);
+		PH->Destroy();
+		Free(X_Entry(PH, xNode, Holder));
 	}
 };
 

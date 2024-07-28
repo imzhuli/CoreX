@@ -82,7 +82,7 @@ public:
 	X_INLINE void CreateValue(tArgs &&... Args) { new ((void *)_PlaceHolder) T(std::forward<tArgs>(Args)...); }
 	template <typename... tArgs>
 	X_INLINE void CreateValueWithList(tArgs &&... Args) { new ((void *)_PlaceHolder) T{ std::forward<tArgs>(Args)... }; }
-	
+
 	X_INLINE void Destroy() { GetAddress()->~T(); }
 
 	X_INLINE T *	   operator->() { return GetAddress(); }
@@ -93,6 +93,15 @@ public:
 
 	X_INLINE T *	   GetAddress() { return reinterpret_cast<T *>(_PlaceHolder); }
 	X_INLINE const T * GetAddress() const { return reinterpret_cast<const T *>(_PlaceHolder); }
+
+	X_STATIC_INLINE xHolder * O2H(T* Object) {
+		auto PP = reinterpret_cast<ubyte*>(Object);
+		return X_Entry(PP, xHolder, _PlaceHolder);
+	}
+	X_STATIC_INLINE const xHolder * O2H(const T* Object) {
+		auto PP = reinterpret_cast<const ubyte*>(Object);
+		return X_Entry(PP, xHolder, _PlaceHolder);
+	}
 
 private:
 	alignas(T) ubyte _PlaceHolder[sizeof(T)];
