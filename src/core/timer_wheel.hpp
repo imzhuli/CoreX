@@ -18,6 +18,9 @@ struct xTimerWheelCallback {
 	X_INLINE xTimerWheelCallback(xCallback CB, xVariable UC = {})
 		: Function(CB), Context(UC) {
 	}
+	X_INLINE void Execute(uint64_t Timestamp) const {
+		(*Function)(Context, Timestamp);
+	}
 
 	xTimerWheelCallbackFunction Function;
 	xTimerWheelCallbackContext  Context;
