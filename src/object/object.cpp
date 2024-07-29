@@ -18,8 +18,7 @@ X_STATIC_INLINE uint32_t FirstValidSlot(uint64_t B) {
 }
 
 bool xObjectIdManager::Init() {
-	size_t AllocSize = sizeof(uint64_t) * (L0_Size + L1_Size + L2_Size);
-	Bitmap           = (uint64_t *)malloc(sizeof(uint64_t) * AllocSize);
+	Bitmap = (uint64_t *)malloc(sizeof(uint64_t) * AllocSize);
 	if (!Bitmap) {
 		return false;
 	}
@@ -73,6 +72,27 @@ void xObjectIdManager::Release(uint32_t Id) {
 	Bitmap[Index0] &= ~(BASE_ONE << B1);
 	Bitmap[Index1] &= ~(BASE_ONE << B2);
 	Bitmap[Index2] &= ~(BASE_ONE << B);
+}
+
+void xObjectIdManager::MarkInUse(uint32_t Id) {
+	assert(Id && Id <= MaxObjectId);
+
+	Id              -= 1;
+	uint_fast32_t B  = Id & 0x3FU;
+	Id             >>= 6;
+	uint_fast32_t B2 = Id & 0x3FU;
+	Id             >>= 6;
+	uint_fast32_t B1 = Id & 0x3FU;
+
+	uint_fast32_t B0     = 0;
+	uint_fast32_t Index0 = L0_Start + B0;
+	uint_fast32_t Index1 = L1_Start + B1;
+	uint_fast32_t Index2 = L2_Start + B1 * 64 + B2;
+
+	assert(Bitmap[Index2] & (BASE_ONE << B));
+	Bitmap[Index0] |= (BASE_ONE << B1);
+	Bitmap[Index1] |= (BASE_ONE << B2);
+	Bitmap[Index2] |= (BASE_ONE << B);
 }
 
 X_END
