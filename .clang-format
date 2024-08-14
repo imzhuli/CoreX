@@ -27,7 +27,7 @@ AlignEscapedNewlines: true
 PenaltyBreakAssignment: 1
 SpaceBeforeParens: ControlStatements
 
-AllowShortFunctionsOnASingleLine: None #InlineOnly
+AllowShortFunctionsOnASingleLine:  InlineOnly
 AllowShortLambdasOnASingleLine: true
 
 AlignTrailingComments: true

@@ -6,27 +6,30 @@ using namespace std;
 int main(int argc, char ** argv) {
 	cout << "Max: " << xObjectIdManager::MaxObjectId << endl;
 
-	auto OIM = xObjectIdManager();
+	auto OIM = xObjectIdManagerMini();
 	OIM.Init();
 
-	for (uint64_t i = 0; i < 262148; ++i) {
+	for (uint64_t i = 0; i < 4400; ++i) {
 		auto NewId = OIM.Acquire();
+		// cout << "NewId: " << NewId << endl;
 		Touch(NewId);
 	}
 
-	for (uint64_t i = 1; i <= 262144; ++i) {
-		OIM.Release(i);
-	}
+	// for (uint64_t i = 1; i <= 4096; ++i) {
+	// 	OIM.Release(i);
+	// }
 
-	// OIM.Release(262144);
-	// OIM.Release(262100);
-	// OIM.Release(1);
+	OIM.Release(4096);
+	OIM.Release(4000);
+	OIM.Release(1);
+	OIM.Release(3200);
+	OIM.Release(3800);
 
-	for (uint64_t i = 0; i < 262148; ++i) {
+	for (uint64_t i = 0; i < 5000; ++i) {
 		auto NewId = OIM.Acquire();
 		Touch(NewId);
 		if (NewId) {
-			// cout << "--> NewId: " << NewId << endl;
+			cout << "--> NewId: " << NewId << endl;
 		}
 	}
 
