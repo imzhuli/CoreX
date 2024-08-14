@@ -13,8 +13,8 @@ using namespace std;
 
 X_BEGIN
 
-X_STATIC_INLINE uint32_t FirstValidSlot(uint64_t B) {
-	return (uint32_t)std::countr_one(B);
+X_STATIC_INLINE uint32_t FirstValidSlot(uint64_t B2) {
+	return (uint32_t)std::countr_one(B2);
 }
 
 bool xObjectIdManagerMini::Init() {
@@ -39,12 +39,12 @@ uint32_t xObjectIdManagerMini::Acquire() {
 		return 0;
 	}
 	uint_fast32_t Index1 = L1_Start + B1;
-	uint_fast32_t B      = FirstValidSlot(Bitmap[Index1]);
+	uint_fast32_t B2     = FirstValidSlot(Bitmap[Index1]);
 
-	if (std::numeric_limits<uint64_t>::max() == (Bitmap[Index1] |= (BASE_ONE << B))) {
+	if (std::numeric_limits<uint64_t>::max() == (Bitmap[Index1] |= (BASE_ONE << B2))) {
 		Bitmap[Index0] |= (BASE_ONE << B1);
 	}
-	auto NewId = (uint32_t)((B1 << 6) + B + 1);
+	auto NewId = (uint32_t)((B1 << 6) + B2 + 1);
 	return NewId;
 }
 
@@ -52,7 +52,7 @@ void xObjectIdManagerMini::Release(uint32_t Id) {
 	assert(Id && Id <= MaxObjectId);
 
 	Id              -= 1;
-	uint_fast32_t B  = Id & 0x3FU;
+	uint_fast32_t B2 = Id & 0x3FU;
 	Id             >>= 6;
 	uint_fast32_t B1 = Id & 0x3FU;
 
@@ -60,16 +60,16 @@ void xObjectIdManagerMini::Release(uint32_t Id) {
 	uint_fast32_t Index0 = L0_Start + B0;
 	uint_fast32_t Index1 = L1_Start + B1;
 
-	assert(Bitmap[Index1] & (BASE_ONE << B));
+	assert(Bitmap[Index1] & (BASE_ONE << B2));
 	Bitmap[Index0] &= ~(BASE_ONE << B1);
-	Bitmap[Index1] &= ~(BASE_ONE << B);
+	Bitmap[Index1] &= ~(BASE_ONE << B2);
 }
 
 void xObjectIdManagerMini::MarkInUse(uint32_t Id) {
 	assert(Id && Id <= MaxObjectId);
 
 	Id              -= 1;
-	uint_fast32_t B  = Id & 0x3FU;
+	uint_fast32_t B2 = Id & 0x3FU;
 	Id             >>= 6;
 	uint_fast32_t B1 = Id & 0x3FU;
 
@@ -77,9 +77,9 @@ void xObjectIdManagerMini::MarkInUse(uint32_t Id) {
 	uint_fast32_t Index0 = L0_Start + B0;
 	uint_fast32_t Index1 = L1_Start + B1;
 
-	assert(Bitmap[Index1] & (BASE_ONE << B));
+	assert(Bitmap[Index1] & (BASE_ONE << B2));
 	Bitmap[Index0] |= (BASE_ONE << B1);
-	Bitmap[Index1] |= (BASE_ONE << B);
+	Bitmap[Index1] |= (BASE_ONE << B2);
 }
 
 X_END
