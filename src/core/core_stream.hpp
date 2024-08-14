@@ -45,24 +45,24 @@ X_BEGIN
 #if BYTE_ORDER == LITTLE_ENDIAN
 #define X_IS_CONSIST_LITTLE_ENDIAN true
 #define X_IS_CONSIST_BIG_ENDIAN false
-	X_STATIC_INLINE uint8_t	 XelLE8(const uint8_t s) { return s; }
+	X_STATIC_INLINE uint8_t	 XelLE8(const uint8_t s)   { return s; }
 	X_STATIC_INLINE uint16_t XelLE16(const uint16_t s) { return s; }
 	X_STATIC_INLINE uint32_t XelLE32(const uint32_t s) { return s; }
 	X_STATIC_INLINE uint64_t XelLE64(const uint64_t s) { return s; }
 
-	X_STATIC_INLINE uint8_t	 XelBE8(const uint8_t s) { return s; }
+	X_STATIC_INLINE uint8_t	 XelBE8(const uint8_t s)   { return s; }
 	X_STATIC_INLINE uint16_t XelBE16(const uint16_t s) { return XelByteSwap16(s); }
 	X_STATIC_INLINE uint32_t XelBE32(const uint32_t s) { return XelByteSwap32(s); }
 	X_STATIC_INLINE uint64_t XelBE64(const uint64_t s) { return XelByteSwap64(s); }
 #elif BYTE_ORDER == BIG_ENDIAN
 #define X_IS_CONSIST_LITTLE_ENDIAN false
 #define X_IS_CONSIST_BIG_ENDIAN true
-	X_STATIC_INLINE uint8_t	 XelLE8(const uint8_t s) { return s; }
+	X_STATIC_INLINE uint8_t	 XelLE8(const uint8_t s)   { return s; }
 	X_STATIC_INLINE uint16_t XelLE16(const uint16_t s) { return XelByteSwap16(s); }
 	X_STATIC_INLINE uint32_t XelLE32(const uint32_t s) { return XelByteSwap32(s); }
 	X_STATIC_INLINE uint64_t XelLE64(const uint64_t s) { return XelByteSwap64(s); }
 
-	X_STATIC_INLINE uint8_t	 XelBE8(const uint8_t s) { return s; }
+	X_STATIC_INLINE uint8_t	 XelBE8(const uint8_t s)   { return s; }
 	X_STATIC_INLINE uint16_t XelBE16(const uint16_t s) { return s; }
 	X_STATIC_INLINE uint32_t XelBE32(const uint32_t s) { return s; }
 	X_STATIC_INLINE uint64_t XelBE64(const uint64_t s) { return s; }
