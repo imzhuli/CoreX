@@ -4,6 +4,7 @@ using namespace xel;
 using namespace std;
 
 int main(int argc, char ** argv) {
+	cout << "Max(mini): " << xObjectIdManagerMini::MaxObjectId << endl;
 	cout << "Max: " << xObjectIdManager::MaxObjectId << endl;
 
 	auto OIM = xObjectIdManagerMini();

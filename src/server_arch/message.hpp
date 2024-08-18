@@ -34,6 +34,7 @@ private:
 	// W
 	X_INLINE void _W(const xNetAddress & Address) { _WAddr(Address); }
 	X_INLINE void _W(const std::string_view & V) { _WB(V.data(), V.size()); }
+	X_INLINE void _W(bool V) { _W1(V ? (uint8_t)1: (uint8_t)0); }
 	template <typename T>
 	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 1 == sizeof(T)> _W(T && V) { _W1(V); }
 	template <typename T>
@@ -47,6 +48,7 @@ private:
 	X_INLINE void _R(std::string & V) { V = _RB(); }
 	X_INLINE void _R(std::string_view & V) { V = _ReadRawBlockView(); }
 	X_INLINE void _R(xNetAddress & Addr) { _RAddr(Addr); }
+	X_INLINE void _R(bool & V) { V = static_cast<bool>(_R1()); }
 	template <typename T>
 	X_INLINE std::enable_if_t<std::is_integral_v<T> && 1 == sizeof(T)> _R(T & V) { V = static_cast<T>(_R1()); }
 	template <typename T>
