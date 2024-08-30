@@ -23,15 +23,9 @@ struct xNetAddress final {
 	static_assert(sizeof(SA6) <= sizeof(__HOLDER__));
 
 	// methods:
-	X_INLINE bool IsV4() const {
-		return Type == IPV4;
-	}
-	X_INLINE bool IsV6() const {
-		return Type == IPV6;
-	}
-	X_INLINE explicit operator bool() const {
-		return Type != UNSPEC;
-	}
+	X_INLINE bool     IsV4() const { return Type == IPV4; }
+	X_INLINE bool     IsV6() const { return Type == IPV6; }
+	X_INLINE explicit operator bool() const { return Type != UNSPEC; }
 
 	using xKeyType = std::array<ubyte, 20>;
 	X_INLINE xKeyType AsKey() const {
@@ -51,9 +45,7 @@ struct xNetAddress final {
 		return AF_UNSPEC;
 	}
 
-	X_INLINE xNetAddress Decay() const {
-		return { .Type = this->Type };
-	}
+	X_INLINE xNetAddress Decay() const { return { .Type = this->Type }; }
 
 	X_INLINE void Dump(sockaddr_in * Addr4Ptr) const {
 		assert(IsV4());
@@ -91,12 +83,8 @@ struct xNetAddress final {
 	X_API_MEMBER std::string IpToString() const;
 	X_API_MEMBER std::string ToString() const;
 
-	X_STATIC_INLINE xNetAddress Make4() {
-		return xNetAddress{ .Type = IPV4 };
-	}
-	X_STATIC_INLINE xNetAddress Make6() {
-		return xNetAddress{ .Type = IPV6 };
-	}
+	X_STATIC_INLINE xNetAddress Make4() { return xNetAddress{ .Type = IPV4 }; }
+	X_STATIC_INLINE xNetAddress Make6() { return xNetAddress{ .Type = IPV6 }; }
 
 	X_STATIC_INLINE xNetAddress Make4Raw(const void * RawPtr, uint16_t Port) {
 		auto Address = xNetAddress{ .Type = IPV4, .Port = Port };
@@ -119,5 +107,9 @@ struct xNetAddress final {
 };
 
 X_API std::strong_ordering operator<=>(const xNetAddress & lhs, const xNetAddress & rhs);
+
+X_INLINE bool operator==(const xNetAddress & lhs, const xNetAddress & rhs) {
+	return 0 == (lhs <=> rhs);
+}
 
 X_END
