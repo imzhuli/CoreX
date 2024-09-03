@@ -4,17 +4,16 @@
 
 X_BEGIN
 
-struct xSha256Result {
-	ubyte Digest[32];
+struct xMd5Result {
+	ubyte Digest[16];
 
 	X_INLINE const ubyte * Data() const { return Digest; }
 	X_INLINE size_t        Size() const { return sizeof(Digest); }
 
 	X_INLINE xView<const ubyte> View() const { return { Digest, sizeof(Digest) }; }
-
-	X_INLINE operator const ubyte *() const { return Digest; }
+	X_INLINE                    operator const ubyte *() const { return Digest; }
 };
 
-X_API xSha256Result Sha256(const void * Source, size_t Size);
+X_API xMd5Result Md5(const void * Source, size_t Size);
 
 X_END
