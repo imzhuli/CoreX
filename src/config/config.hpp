@@ -1,16 +1,18 @@
 #pragma once
 #include "../core/core_min.hpp"
 #include "../core/ini.hpp"
+#include "../core/optional.hpp"
 #include "../network/net_address.hpp"
 
 X_BEGIN
 
-class xConfig : xNonCopyable {
+class xConfigLoader : xNonCopyable {
 
 public:
-	xConfig(const char * filename)
-		: Reader(filename) {}
-	X_INLINE operator bool() const { return Reader; }
+	xConfigLoader() = default;
+	xConfigLoader(const char * filename) { Reader.ResetValue(filename); }
+	X_INLINE void Reload(const char * filename) { Reader.ResetValue(filename); }
+	X_INLINE      operator bool() const { return Reader() && *Reader; }
 
 	void Require(std::string & Dst, const char * Key);
 	void Require(xNetAddress & Dst, const char * Key);
@@ -33,7 +35,7 @@ public:
 	}
 
 private:
-	xIniReader Reader;
+	xOptional<xIniReader> Reader;
 };
 
 X_END

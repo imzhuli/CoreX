@@ -5,14 +5,14 @@ X_COMMON_BEGIN
 template <typename T>
 class xOptional final {
 	static_assert(!std::is_reference_v<T> && !std::is_const_v<T>);
-	using Type = std::remove_cv_t<std::remove_reference_t<T>>;
-	using xCaster = xRefCaster<T>;
+	using Type       = std::remove_cv_t<std::remove_reference_t<T>>;
+	using xCaster    = xRefCaster<T>;
 	using xValueType = typename xCaster::Type;
 
 public:
 	X_INLINE xOptional() = default;
 	X_INLINE ~xOptional() {
-		if (_Valid) {
+		if (Steal(_Valid)) {
 			Destroy();
 		}
 	}
@@ -78,6 +78,14 @@ public:
 	}
 
 	X_INLINE void Reset() { Steal(_Valid) ? Destroy() : Pass(); }
+	template <typename... tArgs>
+	X_INLINE void ResetValue(tArgs &&... Args) {
+		if (Steal(_Valid)) {
+			Destroy();
+		}
+		new ((void *)_Holder) Type(std::forward<tArgs>(Args)...);
+		_Valid = true;
+	}
 
 	X_INLINE bool operator()() const { return _Valid; }
 
@@ -93,19 +101,17 @@ public:
 	X_INLINE auto * operator->() { return _Valid ? &GetValueReference() : nullptr; }
 	X_INLINE auto * operator->() const { return _Valid ? &GetValueReference() : nullptr; }
 
-	X_INLINE const xValueType & Or(const xValueType & DefaultValue) const {
-		return _Valid ? GetValueReference() : DefaultValue;
-	}
+	X_INLINE const xValueType & Or(const xValueType & DefaultValue) const { return _Valid ? GetValueReference() : DefaultValue; }
 
 private:
-	X_INLINE Type &		  GetReference() { return reinterpret_cast<Type &>(_Holder); }
+	X_INLINE Type &       GetReference() { return reinterpret_cast<Type &>(_Holder); }
 	X_INLINE const Type & GetReference() const { return reinterpret_cast<const Type &>(_Holder); }
-	X_INLINE auto &		  GetValueReference() { return xCaster::Get(GetReference()); }
-	X_INLINE auto &		  GetValueReference() const { return xCaster::Get(GetReference()); }
-	X_INLINE void		  Destroy() { GetReference().~Type(); }
+	X_INLINE auto &       GetValueReference() { return xCaster::Get(GetReference()); }
+	X_INLINE auto &       GetValueReference() const { return xCaster::Get(GetReference()); }
+	X_INLINE void         Destroy() { GetReference().~Type(); }
 
 private:
-	bool _Valid{};
+	bool _Valid = false;
 	alignas(Type) ubyte _Holder[sizeof(Type)];
 };
 
