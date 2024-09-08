@@ -5,15 +5,12 @@
 
 X_BEGIN
 
-class xConfig final : xNonCopyable {
+class xConfig : xNonCopyable {
 
 public:
 	xConfig(const char * filename)
-		: Reader(filename) {
-	}
-	X_INLINE operator bool() const {
-		return Reader;
-	}
+		: Reader(filename) {}
+	X_INLINE operator bool() const { return Reader; }
 
 	void Require(std::string & Dst, const char * Key);
 	void Require(xNetAddress & Dst, const char * Key);
