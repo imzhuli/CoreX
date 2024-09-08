@@ -11,11 +11,7 @@ class xOptional final {
 
 public:
 	X_INLINE xOptional() = default;
-	X_INLINE ~xOptional() {
-		if (Steal(_Valid)) {
-			Destroy();
-		}
-	}
+	X_INLINE ~xOptional() { Clear(); }
 	X_INLINE xOptional(const xOptional & Other) {
 		if (Other._Valid) {
 			new ((void *)_Holder) Type(Other.GetReference());
@@ -77,7 +73,14 @@ public:
 		return *this;
 	}
 
-	X_INLINE void Reset() { Steal(_Valid) ? Destroy() : Pass(); }
+	X_INLINE void Clear() { Steal(_Valid) ? Destroy() : Pass(); }
+	X_INLINE void Reset() {
+		if (Steal(_Valid)) {
+			Destroy();
+		}
+		new ((void *)_Holder) Type;
+		_Valid = true;
+	}
 	template <typename... tArgs>
 	X_INLINE void ResetValue(tArgs &&... Args) {
 		if (Steal(_Valid)) {
