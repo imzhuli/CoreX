@@ -6,28 +6,26 @@ size_t xBinaryMessage::Serialize(void * Dst, size_t Size) {
 	auto SSize = static_cast<ssize_t>(Size);
 	assert(SSize < std::numeric_limits<ssize_t>::max());
 
-	_Writer.Reset(Dst);
-	_RemainSize = SSize;
+	xBinaryMessageWriter::Reset(Dst, SSize);
 	SerializeMembers();
-	return X_DEBUG_STEAL(_RemainSize) < 0 ? 0 : _Writer.Offset();
+	return xBinaryMessageWriter::GetConsumedSize();
 }
 
 size_t xBinaryMessage::Deserialize(const void * Src, size_t Size) {
 	auto SSize = static_cast<ssize_t>(Size);
 	assert(SSize < std::numeric_limits<ssize_t>::max());
 
-	_Reader.Reset(Src);
-	_RemainSize = SSize;
+	xBinaryMessageReader::Reset(Src, SSize);
 	DeserializeMembers();
-	return X_DEBUG_STEAL(_RemainSize) < 0 ? 0 : _Reader.Offset();
+	return xBinaryMessageReader::GetConsumedSize();
 }
 
 void xBinaryMessage::SerializeMembers() {
-	_RemainSize = -1;
+	xBinaryMessageWriter::SetError();
 }
 
 void xBinaryMessage::DeserializeMembers() {
-	_RemainSize = -1;
+	xBinaryMessageReader::SetError();
 }
 
 /****************/

@@ -7,63 +7,57 @@
 
 X_BEGIN
 
-class xBinaryMessage {
-
+class xBinaryMessageWriter {
 public:
-	X_API_MEMBER size_t Serialize(void * Dst, size_t Size);
-	X_API_MEMBER size_t Deserialize(const void * Src, size_t Size);
+	void Reset(void * Dest, size_t DestSize) {
+		_Writer.Reset(Dest);
+		_RemainSize = DestSize;
+	}
 
-protected:
-	X_API_MEMBER virtual void SerializeMembers();
-	X_API_MEMBER virtual void DeserializeMembers();
+	void   SetError() { _RemainSize = -1; }
+	bool   HasError() const { return _RemainSize == -1; }
+	size_t GetConsumedSize() const {
+		if (HasError()) {
+			return 0;
+		}
+		return _Writer.Offset();
+	}
 
-protected:  // clang-format off
 	template <typename T, typename... tArgs>
 	X_INLINE void W(T && Arg0, tArgs &&... Args) {
-		_W(std::forward<T>(Arg0)); W(std::forward<tArgs>(Args)...);
+		_W(std::forward<T>(Arg0));
+		W(std::forward<tArgs>(Args)...);
 	}
-	X_INLINE void W(){};
-
-	template <typename T, typename... tArgs>
-	X_INLINE void R(T && Arg0, tArgs &&... Args) {
-		_R(std::forward<T>(Arg0)); R(std::forward<tArgs>(Args)...);
-	}
-	X_INLINE void R(){};
+	X_INLINE void W() {};
 
 private:
 	// W
 	X_INLINE void _W(const xNetAddress & Address) { _WAddr(Address); }
 	X_INLINE void _W(const std::string_view & V) { _WB(V.data(), V.size()); }
-	X_INLINE void _W(bool V) { _W1(V ? (uint8_t)1: (uint8_t)0); }
-	template <typename T>
-	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 1 == sizeof(T)> _W(T && V) { _W1(V); }
-	template <typename T>
-	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 2 == sizeof(T)> _W(T && V) { _W2(V); }
-	template <typename T>
-	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 4 == sizeof(T)> _W(T && V) { _W4(V); }
-	template <typename T>
-	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 8 == sizeof(T)> _W(T && V) { _W8(V); }
+	X_INLINE void _W(bool V) { _W1(V ? (uint8_t)1 : (uint8_t)0); }
 
-	// R
-	X_INLINE void _R(std::string & V) { V = _RB(); }
-	X_INLINE void _R(std::string_view & V) { V = _ReadRawBlockView(); }
-	X_INLINE void _R(xNetAddress & Addr) { _RAddr(Addr); }
-	X_INLINE void _R(bool & V) { V = static_cast<bool>(_R1()); }
 	template <typename T>
-	X_INLINE std::enable_if_t<std::is_integral_v<T> && 1 == sizeof(T)> _R(T & V) { V = static_cast<T>(_R1()); }
+	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 1 == sizeof(T)> _W(T && V) {
+		_W1(V);
+	}
 	template <typename T>
-	X_INLINE std::enable_if_t<std::is_integral_v<T> && 2 == sizeof(T)> _R(T & V) { V = static_cast<T>(_R2()); }
+	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 2 == sizeof(T)> _W(T && V) {
+		_W2(V);
+	}
 	template <typename T>
-	X_INLINE std::enable_if_t<std::is_integral_v<T> && 4 == sizeof(T)> _R(T & V) { V = static_cast<T>(_R4()); }
+	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 4 == sizeof(T)> _W(T && V) {
+		_W4(V);
+	}
 	template <typename T>
-	X_INLINE std::enable_if_t<std::is_integral_v<T> && 8 == sizeof(T)> _R(T & V) { V = static_cast<T>(_R8()); }
+	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 8 == sizeof(T)> _W(T && V) {
+		_W8(V);
+	}
 
-private:  // clang-format on
-	/* write */
+private:
 	X_INLINE void _W1(uint8_t V) {
 		auto RequiredSize = (ssize_t)sizeof(V);
 		if (_RemainSize < RequiredSize) {
-			_RemainSize = -1;
+			SetError();
 			return;
 		}
 		_RemainSize -= RequiredSize;
@@ -72,7 +66,7 @@ private:  // clang-format on
 	X_INLINE void _W2(uint16_t V) {
 		auto RequiredSize = (ssize_t)sizeof(V);
 		if (_RemainSize < RequiredSize) {
-			_RemainSize = -1;
+			SetError();
 			return;
 		}
 		_RemainSize -= RequiredSize;
@@ -81,7 +75,7 @@ private:  // clang-format on
 	X_INLINE void _W4(uint32_t V) {
 		auto RequiredSize = (ssize_t)sizeof(V);
 		if (_RemainSize < RequiredSize) {
-			_RemainSize = -1;
+			SetError();
 			return;
 		}
 		_RemainSize -= RequiredSize;
@@ -90,7 +84,7 @@ private:  // clang-format on
 	X_INLINE void _W8(uint64_t V) {
 		auto RequiredSize = (ssize_t)sizeof(V);
 		if (_RemainSize < RequiredSize) {
-			_RemainSize = -1;
+			SetError();
 			return;
 		}
 		_RemainSize -= RequiredSize;
@@ -107,7 +101,7 @@ private:  // clang-format on
 		auto RequiredSize = static_cast<ssize_t>(Size);
 		assert(RequiredSize < std::numeric_limits<ssize32_t>::max());
 		if (_RemainSize < RequiredSize) {
-			_RemainSize = -1;
+			SetError();
 			return;
 		}
 		_RemainSize -= RequiredSize;
@@ -116,7 +110,7 @@ private:  // clang-format on
 	X_INLINE void _WAddr(const xNetAddress & Addr) {
 		if (!Addr) {
 			if (_RemainSize < 1) {
-				_RemainSize = -1;
+				SetError();
 				return;
 			}
 			_Writer.W1(0);
@@ -126,7 +120,7 @@ private:  // clang-format on
 		if (Addr.IsV4()) {
 			auto RequiredSize = decltype(_RemainSize)(7);
 			if (_RemainSize < RequiredSize) {
-				_RemainSize = -1;
+				SetError();
 				return;
 			}
 			_Writer.W1(0x04);
@@ -138,7 +132,7 @@ private:  // clang-format on
 		if (Addr.IsV6()) {
 			auto RequiredSize = decltype(_RemainSize)(19);
 			if (_RemainSize < RequiredSize) {
-				_RemainSize = -1;
+				SetError();
 				return;
 			}
 			_Writer.W1(0x06);
@@ -150,11 +144,61 @@ private:  // clang-format on
 		X_PFATAL("Invalid address type");
 	}
 
-	/* read */
+private:
+	xStreamWriter _Writer;
+	ssize_t       _RemainSize = 0;
+};
+
+class xBinaryMessageReader {
+public:
+	void Reset(const void * Src, size_t SrcSize) {
+		_Reader.Reset(Src);
+		_RemainSize = SrcSize;
+	}
+
+	void   SetError() { _RemainSize = -1; }
+	bool   HasError() const { return _RemainSize == -1; }
+	size_t GetConsumedSize() const {
+		if (HasError()) {
+			return 0;
+		}
+		return _Reader.Offset();
+	}
+
+	template <typename T, typename... tArgs>
+	X_INLINE void R(T && Arg0, tArgs &&... Args) {
+		_R(std::forward<T>(Arg0));
+		R(std::forward<tArgs>(Args)...);
+	}
+	X_INLINE void R() {};
+
+private:
+	X_INLINE void _R(std::string & V) { V = _RB(); }
+	X_INLINE void _R(std::string_view & V) { V = _ReadRawBlockView(); }
+	X_INLINE void _R(xNetAddress & Addr) { _RAddr(Addr); }
+	X_INLINE void _R(bool & V) { V = static_cast<bool>(_R1()); }
+	template <typename T>
+	X_INLINE std::enable_if_t<std::is_integral_v<T> && 1 == sizeof(T)> _R(T & V) {
+		V = static_cast<T>(_R1());
+	}
+	template <typename T>
+	X_INLINE std::enable_if_t<std::is_integral_v<T> && 2 == sizeof(T)> _R(T & V) {
+		V = static_cast<T>(_R2());
+	}
+	template <typename T>
+	X_INLINE std::enable_if_t<std::is_integral_v<T> && 4 == sizeof(T)> _R(T & V) {
+		V = static_cast<T>(_R4());
+	}
+	template <typename T>
+	X_INLINE std::enable_if_t<std::is_integral_v<T> && 8 == sizeof(T)> _R(T & V) {
+		V = static_cast<T>(_R8());
+	}
+
+private:
 	X_INLINE uint8_t _R1() {
 		auto RequiredSize = (ssize_t)sizeof(uint8_t);
 		if (_RemainSize < RequiredSize) {
-			_RemainSize = -1;
+			SetError();
 			return 0;
 		}
 		_RemainSize -= RequiredSize;
@@ -163,7 +207,7 @@ private:  // clang-format on
 	X_INLINE uint16_t _R2() {
 		auto RequiredSize = (ssize_t)sizeof(uint16_t);
 		if (_RemainSize < RequiredSize) {
-			_RemainSize = -1;
+			SetError();
 			return 0;
 		}
 		_RemainSize -= RequiredSize;
@@ -172,7 +216,7 @@ private:  // clang-format on
 	X_INLINE uint32_t _R4() {
 		auto RequiredSize = (ssize_t)sizeof(uint32_t);
 		if (_RemainSize < RequiredSize) {
-			_RemainSize = -1;
+			SetError();
 			return 0;
 		}
 		_RemainSize -= RequiredSize;
@@ -181,7 +225,7 @@ private:  // clang-format on
 	X_INLINE uint64_t _R8() {
 		auto RequiredSize = (ssize_t)sizeof(uint64_t);
 		if (_RemainSize < RequiredSize) {
-			_RemainSize = -1;
+			SetError();
 			return 0;
 		}
 		_RemainSize -= RequiredSize;
@@ -209,7 +253,7 @@ private:  // clang-format on
 		auto RequiredSize = static_cast<ssize_t>(Size);
 		assert(RequiredSize < std::numeric_limits<ssize32_t>::max());
 		if (_RemainSize < RequiredSize) {
-			_RemainSize = -1;
+			SetError();
 			return {};
 		}
 		_RemainSize -= RequiredSize;
@@ -220,7 +264,7 @@ private:  // clang-format on
 		auto RequiredSize = static_cast<ssize_t>(Size);
 		assert(RequiredSize < std::numeric_limits<ssize32_t>::max());
 		if (_RemainSize < RequiredSize) {
-			_RemainSize = -1;
+			SetError();
 			return;
 		}
 		_RemainSize -= RequiredSize;
@@ -228,21 +272,21 @@ private:  // clang-format on
 	}
 	void _RAddr(xNetAddress & Addr) {
 		if (_RemainSize < 1) {
-			_RemainSize = -1;
-			Reset(Addr);
+			Addr = xNetAddress();
+			SetError();
 			return;
 		}
 		auto Type = _Reader.R1();
 		if (Type == 0x00) {
+			Addr         = xNetAddress();
 			_RemainSize -= 1;
-			Reset(Addr);
 			return;
 		}
 		if (Type == 0x04) {
 			auto RequiredSize = decltype(_RemainSize)(7);
 			if (_RemainSize < RequiredSize) {
-				_RemainSize = -1;
-				Reset(Addr);
+				Addr = xNetAddress();
+				SetError();
 				return;
 			}
 			Addr = xNetAddress::Make4();
@@ -254,8 +298,8 @@ private:  // clang-format on
 		if (Type == 0x06) {
 			auto RequiredSize = decltype(_RemainSize)(19);
 			if (_RemainSize < RequiredSize) {
-				_RemainSize = -1;
-				Reset(Addr);
+				Addr         = xNetAddress();
+				_RemainSize -= 1;
 				return;
 			}
 			Addr = xNetAddress::Make6();
@@ -265,15 +309,27 @@ private:  // clang-format on
 			return;
 		}
 		// error:
-		Reset(Addr);
-		_RemainSize = -1;
+		Addr = xNetAddress();
+		SetError();
 		return;
 	}
 
 private:
-	xStreamWriter _Writer;
 	xStreamReader _Reader;
 	ssize_t       _RemainSize = 0;
+};
+
+class xBinaryMessage
+	: protected xBinaryMessageReader
+	, protected xBinaryMessageWriter {
+
+public:
+	X_API_MEMBER size_t Serialize(void * Dst, size_t Size);
+	X_API_MEMBER size_t Deserialize(const void * Src, size_t Size);
+
+protected:
+	X_API_MEMBER virtual void SerializeMembers();
+	X_API_MEMBER virtual void DeserializeMembers();
 };
 
 X_API size_t WritePacket(xPacketCommandId CmdId, xPacketRequestId RequestId, void * Buffer, size_t BufferSize, xBinaryMessage & Message);
