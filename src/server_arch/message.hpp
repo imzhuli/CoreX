@@ -330,6 +330,9 @@ public:
 protected:
 	X_API_MEMBER virtual void SerializeMembers();
 	X_API_MEMBER virtual void DeserializeMembers();
+
+	X_INLINE xBinaryMessageWriter * GetWriter() { return this; }
+	X_INLINE xBinaryMessageReader * GetReader() { return this; }
 };
 
 X_API size_t WritePacket(xPacketCommandId CmdId, xPacketRequestId RequestId, void * Buffer, size_t BufferSize, xBinaryMessage & Message);
