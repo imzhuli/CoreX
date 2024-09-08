@@ -6,6 +6,7 @@ size_t xBinaryMessage::Serialize(void * Dst, size_t Size) {
 	auto SSize = static_cast<ssize_t>(Size);
 	assert(SSize < std::numeric_limits<ssize_t>::max());
 
+	auto FlagGuard = xValueGuard(IsSerializing, true);
 	xBinaryMessageWriter::Reset(Dst, SSize);
 	SerializeMembers();
 	return xBinaryMessageWriter::GetConsumedSize();
@@ -15,6 +16,7 @@ size_t xBinaryMessage::Deserialize(const void * Src, size_t Size) {
 	auto SSize = static_cast<ssize_t>(Size);
 	assert(SSize < std::numeric_limits<ssize_t>::max());
 
+	auto FlagGuard = xValueGuard(IsDeserializing, true);
 	xBinaryMessageReader::Reset(Src, SSize);
 	DeserializeMembers();
 	return xBinaryMessageReader::GetConsumedSize();
