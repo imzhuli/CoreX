@@ -9,10 +9,13 @@ size_t xBinaryMessage::Serialize(void * Dst, size_t Size) {
 	auto FlagGuard = xValueGuard(IsSerializing, true);
 	xBinaryMessageWriter::Reset(Dst, SSize);
 	SerializeMembers();
-	if (xBinaryMessageWriter::HasError()) {
-		return InvalidDataSize;
+	auto Consumed = xBinaryMessageWriter::GetConsumedSize();
+#ifndef NDEBUG
+	if (!Consumed && !xBinaryMessageWriter::HasError()) {
+		X_PFATAL("zero length object is not allowd");
 	}
-	return xBinaryMessageWriter::GetConsumedSize();
+#endif
+	return Consumed;
 }
 
 size_t xBinaryMessage::Deserialize(const void * Src, size_t Size) {
@@ -22,10 +25,13 @@ size_t xBinaryMessage::Deserialize(const void * Src, size_t Size) {
 	auto FlagGuard = xValueGuard(IsDeserializing, true);
 	xBinaryMessageReader::Reset(Src, SSize);
 	DeserializeMembers();
-	if (xBinaryMessageReader::HasError()) {
-		return InvalidDataSize;
+	auto Consumed = xBinaryMessageReader::GetConsumedSize();
+#ifndef NDEBUG
+	if (!Consumed && !xBinaryMessageReader::HasError()) {
+		X_PFATAL("zero length object is not allowd");
 	}
-	return xBinaryMessageReader::GetConsumedSize();
+#endif
+	return Consumed;
 }
 
 void xBinaryMessage::SerializeMembers() {
