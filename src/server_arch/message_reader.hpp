@@ -9,14 +9,14 @@ X_BEGIN
 
 class xBinaryMessageReader {
 public:
-	void Reset(const void * Src, size_t SrcSize) {
+	X_INLINE void Reset(const void * Src, size_t SrcSize) {
 		_Reader.Reset(Src);
 		_RemainSize = SrcSize;
 	}
 
-	void   SetError() { _RemainSize = -1; }
-	bool   HasError() const { return _RemainSize == -1; }
-	size_t GetConsumedSize() const {
+	X_INLINE void   SetError() { _RemainSize = -1; }
+	X_INLINE bool   HasError() const { return _RemainSize == -1; }
+	X_INLINE size_t GetConsumedSize() const {
 		if (HasError()) {
 			return 0;
 		}

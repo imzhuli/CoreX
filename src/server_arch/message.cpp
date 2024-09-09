@@ -9,6 +9,9 @@ size_t xBinaryMessage::Serialize(void * Dst, size_t Size) {
 	auto FlagGuard = xValueGuard(IsSerializing, true);
 	xBinaryMessageWriter::Reset(Dst, SSize);
 	SerializeMembers();
+	if (xBinaryMessageWriter::HasError()) {
+		return InvalidDataSize;
+	}
 	return xBinaryMessageWriter::GetConsumedSize();
 }
 
@@ -19,6 +22,9 @@ size_t xBinaryMessage::Deserialize(const void * Src, size_t Size) {
 	auto FlagGuard = xValueGuard(IsDeserializing, true);
 	xBinaryMessageReader::Reset(Src, SSize);
 	DeserializeMembers();
+	if (xBinaryMessageReader::HasError()) {
+		return InvalidDataSize;
+	}
 	return xBinaryMessageReader::GetConsumedSize();
 }
 
@@ -36,7 +42,7 @@ size_t WritePacket(xPacketCommandId CmdId, xPacketRequestId RequestId, void * Bu
 	auto PayloadPtr     = static_cast<ubyte *>(Buffer) + PacketHeaderSize;
 	auto MaxPayloadSize = BufferSize - PacketHeaderSize;
 	auto PayloadSize    = Message.Serialize(PayloadPtr, MaxPayloadSize);
-	if (!PayloadSize) {
+	if (InvalidDataSize == PayloadSize) {
 		return 0;
 	}
 
