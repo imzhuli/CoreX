@@ -31,6 +31,10 @@ void xObjectIdManagerMini::Clean() {
 	Bitmap = nullptr;
 }
 
+void xObjectIdManagerMini::Reset() {
+	memset(Bitmap, 0, AllocSize);
+}
+
 uint32_t xObjectIdManagerMini::Acquire() {
 	uint_fast32_t B0     = 0;
 	uint_fast32_t Index0 = L0_Start + B0;

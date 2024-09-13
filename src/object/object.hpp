@@ -39,6 +39,7 @@ class xObjectIdManager final : xNonCopyable {
 public:
 	X_API_MEMBER bool Init();
 	X_API_MEMBER void Clean();
+	X_API_MEMBER void Reset();
 
 	X_API_MEMBER uint32_t Acquire();
 	X_API_MEMBER void     Release(uint32_t Id);
@@ -66,6 +67,7 @@ class xObjectIdManagerMini final : xNonCopyable {
 public:
 	X_API_MEMBER bool Init();
 	X_API_MEMBER void Clean();
+	X_API_MEMBER void Reset();
 
 	X_API_MEMBER uint32_t Acquire();
 	X_API_MEMBER void     Release(uint32_t Id);
