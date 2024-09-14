@@ -19,15 +19,9 @@ class xServiceClientConnection final
 	: public xTcpConnection
 	, public xServiceClientConnectionNode {
 public:
-	X_INLINE uint64_t GetConnectionId() const {
-		return ConnectionId;
-	}
-	X_INLINE xVariable & GetUserContext() {
-		return UserContext;
-	}
-	X_INLINE const xVariable & GetUserContext() const {
-		return UserContext;
-	}
+	X_INLINE uint64_t          GetConnectionId() const { return ConnectionId; }
+	X_INLINE xVariable &       GetUserContext() { return UserContext; }
+	X_INLINE const xVariable & GetUserContext() const { return UserContext; }
 
 private:
 	xIndexId  ConnectionId = {};
@@ -47,18 +41,14 @@ public:
 	X_API_MEMBER void Tick(uint64_t UpdatedNowMS);
 	X_API_MEMBER void Clean();
 
-	X_INLINE uint64_t GetTickTimeMS() const {
-		return NowMS;
-	}
+	X_INLINE uint64_t GetTickTimeMS() const { return NowMS; }
 
 public:
 	X_API_MEMBER void SetMaxWriteBuffer(size_t Size);
 	X_API_MEMBER void PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
 	X_API_MEMBER void PostData(xServiceClientConnection & Connection, const void * DataPtr, size_t DataSize);
 
-	X_INLINE void DeferKillConnection(xServiceClientConnection & Connection) {
-		ServiceConnectionKillList.GrabTail(Connection);
-	}
+	X_INLINE void DeferKillConnection(xServiceClientConnection & Connection) { ServiceConnectionKillList.GrabTail(Connection); }
 	X_INLINE void KeepAlive(xServiceClientConnection & Connection) {
 		Connection.TimestampMS = NowMS;
 		ServiceConnectionTimeoutList.GrabTail(Connection);
@@ -68,6 +58,7 @@ protected:
 	X_PRIVATE_MEMBER virtual void OnClientConnected(xServiceClientConnection & Connection);
 	X_PRIVATE_MEMBER virtual void OnClientClose(xServiceClientConnection & Connection);
 	X_PRIVATE_MEMBER virtual bool OnPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
+	X_PRIVATE_MEMBER virtual void OnCleanupConnection(xIndexId ConnectionId, xVariable UserContext);
 
 private:
 	X_PRIVATE_MEMBER void   OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandle) override;
@@ -77,12 +68,8 @@ private:
 	X_PRIVATE_MEMBER void CleanupConnection(xServiceClientConnection & Connection);
 	X_PRIVATE_MEMBER void CleanupKilledConnections();
 
-	[[nodiscard]] X_STATIC_INLINE xServiceClientConnection & Cast(xTcpConnection & Connection) {
-		return static_cast<xServiceClientConnection &>(Connection);
-	};
-	[[nodiscard]] X_STATIC_INLINE xServiceClientConnection & Cast(xServiceClientConnectionNode & Node) {
-		return static_cast<xServiceClientConnection &>(Node);
-	};
+	[[nodiscard]] X_STATIC_INLINE xServiceClientConnection & Cast(xTcpConnection & Connection) { return static_cast<xServiceClientConnection &>(Connection); };
+	[[nodiscard]] X_STATIC_INLINE xServiceClientConnection & Cast(xServiceClientConnectionNode & Node) { return static_cast<xServiceClientConnection &>(Node); };
 
 private:
 	// config
@@ -101,12 +88,8 @@ class xUdpService
 	: xUdpChannel
 	, xUdpChannel::iListener {
 public:
-	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress) {
-		return xUdpChannel::Init(IoContextPtr, BindAddress, this);
-	}
-	X_API_MEMBER void Clean() {
-		xUdpChannel::Clean();
-	}
+	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress) { return xUdpChannel::Init(IoContextPtr, BindAddress, this); }
+	X_API_MEMBER void Clean() { xUdpChannel::Clean(); }
 	using xUdpChannel::PostData;
 
 protected:

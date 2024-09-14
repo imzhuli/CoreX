@@ -60,6 +60,7 @@ void xService::Tick(uint64_t UpdatedNowMS) {
 void xService::CleanupConnection(xServiceClientConnection & Connection) {
 	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 "", Connection.ConnectionId());
 	assert(ConnectionIdPool.Check(Connection.ConnectionId));
+	OnCleanupConnection(Connection.ConnectionId, Connection.UserContext);
 	ConnectionIdPool.Release(Connection.ConnectionId);
 	Connection.Clean();
 	delete &Connection;
@@ -150,6 +151,10 @@ size_t xService::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, 
 bool xService::OnPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) {
 	X_DEBUG_PRINTF("CommandId: %" PRIx32 ", RequestId:%" PRIx64 ":  \n%s", Header.CommandId, Header.RequestId, HexShow(PayloadPtr, PayloadSize).c_str());
 	return true;
+}
+
+void xService::OnCleanupConnection(xIndexId ConnectionId, xVariable UserContext) {
+	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", UserContext.U64=%" PRIx64 "", ConnectionId, UserContext);
 }
 
 void xService::SetMaxWriteBuffer(size_t Size) {

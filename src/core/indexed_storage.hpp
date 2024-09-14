@@ -29,19 +29,11 @@ public:
 	X_INLINE constexpr xIndexId(uint64_t Value)
 		: _Value(Value){};
 
-	X_INLINE constexpr operator uint64_t() const {
-		return _Value;
-	}
-	X_INLINE constexpr uint64_t operator()() const {
-		return _Value;
-	}
+	X_INLINE constexpr          operator uint64_t() const { return _Value; }
+	X_INLINE constexpr uint64_t operator()() const { return _Value; }
 
-	X_INLINE uint32_t GetIndex() const {
-		return static_cast<uint32_t>(_Value);
-	}
-	X_INLINE uint32_t GetKey() const {
-		return static_cast<uint32_t>(_Value >> 32);
-	}
+	X_INLINE uint32_t GetIndex() const { return static_cast<uint32_t>(_Value); }
+	X_INLINE uint32_t GetKey() const { return static_cast<uint32_t>(_Value >> 32); }
 
 private:
 	uint64_t _Value = 0;
@@ -56,10 +48,9 @@ private:
 	static constexpr const uint32_t NoFreeIndex     = ((uint32_t)0x8000'0000u);
 	static constexpr const uint32_t KeyInUseBitmask = ((uint32_t)0x4000'0000u);
 	static constexpr const uint32_t KeyMask         = ((uint32_t)0x7FFF'FFFFu);  // ensure Id(Key) always positive
-	X_STATIC_INLINE bool            IsSafeKey(uint32_t Key) {
-        return X_LIKELY(Key & KeyInUseBitmask);
-	}
+	X_STATIC_INLINE bool            IsSafeKey(uint32_t Key) { return X_LIKELY(Key & KeyInUseBitmask); }
 };
+static_assert(sizeof(xIndexId) == sizeof(uint64_t) && alignof(xIndexId) == alignof(uint64_t));
 
 template <bool RandomKey>
 class xIndexIdPool final : xNonCopyable {
@@ -327,9 +318,7 @@ public:
 		return true;
 	}
 
-	X_INLINE tValue & operator[](const xIndexId & Id) const {
-		return *_IdPoolPtr[Id.GetIndex()].ValueHolder;
-	}
+	X_INLINE tValue & operator[](const xIndexId & Id) const { return *_IdPoolPtr[Id.GetIndex()].ValueHolder; }
 
 private:
 	xNode *  _IdPoolPtr       = nullptr;
