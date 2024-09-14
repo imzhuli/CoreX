@@ -55,6 +55,12 @@ void xClient::OnServerClose() {
 	X_DEBUG_PRINTF("");
 }
 
+void xClient::Kill() {
+	if (Connected) {
+		KillConnection = true;
+	}
+}
+
 void xClient::Tick(uint64_t NowMS) {
 	this->NowMS = NowMS;
 	if (Steal(KillConnection)) {

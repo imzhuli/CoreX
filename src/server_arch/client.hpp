@@ -7,25 +7,20 @@ class xClient
 	: public xTcpConnection::iListener
 	, xAbstract {
 public:
-	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress) {
-		return Init(IoContextPtr, TargetAddress, TargetAddress.Decay());
-	}
+	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress) { return Init(IoContextPtr, TargetAddress, TargetAddress.Decay()); }
 	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress, const xNetAddress & BindAddress);
 	X_API_MEMBER void Tick(uint64_t NowMS);
 	X_API_MEMBER void Clean();
 
-	X_INLINE bool IsConnected() const {
-		return Connected;
-	}
-	X_INLINE uint64_t GetTickTimeMS() const {
-		return NowMS;
-	}
+	X_INLINE bool     IsConnected() const { return Connected; }
+	X_INLINE uint64_t GetTickTimeMS() const { return NowMS; }
 	X_API_MEMBER void DisableKeepAliveOnTick();
 	X_API_MEMBER void SetDefaultKeepAliveTimeout();
 	X_API_MEMBER void SetKeepAliveTimeout(uint64_t TimeoutMS);
 	X_API_MEMBER void SetMaxWriteBuffer(size_t Size);
 	X_API_MEMBER void PostData(const void * DataPtr, size_t DataSize);
 	X_API_MEMBER void PostRequestKeepAlive();
+	X_API_MEMBER void Kill();
 
 protected:
 	X_PRIVATE_MEMBER virtual void OnServerConnected();
