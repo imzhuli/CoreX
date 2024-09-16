@@ -104,11 +104,11 @@ void xService::OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandl
 }
 
 void xService::OnClientConnected(xServiceClientConnection & Connection) {
-	X_DEBUG_PRINTF("ConnectionId: %" PRIx64 "", Connection.ConnectionId);
+	// X_DEBUG_PRINTF("ConnectionId: %" PRIx64 "", Connection.ConnectionId);
 }
 
 void xService::OnClientClose(xServiceClientConnection & Connection) {
-	X_DEBUG_PRINTF("ConnectionId: %" PRIx64 "", Connection.ConnectionId);
+	// X_DEBUG_PRINTF("ConnectionId: %" PRIx64 "", Connection.ConnectionId);
 }
 
 void xService::OnPeerClose(xTcpConnection * TcpConnectionPtr) {
