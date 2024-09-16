@@ -58,7 +58,6 @@ void xService::Tick(uint64_t UpdatedNowMS) {
 }
 
 void xService::CleanupConnection(xServiceClientConnection & Connection) {
-	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 "", Connection.ConnectionId());
 	assert(ConnectionIdPool.Check(Connection.ConnectionId));
 	OnCleanupConnection(Connection.ConnectionId, Connection.UserContext);
 	ConnectionIdPool.Release(Connection.ConnectionId);
@@ -154,7 +153,6 @@ bool xService::OnPacket(xServiceClientConnection & Connection, const xPacketHead
 }
 
 void xService::OnCleanupConnection(xIndexId ConnectionId, xVariable UserContext) {
-	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", UserContext.U64=%" PRIx64 "", ConnectionId, UserContext);
 }
 
 void xService::SetMaxWriteBuffer(size_t Size) {
