@@ -59,7 +59,7 @@ void xService::Tick(uint64_t UpdatedNowMS) {
 
 void xService::CleanupConnection(xServiceClientConnection & Connection) {
 	assert(ConnectionIdPool.Check(Connection.ConnectionId));
-	OnCleanupConnection(Connection.ConnectionId, Connection.UserContext);
+	OnCleanupConnection(Connection);
 	ConnectionIdPool.Release(Connection.ConnectionId);
 	Connection.Clean();
 	delete &Connection;
@@ -152,7 +152,7 @@ bool xService::OnPacket(xServiceClientConnection & Connection, const xPacketHead
 	return true;
 }
 
-void xService::OnCleanupConnection(xIndexId ConnectionId, xVariable UserContext) {
+void xService::OnCleanupConnection(const xServiceClientConnection & Connection) {
 }
 
 void xService::SetMaxWriteBuffer(size_t Size) {

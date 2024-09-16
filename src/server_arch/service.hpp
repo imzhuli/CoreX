@@ -58,7 +58,7 @@ protected:
 	X_PRIVATE_MEMBER virtual void OnClientConnected(xServiceClientConnection & Connection);
 	X_PRIVATE_MEMBER virtual void OnClientClose(xServiceClientConnection & Connection);
 	X_PRIVATE_MEMBER virtual bool OnPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
-	X_PRIVATE_MEMBER virtual void OnCleanupConnection(xIndexId ConnectionId, xVariable UserContext);
+	X_PRIVATE_MEMBER virtual void OnCleanupConnection(const xServiceClientConnection & Connection);
 
 private:
 	X_PRIVATE_MEMBER void   OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandle) override;
