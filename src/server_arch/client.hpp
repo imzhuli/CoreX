@@ -12,7 +12,7 @@ public:
 	X_API_MEMBER void Tick(uint64_t NowMS);
 	X_API_MEMBER void Clean();
 
-	X_INLINE bool     IsConnected() const { return Connected; }
+	X_INLINE bool     IsOpen() const { return Open; }
 	X_INLINE uint64_t GetTickTimeMS() const { return NowMS; }
 	X_API_MEMBER void DisableKeepAliveOnTick();
 	X_API_MEMBER void SetDefaultKeepAliveTimeout();
@@ -26,6 +26,8 @@ protected:
 	X_PRIVATE_MEMBER virtual void OnServerConnected();
 	X_PRIVATE_MEMBER virtual void OnServerClose();
 	X_PRIVATE_MEMBER virtual bool OnPacket(const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
+	X_PRIVATE_MEMBER virtual void OnOpenConnection();
+	X_PRIVATE_MEMBER virtual void OnCleanupConnection();
 
 private:
 	X_API_MEMBER void   OnConnected(xTcpConnection * TcpConnectionPtr) override;
@@ -46,7 +48,7 @@ private:
 	uint64_t KeepAliveTimeoutMS              = 0;
 	uint64_t LastKeepAliveTimestampMS        = 0;
 	uint64_t LastRequestKeepAliveTimestampMS = 0;
-	bool     Connected                       = false;
+	bool     Open                            = false;
 	bool     KillConnection                  = false;
 };
 

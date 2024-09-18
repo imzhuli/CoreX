@@ -23,14 +23,15 @@ bool xClient::Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress,
 	this->KeepAliveTimeoutMS              = 0;
 	this->LastKeepAliveTimestampMS        = 0;
 	this->LastRequestKeepAliveTimestampMS = 0;
-	this->Connected                       = false;
+	this->Open                            = false;
 	this->KillConnection                  = false;
 	SetDefaultKeepAliveTimeout();
 	return true;
 }
 
 void xClient::Clean() {
-	if (Connected) {
+	if (Open) {
+		OnCleanupConnection();
 		Connection.Clean();
 	}
 	X_DEBUG_RESET(IoContextPtr);
@@ -55,8 +56,16 @@ void xClient::OnServerClose() {
 	// X_DEBUG_PRINTF("");
 }
 
+void xClient::OnOpenConnection() {
+	// X_DEBUG_PRINTF("");
+}
+
+void xClient::OnCleanupConnection() {
+	// X_DEBUG_PRINTF("");
+}
+
 void xClient::Kill() {
-	if (Connected) {
+	if (Open) {
 		KillConnection = true;
 	}
 }
@@ -65,14 +74,15 @@ void xClient::Tick(uint64_t NowMS) {
 	this->NowMS = NowMS;
 	if (Steal(KillConnection)) {
 		// X_DEBUG_PRINTF("KillConnection");
-		assert(Connected);
+		assert(Open);
+		OnCleanupConnection();
 		Connection.Clean();
-		Connected                       = false;
+		Open                            = false;
 		LastKeepAliveTimestampMS        = 0;
 		LastRequestKeepAliveTimestampMS = 0;
 		return;
 	}
-	if (Connected) {
+	if (Open) {
 		auto IdleTime = SignedDiff(NowMS, LastKeepAliveTimestampMS);
 		if (IdleTime > MakeSigned(IdleTimeoutMS)) {
 			KillConnection = true;
@@ -100,9 +110,10 @@ void xClient::Tick(uint64_t NowMS) {
 		return;
 	} else {
 		Connection.SetMaxWriteBufferSize(MaxWriteBufferLimitForEachConnection);
-		Connected                       = true;
+		Open                            = true;
 		LastKeepAliveTimestampMS        = NowMS;
 		LastRequestKeepAliveTimestampMS = NowMS;
+		OnOpenConnection();
 	}
 }
 
@@ -157,14 +168,14 @@ void xClient::SetMaxWriteBuffer(size_t Size) {
 }
 
 void xClient::PostRequestKeepAlive() {
-	if (!Connected || KillConnection) {
+	if (!Open || KillConnection) {
 		return;
 	}
 	Connection.PostRequestKeepAlive();
 }
 
 void xClient::PostData(const void * DataPtr, size_t DataSize) {
-	if (!Connected || KillConnection) {
+	if (!Open || KillConnection) {
 		return;
 	}
 	Connection.PostData(DataPtr, DataSize);
