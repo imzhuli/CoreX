@@ -49,8 +49,8 @@ bool xIoContext::Add(xSocketIoReactor & SocketReactor, bool Read, bool Write) {
 	auto Socket       = SocketReactor.GetNativeSocket();
 	auto IoReactorPtr = static_cast<xIoReactor *>(&SocketReactor);
 
-	auto ReadFlags  = EV_ADD | EV_CLEAR;
-	auto WriteFlags = EV_ADD | (Write ? 0 : EV_DISABLE) | EV_CLEAR;
+	auto ReadFlags  = EV_ADD | (Read ? EV_ENABLE : EV_DISABLE) | EV_CLEAR;
+	auto WriteFlags = EV_ADD | (Write ? EV_ENABLE : EV_DISABLE) | EV_CLEAR;
 
 	struct kevent Event[2] = {};
 	EV_SET(&Event[0], Socket, EVFILT_READ, ReadFlags, 0, 0, IoReactorPtr);
@@ -66,8 +66,8 @@ bool xIoContext::Update(xSocketIoReactor & SocketReactor, bool Read, bool Write)
 	auto Socket       = SocketReactor.GetNativeSocket();
 	auto IoReactorPtr = static_cast<xIoReactor *>(&SocketReactor);
 
-	auto ReadFlags  = EV_CLEAR;
-	auto WriteFlags = (Write ? 0 : EV_DISABLE) | EV_CLEAR;
+	auto ReadFlags  = (Read ? EV_ENABLE : EV_DISABLE) | EV_CLEAR;
+	auto WriteFlags = (Write ? EV_ENABLE : EV_DISABLE) | EV_CLEAR;
 
 	struct kevent Event[2] = {};
 	EV_SET(&Event[0], Socket, EVFILT_READ, ReadFlags, 0, 0, IoReactorPtr);

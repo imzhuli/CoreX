@@ -83,7 +83,7 @@ bool xIoContext::Add(xSocketIoReactor & SocketReactor, bool Read, bool Write) {
 
 	struct epoll_event Event = {};
 	Event.data.ptr           = IoReactorPtr;
-	Event.events             = EPOLLET | EPOLLIN | (Write ? EPOLLOUT : 0);
+	Event.events             = EPOLLET | (Read ? EPOLLIN : 0) | (Write ? EPOLLOUT : 0);
 	if (-1 == epoll_ctl(Poller, EPOLL_CTL_ADD, Socket, &Event)) {
 		X_DEBUG_PRINTF("failed to register epoll event\n");
 		return false;
@@ -97,7 +97,7 @@ bool xIoContext::Update(xSocketIoReactor & SocketReactor, bool Read, bool Write)
 
 	struct epoll_event Event = {};
 	Event.data.ptr           = IoReactorPtr;
-	Event.events             = EPOLLET | EPOLLIN | (Write ? EPOLLOUT : 0);
+	Event.events             = EPOLLET | (Read ? EPOLLIN : 0) | (Write ? EPOLLOUT : 0);
 	if (-1 == epoll_ctl(Poller, EPOLL_CTL_MOD, Socket, &Event)) {
 		X_PFATAL("failed to update epoll\n");
 		return false;
