@@ -9,30 +9,68 @@ class xObjectBase;
 class xObjectIdManager;
 class xObjectIdManagerMini;
 
-class xObjectBase {
+class xObjectBase : xNonCopyable {
 private:
 	friend class xObjectIdManager;
 	friend class xObjectIdManagerMini;
 
 private:
-	uint64_t                        Id                    = 0;
-	static constexpr const uint64_t OBJECT_ID_MASK        = 0x00FFFFFFULL;
-	static constexpr const uint64_t ENABLE_REF_COUNT_MASK = uint64_t(1) << 24;
+	uint32_t Id       = 0;
+	uint32_t RefCount = 0;
 
 public:
-	X_INLINE      operator uint64_t() const { return Id; }
-	X_INLINE bool IsRefCounted() const { return Id & ENABLE_REF_COUNT_MASK; }
-	X_INLINE bool IsValid() const { return Id != 0; }
-	X_INLINE bool IsNull() const { return Id == 0; }
+	static constexpr const uint32_t MAX_OBJECT_ID = 0x0FFF'FFFFu;
+
+public:
+	X_INLINE void InitId(uint32_t NewId) {
+		assert(!Id);
+		Id = NewId;
+	}
+	X_INLINE uint32_t GetId() const { return Id; }
+
+	X_INLINE void AddRef() {
+		++RefCount;
+		assert(RefCount);
+	}
+	X_INLINE uint32_t ReleaseRef() { return --RefCount; }
 
 	X_INLINE bool operator==(const xObjectBase & O) const { return Id == O.Id; }
-	X_INLINE bool operator!=(const xObjectBase & O) const { return Id != O.Id; }
 	X_INLINE std::strong_ordering operator<=>(const xObjectBase & O) const { return Id <=> O.Id; }
+};
 
-	X_INLINE xObjectBase() {}
-	X_INLINE explicit xObjectBase(const uint64_t RawId) { Id = RawId; }
-	X_INLINE explicit xObjectBase(const int64_t RawId) { Id = RawId; }
-	X_INLINE void operator=(uint64_t p_uint64) { Id = p_uint64; }
+template <typename tDeleter>
+class xObjectHolder {
+public:
+	X_INLINE xObjectHolder() = default;
+	X_INLINE xObjectHolder(xObjectBase * OP, const tDeleter & D = tDeleter()) {
+		if ((Target = OP)) {
+			Target->AddRef();
+			Deleter = D;
+		}
+	}
+	X_INLINE xObjectHolder(const xObjectHolder & O) {
+		if ((Target = O.Target)) {
+			Target->AddRef();
+			Deleter = O.Deleter;
+		}
+	}
+	X_INLINE xObjectHolder(xObjectHolder && O) {
+		Target  = Steal(O.Target);
+		Deleter = Steal(O.Deleter);
+	}
+	X_INLINE ~xObjectHolder() {
+		if (!Target) {
+			return;
+		}
+		if (Target->ReleaseRef()) {
+			return;
+		}
+		Deleter(Target);
+	}
+
+private:
+	xObjectBase * Target = nullptr;
+	tDeleter      Deleter;
 };
 
 class xObjectIdManager final : xNonCopyable {
@@ -59,8 +97,7 @@ private:
 
 public:
 	static constexpr const size_t MaxObjectId = L2_Size * 64;
-
-	static_assert(MaxObjectId <= xObjectBase::OBJECT_ID_MASK);
+	static_assert(MaxObjectId <= xObjectBase::MAX_OBJECT_ID);
 };
 
 class xObjectIdManagerMini final : xNonCopyable {
@@ -85,8 +122,7 @@ private:
 
 public:
 	static constexpr const size_t MaxObjectId = L1_Size * 64;
-
-	static_assert(MaxObjectId <= xObjectBase::OBJECT_ID_MASK);
+	static_assert(MaxObjectId <= xObjectBase::MAX_OBJECT_ID);
 };
 
 X_END

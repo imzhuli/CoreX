@@ -64,11 +64,14 @@ union xVariable {
 	uint16_t                   U16;
 	uint32_t                   U32;
 	uint64_t                   U64;
-	struct { int32_t X, Y; }   IV2;
-	struct { uint32_t X, Y; }  UV2;
+	struct { int32_t  X, Y; }  IV;
+	struct { uint32_t X, Y; }  UV;
+	float 	                   F;
+	struct { float    X, Y; }  FV;
+	double                     D;
 	void *                     P;
 	const void *               CP;
-	function_holder_t          FP;
+	function_holder_t          FH;
 };
 
 template <typename T> // Function to Holder
