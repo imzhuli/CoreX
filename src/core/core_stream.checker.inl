@@ -19,13 +19,8 @@ namespace __detail__::__checkers__ {
 		bool BE = (TI.BS[0] == 0x00 && TF.BS[0] == 0x3F);
 		RuntimeAssert(LE ^ BE);
 
-		ubyte B[4];
-		auto  W = xStreamWriter(B);
-		W.WF(0x01);
-		bool BBE = (B[0] == 0x3F);
-		X_PERROR("BBE: %i", (int)BBE);
-
-		RuntimeAssert(false);
+		X_PERROR("LE:%i, BE:%i", (int)LE, (int)BE);
 	});
+
 }  // namespace __detail__::__checkers__
 X_END
