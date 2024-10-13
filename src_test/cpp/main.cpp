@@ -1,26 +1,15 @@
 #include <core/core_min.hpp>
+#include <core/core_stream.hpp>
+#include <core/string.hpp>
 #include <iostream>
 #include <object/object.hpp>
 
 using namespace xel;
 using namespace std;
 
-class Deleter {
-public:
-	void operator()(xObjectBase * OP) { cout << "Deleter: " << (void *)OP << endl; }
-};
-
-using xH = xObjectHolder<Deleter>;
+namespace {}  // namespace
 
 int main(int argc, char ** argv) {
-
-	xObjectBase B1 = {};
-	xObjectBase B2 = {};
-
-	xH H = { &B1 };
-
-	cout << (B1 == B2) << endl;
-	cout << (B1 != B2) << endl;
-
+	X_DEBUG_PRINTF("");
 	return 0;
 }

@@ -27,6 +27,7 @@ struct xUIEvent {
 	eUIEventType     Type;
 	iUIEventSource * Source;
 	xVariable        Value;
+	xVariable        ValueEx;
 };
 
 class xBaseUI {

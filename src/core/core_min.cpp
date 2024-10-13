@@ -135,3 +135,6 @@ void FatalPrintf(const char * Path, size_t Line, const char * FunctionName, cons
 }
 
 X_COMMON_END
+
+// External checkers:
+#include "./core_stream.checker.inl"

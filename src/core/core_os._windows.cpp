@@ -46,7 +46,7 @@ void Daemonize() {
 }
 
 void RunAsGuard() {
-	X_PFATAL("RunAsGuard is not supported on windows platform");
+	X_PERROR("RunAsGuard is not supported on windows platform");
 }
 
 X_END
