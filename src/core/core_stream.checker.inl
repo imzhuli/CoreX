@@ -15,9 +15,11 @@ namespace __detail__::__checkers__ {
 		auto TF = xConsistentOrderingTest();
 		TI.I    = 0x01;
 		TF.F    = 0x01;
+
 		bool LE = (TI.BS[0] == 0x01 && TF.BS[0] == 0x00);
 		bool BE = (TI.BS[0] == 0x00 && TF.BS[0] == 0x3F);
-		RuntimeAssert(LE ^ BE);
+
+		RuntimeAssert(LE ^ BE, "Inconsistent byte ordering");
 	});
 
 }  // namespace __detail__::__checkers__
