@@ -18,8 +18,6 @@ namespace __detail__::__checkers__ {
 		bool LE = (TI.BS[0] == 0x01 && TF.BS[0] == 0x00);
 		bool BE = (TI.BS[0] == 0x00 && TF.BS[0] == 0x3F);
 		RuntimeAssert(LE ^ BE);
-
-		X_PERROR("LE:%i, BE:%i", (int)LE, (int)BE);
 	});
 
 }  // namespace __detail__::__checkers__
