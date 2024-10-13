@@ -1,5 +1,8 @@
 #pragma once
 #include "./core_stream.hpp"
+
+#ifdef __X_CORE_CHECKER__
+
 X_BEGIN
 namespace __detail__::__checkers__ {
 
@@ -10,7 +13,7 @@ namespace __detail__::__checkers__ {
 	};
 	static_assert(sizeof(xConsistentOrderingTest) == 4);
 
-	auto RealConsistentOrderingChecker = xInstantRun([] {
+	static auto RealConsistentOrderingChecker = xInstantRun([] {
 		auto TI = xConsistentOrderingTest();
 		auto TF = xConsistentOrderingTest();
 		TI.I    = 0x01;
@@ -24,3 +27,5 @@ namespace __detail__::__checkers__ {
 
 }  // namespace __detail__::__checkers__
 X_END
+
+#endif

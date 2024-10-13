@@ -137,4 +137,12 @@ void FatalPrintf(const char * Path, size_t Line, const char * FunctionName, cons
 X_COMMON_END
 
 // External checkers:
+#ifdef __X_CORE_CHECKER__
+#error "multiple checker area"
+#else 
+#define __X_CORE_CHECKER__
+
 #include "./core_stream.checker.inl"
+
+#undef __X_CORE_CHECKER__
+#endif
