@@ -12,9 +12,9 @@ class xRenderer
 	: xRendererListNode
 	, xAbstract {
 private:
-	X_PRIVATE_MEMBER virtual bool Init(VkSurfaceKHR Surface);
-	X_PRIVATE_MEMBER virtual void Clean();
-	X_PRIVATE_MEMBER virtual void Render();
+	X_API_MEMBER virtual bool Init(VkSurfaceKHR Surface);
+	X_API_MEMBER virtual void Clean();
+	X_API_MEMBER virtual void Render();
 
 protected:
 	X_PRIVATE_MEMBER bool CreateSwapchain();

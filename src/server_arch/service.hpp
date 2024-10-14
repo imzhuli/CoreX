@@ -55,15 +55,15 @@ public:
 	}
 
 protected:
-	X_PRIVATE_MEMBER virtual void OnClientConnected(xServiceClientConnection & Connection);
-	X_PRIVATE_MEMBER virtual void OnClientClose(xServiceClientConnection & Connection);
-	X_PRIVATE_MEMBER virtual bool OnPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
-	X_PRIVATE_MEMBER virtual void OnCleanupConnection(const xServiceClientConnection & Connection);
+	X_API_MEMBER virtual void OnClientConnected(xServiceClientConnection & Connection);
+	X_API_MEMBER virtual void OnClientClose(xServiceClientConnection & Connection);
+	X_API_MEMBER virtual bool OnPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
+	X_API_MEMBER virtual void OnCleanupConnection(const xServiceClientConnection & Connection);
 
 private:
-	X_PRIVATE_MEMBER void   OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandle) override;
-	X_PRIVATE_MEMBER void   OnPeerClose(xTcpConnection * TcpConnectionPtr) override;
-	X_PRIVATE_MEMBER size_t OnData(xTcpConnection * TcpConnectionPtr, void * DataPtr, size_t DataSize) override;
+	X_API_MEMBER void   OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandle) override;
+	X_API_MEMBER void   OnPeerClose(xTcpConnection * TcpConnectionPtr) override;
+	X_API_MEMBER size_t OnData(xTcpConnection * TcpConnectionPtr, void * DataPtr, size_t DataSize) override;
 
 	X_PRIVATE_MEMBER void CleanupConnection(xServiceClientConnection & Connection);
 	X_PRIVATE_MEMBER void CleanupKilledConnections();

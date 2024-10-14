@@ -10,6 +10,5 @@ using namespace std;
 namespace {}  // namespace
 
 int main(int argc, char ** argv) {
-	X_DEBUG_PRINTF("");
 	return 0;
 }

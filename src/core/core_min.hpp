@@ -302,6 +302,11 @@ X_STATIC_INLINE void Dismiss(T0 & Guard0, T & ...Guards) {
 }
 
 namespace __common_detail__ {
+	struct xCompilerUnitEntry {
+		X_API_MEMBER xCompilerUnitEntry();
+	};
+	[[maybe_unused]] inline xCompilerUnitEntry EntryObject;
+
 	template <typename T, bool DoThrow = false>
 	class xResourceGuardBase : xNonCopyable {
 	public:

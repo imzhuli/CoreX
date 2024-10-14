@@ -23,11 +23,11 @@ public:
 	X_API_MEMBER void Kill();
 
 protected:
-	X_PRIVATE_MEMBER virtual void OnServerConnected();
-	X_PRIVATE_MEMBER virtual void OnServerClose();
-	X_PRIVATE_MEMBER virtual bool OnPacket(const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
-	X_PRIVATE_MEMBER virtual void OnOpenConnection();
-	X_PRIVATE_MEMBER virtual void OnCleanupConnection();
+	X_API_MEMBER virtual void OnServerConnected();
+	X_API_MEMBER virtual void OnServerClose();
+	X_API_MEMBER virtual bool OnPacket(const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
+	X_API_MEMBER virtual void OnOpenConnection();
+	X_API_MEMBER virtual void OnCleanupConnection();
 
 private:
 	X_API_MEMBER void   OnConnected(xTcpConnection * TcpConnectionPtr) override;
