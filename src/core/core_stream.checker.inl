@@ -23,8 +23,6 @@ namespace __detail__::__checkers__ {
 		bool BE = (TI.BS[0] == 0x00 && TF.BS[0] == 0x3F);
 
 		RuntimeAssert(LE ^ BE, "Inconsistent byte ordering");
-
-		Pure();
 	});
 
 }  // namespace __detail__::__checkers__

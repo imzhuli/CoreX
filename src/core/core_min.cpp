@@ -134,7 +134,6 @@ void FatalPrintf(const char * Path, size_t Line, const char * FunctionName, cons
 	QuickExit(EXIT_FAILURE);
 }
 
-
 namespace __common_detail__ {
 	xCompilerUnitEntry::xCompilerUnitEntry() {}
 }
