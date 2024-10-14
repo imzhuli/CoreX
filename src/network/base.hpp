@@ -16,14 +16,14 @@
 // clang-format on
 
 X_BEGIN
-typedef SSIZE_T              ssize_t;
-typedef int                  send_len_t;
-typedef int                  recv_len_t;
-typedef HANDLE               xEventPoller;
-typedef xVariable            xNativeEventType;
-typedef SOCKET               xSocket;
-X_PRIVATE const xEventPoller InvalidEventPoller;
-X_PRIVATE const xSocket      InvalidSocket;
+typedef SSIZE_T          ssize_t;
+typedef int              send_len_t;
+typedef int              recv_len_t;
+typedef HANDLE           xEventPoller;
+typedef xVariable        xNativeEventType;
+typedef SOCKET           xSocket;
+X_API const xEventPoller InvalidEventPoller;
+X_API const xSocket      InvalidSocket;
 #define XelCloseSocket(sockfd) closesocket((sockfd))
 X_END
 
