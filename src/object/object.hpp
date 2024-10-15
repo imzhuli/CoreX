@@ -10,14 +10,6 @@ class xObjectIdManager;
 class xObjectIdManagerMini;
 
 class xObjectBase : xNonCopyable {
-private:
-	friend class xObjectIdManager;
-	friend class xObjectIdManagerMini;
-
-private:
-	uint32_t Id       = 0;
-	uint32_t RefCount = 0;
-
 public:
 	static constexpr const uint32_t MAX_OBJECT_ID = 0x0FFF'FFFFu;
 
@@ -28,7 +20,7 @@ public:
 	}
 	X_INLINE uint32_t GetId() const { return Id; }
 
-	X_INLINE void AddRef() {
+	X_INLINE void RetainRef() {
 		++RefCount;
 		assert(RefCount);
 	}
@@ -36,41 +28,10 @@ public:
 
 	X_INLINE bool operator==(const xObjectBase & O) const { return Id == O.Id; }
 	X_INLINE std::strong_ordering operator<=>(const xObjectBase & O) const { return Id <=> O.Id; }
-};
-
-template <typename tDeleter>
-class xObjectHolder {
-public:
-	X_INLINE xObjectHolder() = default;
-	X_INLINE xObjectHolder(xObjectBase * OP, const tDeleter & D = tDeleter()) {
-		if ((Target = OP)) {
-			Target->AddRef();
-			Deleter = D;
-		}
-	}
-	X_INLINE xObjectHolder(const xObjectHolder & O) {
-		if ((Target = O.Target)) {
-			Target->AddRef();
-			Deleter = O.Deleter;
-		}
-	}
-	X_INLINE xObjectHolder(xObjectHolder && O) {
-		Target  = Steal(O.Target);
-		Deleter = Steal(O.Deleter);
-	}
-	X_INLINE ~xObjectHolder() {
-		if (!Target) {
-			return;
-		}
-		if (Target->ReleaseRef()) {
-			return;
-		}
-		Deleter(Target);
-	}
 
 private:
-	xObjectBase * Target = nullptr;
-	tDeleter      Deleter;
+	uint32_t Id       = 0;
+	uint32_t RefCount = 0;
 };
 
 class xObjectIdManager final : xNonCopyable {
