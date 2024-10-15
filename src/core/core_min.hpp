@@ -56,6 +56,12 @@ union xVariable {
 	ptrdiff_t                  Offset;
 	int                        I;
 	unsigned int               U;
+	float 	                   F;
+	double                     D;
+	void *                     P;
+	const void *               CP;
+	function_holder_t          FH;
+
 	int8_t                     I8;
 	int16_t                    I16;
 	int32_t                    I32;
@@ -64,14 +70,10 @@ union xVariable {
 	uint16_t                   U16;
 	uint32_t                   U32;
 	uint64_t                   U64;
-	struct { int32_t  X, Y; }  IV;
-	struct { uint32_t X, Y; }  UV;
-	float 	                   F;
-	struct { float    X, Y; }  FV;
-	double                     D;
-	void *                     P;
-	const void *               CP;
-	function_holder_t          FH;
+
+	struct          { int32_t  IX, IY; };
+	struct          { uint32_t UX, UY; };
+	struct          { float    FX, FY; };
 };
 
 template <typename T> // Function to Holder

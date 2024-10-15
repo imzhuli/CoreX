@@ -15,7 +15,7 @@
 // clang-format off
 X_COMMON_BEGIN
 
-static_assert(sizeof(xVariable) == sizeof(xVariable::B));
+static_assert(sizeof(xVariable) == 8);
 static_assert(std::is_trivially_copyable_v<xVariable>);
 
 void Breakpoint() {}
@@ -143,7 +143,7 @@ X_COMMON_END
 // External checkers:
 #ifdef __X_CORE_CHECKER__
 #error "multiple checker area"
-#else 
+#else
 #define __X_CORE_CHECKER__
 
 #include "./core_stream.checker.inl"
