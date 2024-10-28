@@ -17,13 +17,13 @@ public:
 		CONNECTED,
 	};
 
-	struct iListener {  // clang-format off
+	struct iListener {
 		// callback on connected, normally this is not needed to be handled
-		X_API_MEMBER virtual void OnConnected(xTcpConnection * TcpConnectionPtr) {}
-		X_API_MEMBER virtual void OnPeerClose(xTcpConnection * TcpConnectionPtr) {}
-		X_API_MEMBER virtual void OnFlush(xTcpConnection * TcpConnectionPtr) {}
+		X_API_MEMBER virtual void   OnConnected(xTcpConnection * TcpConnectionPtr) {}
+		X_API_MEMBER virtual void   OnPeerClose(xTcpConnection * TcpConnectionPtr) {}
+		X_API_MEMBER virtual void   OnFlush(xTcpConnection * TcpConnectionPtr) {}
 		X_API_MEMBER virtual size_t OnData(xTcpConnection * TcpConnectionPtr, void * DataPtr, size_t DataSize) { return DataSize; }
-	};  // clang-format on
+	};
 
 public:
 	X_API_MEMBER bool Init(xIoContext * IoContextPtr, xSocket && NativeSocket, iListener * ListenerPtr);
@@ -37,16 +37,15 @@ public:
 	X_API_MEMBER xNetAddress GetRemoteAddress() const;
 	X_API_MEMBER xNetAddress GetLocalAddress() const;
 
-	// clang-format off
-	X_INLINE bool IsConnected() const { return State == eState::CONNECTED; }
-	X_INLINE void ResizeSendBuffer(size_t Size) { xel::ResizeSendBuffer(NativeSocket, Size); };
-	X_INLINE void ResizeRecvBuffer(size_t Size) { xel::ResizeRecvBuffer(NativeSocket, Size); };
-	X_INLINE void SetMaxWriteBufferSize(size_t NewLimit) { IBP->MaxWriteBufferSize = NewLimit; }
-	X_INLINE bool HasPendingWrites() const { return IBP->WriteBufferChain.GetSize(); }
+	X_INLINE bool     IsConnected() const { return State == eState::CONNECTED; }
+	X_INLINE void     ResizeSendBuffer(size_t Size) { xel::ResizeSendBuffer(NativeSocket, Size); };
+	X_INLINE void     ResizeRecvBuffer(size_t Size) { xel::ResizeRecvBuffer(NativeSocket, Size); };
+	X_INLINE void     SetMaxWriteBufferSize(size_t NewLimit) { IBP->MaxWriteBufferSize = NewLimit; }
+	X_INLINE bool     HasPendingWrites() const { return IBP->WriteBufferChain.GetSize(); }
 	X_API_MEMBER void PostData(const void * DataPtr, size_t DataSize);
 	X_API_MEMBER void PostRequestKeepAlive();
 	X_API_MEMBER void PostKeepAlive();
-	// clang-format on
+
 protected:
 	X_API_MEMBER void OnIoEventError() override;
 	X_API_MEMBER bool OnIoEventInReady() override;
