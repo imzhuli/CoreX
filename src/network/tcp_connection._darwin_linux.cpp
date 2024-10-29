@@ -82,6 +82,22 @@ void xTcpConnection::Clean() {
 	Reset(LP);
 }
 
+void xTcpConnection::SuspendReading() {
+	if (ReadingState == eReadingState::SUSPENDED) {
+		return;
+	}
+	ReadingState = eReadingState::SUSPENDED;
+	this->ICP->Update(*this, false, true);
+}
+
+void xTcpConnection::ResumeReading() {
+	if (ReadingState == eReadingState::READING) {
+		return;
+	}
+	ReadingState = eReadingState::READING;
+	this->ICP->Update(*this, true, true);
+}
+
 bool xTcpConnection::ReadData(xView<ubyte> & BufferView) {
 	Reset(BufferView);
 	auto & ReadBuffer   = IBP->ReadBuffer;

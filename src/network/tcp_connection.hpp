@@ -11,10 +11,15 @@ class xTcpConnection
 	: xSocketIoReactor
 	, xAbstract {
 public:
-	enum struct eState {
+	enum struct eState : uint16_t {
 		UNSPEC,
 		CONNECTING,
 		CONNECTED,
+	};
+
+	enum struct eReadingState : uint16_t {
+		READING,
+		SUSPENDED,
 	};
 
 	struct iListener {
@@ -51,6 +56,9 @@ protected:
 	X_API_MEMBER bool OnIoEventInReady() override;
 	X_API_MEMBER bool OnIoEventOutReady() override;
 
+	X_API_MEMBER void SuspendReading();
+	X_API_MEMBER void ResumeReading();
+
 #ifdef X_SYSTEM_WINDOWS
 	X_API_MEMBER void AsyncAcquireInput();
 	X_API_MEMBER void AsyncAcquirePost();
@@ -59,9 +67,17 @@ protected:
 #endif
 
 private:
-	xIoContext * ICP   = nullptr;
-	iListener *  LP    = nullptr;
-	eState       State = eState::UNSPEC;
+	xIoContext *  ICP          = nullptr;
+	iListener *   LP           = nullptr;
+	eState        State        = eState::UNSPEC;
+	eReadingState ReadingState = eReadingState::READING;
+
+#ifdef X_SYSTEM_WINDOWS
+	struct {
+		uint8_t ProcessReading = false;
+		uint8_t AsyncReading   = false;
+	};
+#endif
 };
 
 X_END
