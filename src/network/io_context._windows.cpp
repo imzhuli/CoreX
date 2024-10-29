@@ -32,6 +32,7 @@ bool xIoContext::Add(xSocketIoReactor & SocketReactor, bool Read, bool Write) {
 }
 
 bool xIoContext::Update(xSocketIoReactor & SocketReactor, bool Read, bool Write) {
+	Pure();
 	return true;
 }
 
