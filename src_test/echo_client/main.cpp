@@ -36,7 +36,6 @@ int main(int argc, char ** argv) {
 	}
 
 	while (true) {
-		auto NowMS = GetTimestampMS();
 		IoCtx.LoopOnce();
 		if (Timer.TestAndTag(1s)) {
 			Conn.SuspendReading();
