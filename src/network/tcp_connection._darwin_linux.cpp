@@ -168,7 +168,7 @@ BUFFER_WRITE:
 		WriteBufferChain.Push(BP);
 	}
 	if (HasNoPendingWrite) {
-		ICP->Update(*this, true, true);
+		ICP->Update(*this, ReadingState != eReadingState::SUSPENDED, true);
 	}
 	return;
 }
@@ -219,7 +219,7 @@ bool xTcpConnection::OnIoEventOutReady() {
 		memmove(BP->Buffer, BP->Buffer + WS, BP->DataSize);
 		return true;
 	}
-	ICP->Update(*this);
+	ICP->Update(*this, ReadingState != eReadingState::SUSPENDED);
 	LP->OnFlush(this);
 	return true;
 }

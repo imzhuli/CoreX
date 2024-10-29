@@ -39,6 +39,7 @@ int main(int argc, char ** argv) {
 		IoCtx.LoopOnce();
 		if (Timer.TestAndTag(1s)) {
 			Conn.SuspendReading();
+			Conn.ResumeReading();
 		}
 	}
 	return 0;
