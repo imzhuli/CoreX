@@ -219,7 +219,7 @@ void xTcpConnection::OnIoEventError() {
 bool xTcpConnection::OnIoEventInReady() {
 	AsyncReading = false;
 	do {
-		auto G = ValueGuard(ProcessReading, true);
+		auto G = xValueGuard(ProcessReading, true);
 		X_DEBUG_PRINTF("ReadDataSize: %zi", IBP->ReadDataSize);
 		if (!IBP->ReadDataSize) {
 			return false;

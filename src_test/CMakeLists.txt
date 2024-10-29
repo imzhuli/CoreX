@@ -14,6 +14,10 @@ link_directories(
 	${THIRD_LIB_DIRS}
 )
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+	set(THIRD_LIBRARIES Bcrypt $(THIRD_LIBRARIES))
+endif()
+
 set(shared_lib_dependency_private
 	${THIRD_LIBRARIES}
 )

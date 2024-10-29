@@ -50,14 +50,13 @@ public:
 	X_API_MEMBER void PostData(const void * DataPtr, size_t DataSize);
 	X_API_MEMBER void PostRequestKeepAlive();
 	X_API_MEMBER void PostKeepAlive();
+	X_API_MEMBER void SuspendReading();
+	X_API_MEMBER void ResumeReading();
 
 protected:
 	X_API_MEMBER void OnIoEventError() override;
 	X_API_MEMBER bool OnIoEventInReady() override;
 	X_API_MEMBER bool OnIoEventOutReady() override;
-
-	X_API_MEMBER void SuspendReading();
-	X_API_MEMBER void ResumeReading();
 
 #ifdef X_SYSTEM_WINDOWS
 	X_API_MEMBER void AsyncAcquireInput();

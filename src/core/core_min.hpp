@@ -257,10 +257,13 @@ private:
 
 public:
 	X_INLINE xValueGuard(T & Ref) : _Ref(Ref) { _OldValue = _Ref; }
-	X_INLINE xValueGuard(T & Ref, const T & NewValue) : _Ref(Ref) { _OldValue = _Ref; _Ref = NewValue; }
-	X_INLINE xValueGuard(T & Ref, T && NewValue) : _Ref(Ref) { _OldValue = _Ref; _Ref = std::move(NewValue); }
 	X_INLINE xValueGuard(xValueGuard && Other) : _Ref(Other._Ref), _OldValue(std::move(Other._OldValue)), _DismissExit(Steal(Other._DismissExit, true)) { }
 	X_INLINE ~xValueGuard() { if (_DismissExit) { return; } _Ref = _OldValue; }
+
+	template<typename U>
+	X_INLINE xValueGuard(T & Ref, const U & NewValue) : _Ref(Ref) { _OldValue = _Ref; _Ref = NewValue; }
+	template<typename U>
+	X_INLINE xValueGuard(T & Ref, U && NewValue) : _Ref(Ref) { _OldValue = _Ref; _Ref = std::move(NewValue); }
 
 	X_INLINE const xStorage & operator()() const { return _OldValue; }
 	X_INLINE void Dismiss() { _DismissExit = true; }
