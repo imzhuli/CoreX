@@ -49,8 +49,10 @@ X_INLINE std::string  StrToHex(const std::string_view & sv) { return StrToHex(sv
 X_API std::u32string  ToUtf32(const std::string_view & U8String);
 X_API std::string     ToUtf8(const std::u32string_view & U32String);
 
-X_API xOptional<std::string>    FileToStr(const char * filename);
-X_INLINE xOptional<std::string> FileToStr(const std::string & filename) { return FileToStr(filename.c_str()); }
+X_API xOptional<std::string>      FileToStr(const char * filename);
+X_INLINE xOptional<std::string>   FileToStr(const std::string & filename) { return FileToStr(filename.c_str()); }
+X_API std::vector<std::string>    FileToLines(const char * filename);
+X_INLINE std::vector<std::string> FileToLines(const std::string & filename) { return FileToLines(filename.c_str()); }
 
 template <typename tIterator, typename tSeparator>
 std::string JoinStr(tIterator Begin, tIterator End, tSeparator Separator) {
