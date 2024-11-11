@@ -136,7 +136,7 @@ template <typename T, size_t L>
 
 X_API void Breakpoint();
 X_STATIC_INLINE void Pass() { }
-X_STATIC_INLINE void RuntimeAssert(bool cond, const char * msg = nullptr /* reason */) { if (!cond) { Fatal(msg); } }
+X_STATIC_INLINE void RuntimeAssert(bool cond, const char * hint = nullptr /* reason */) { if (!cond) { Fatal(hint); } }
 
 template <typename T>
 X_STATIC_INLINE constexpr auto MakeSigned(const T & Value) { return static_cast<std::make_signed_t<T>>(Value); }
