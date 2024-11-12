@@ -78,7 +78,6 @@ using Hex2 = char[2];
 // }
 
 std::vector<std::string> Split(const std::string_view & s, const char * d, size_t l) {
-	assert(l);
 	std::vector<std::string> r;
 	std::string::size_type   pos = 0;
 	std::string::size_type   end = 0;
@@ -86,10 +85,9 @@ std::vector<std::string> Split(const std::string_view & s, const char * d, size_
 
 	while (true) {
 		end = s.find(d, pos, len);
-
 		if (end == std::string::npos) {
 			auto last = s.substr(pos, end);
-			if (!last.empty()) {
+			if (!last.empty() || !r.empty()) {
 				r.push_back(std::string(last));
 			}
 			break;
