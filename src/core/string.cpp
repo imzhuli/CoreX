@@ -87,9 +87,7 @@ std::vector<std::string> Split(const std::string_view & s, const char * d, size_
 		end = s.find(d, pos, len);
 		if (end == std::string::npos) {
 			auto last = s.substr(pos, end);
-			if (!last.empty() || !r.empty()) {
-				r.push_back(std::string(last));
-			}
+			r.push_back(std::string(last));
 			break;
 		} else {
 			r.push_back(std::string{ s.substr(pos, end - pos) });
