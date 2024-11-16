@@ -13,6 +13,10 @@ void xIoContext::Clean() {
 	DestroyPoller();
 }
 
+bool xIoContext::operator()() const {
+	return Poller != InvalidEventPoller;
+}
+
 void xIoContext::DeferRead(xIoReactor & Reactor) {
 	Reactor.EventFlags |= xIoReactor::IO_EVENT_READ;
 	EventList.GrabTail(Reactor.EventNode);

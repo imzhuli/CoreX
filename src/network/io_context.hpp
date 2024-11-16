@@ -26,6 +26,8 @@ public:
 	X_API_MEMBER void DeferReadWrite(xIoReactor & Reactor);
 	X_API_MEMBER void DeferError(xIoReactor & Reactor);
 
+	X_API_MEMBER bool operator()() const;
+
 private:
 	X_API_MEMBER bool CreatePoller();
 	X_API_MEMBER void DestroyPoller();
