@@ -16,37 +16,21 @@ private:
 	friend class xList;
 
 public:
-	X_INLINE xListNode() noexcept {
-		ResetUnsafe();
-	}
-	X_INLINE ~xListNode() noexcept {
-		DetachUnsafe();
-	}
+	X_INLINE xListNode() noexcept { ResetUnsafe(); }
+	X_INLINE ~xListNode() noexcept { DetachUnsafe(); }
 
 protected:
-	X_INLINE xListNode(const xListNode & Other) noexcept {
-		ResetUnsafe();
-	}
-	X_INLINE xListNode(xListNode && Other) noexcept {
-		TakePlaceOfUnsafe(Other);
-	}
-	X_INLINE xListNode & operator=(const xListNode & Other) noexcept {
-		return *this;
-	}
+	X_INLINE             xListNode(const xListNode & Other) noexcept { ResetUnsafe(); }
+	X_INLINE             xListNode(xListNode && Other) noexcept { TakePlaceOfUnsafe(Other); }
+	X_INLINE xListNode & operator=(const xListNode & Other) noexcept { return *this; }
 	X_INLINE xListNode & operator=(xListNode && Other) = delete;
 
 public:
-	X_STATIC_INLINE bool IsLinked(const xListNode & Node) {
-		return Node.pPrev != &Node;
-	}
-	X_STATIC_INLINE void Unlink(xListNode & Node) {
-		return Node.Detach();
-	}
+	X_STATIC_INLINE bool IsLinked(const xListNode & Node) { return Node.pPrev != &Node; }
+	X_STATIC_INLINE void Unlink(xListNode & Node) { return Node.Detach(); }
 
 private:
-	X_INLINE void ResetUnsafe() {
-		pPrev = pNext = this;
-	}
+	X_INLINE void ResetUnsafe() { pPrev = pNext = this; }
 
 	X_INLINE void Detach() {
 		DetachUnsafe();
@@ -91,23 +75,13 @@ private:
 public:
 	xList()              = default;
 	xList(const xList &) = delete;
-	X_INLINE xList(xList && other) {
-		GrabListTail(other);
-	}
-	X_INLINE ~xList() {
-		assert(IsEmpty());
-	}
+	X_INLINE xList(xList && other) { GrabListTail(other); }
+	X_INLINE ~xList() { assert(IsEmpty()); }
 
 public:
-	X_INLINE bool IsEmpty() const {
-		return _Head.pNext == &_Head;
-	}
-	X_INLINE void AddHead(tNode & rTarget) {
-		static_cast<xListNode &>(rTarget).AppendTo(_Head);
-	}
-	X_INLINE void AddTail(tNode & rTarget) {
-		static_cast<xListNode &>(rTarget).AppendTo(*_Head.pPrev);
-	}
+	X_INLINE bool IsEmpty() const { return _Head.pNext == &_Head; }
+	X_INLINE void AddHead(tNode & rTarget) { static_cast<xListNode &>(rTarget).AppendTo(_Head); }
+	X_INLINE void AddTail(tNode & rTarget) { static_cast<xListNode &>(rTarget).AppendTo(*_Head.pPrev); }
 	X_INLINE void GrabHead(tNode & rTarget) {
 		static_cast<xListNode &>(rTarget).DetachUnsafe();
 		AddHead(rTarget);
@@ -122,7 +96,7 @@ public:
 		};
 		xListNode * remoteHead = other._Head.pNext;
 		xListNode * remoteTail = other._Head.pPrev;
-		other.ResetUnsafe();
+		other._Head.ResetUnsafe();
 
 		xListNode * localHead = _Head.pNext;
 		_Head.pNext           = remoteHead;
@@ -207,16 +181,10 @@ public:
 		}
 	}
 
-	X_STATIC_INLINE void InsertBefore(tNode & Node, tNode & InsertPoint) {
-		Node.AppendTo(*InsertPoint.pPrev);
-	}
-	X_STATIC_INLINE void InsertAfter(tNode & Node, tNode & InsertPoint) {
-		Node.AppendTo(InsertPoint);
-	}
+	X_STATIC_INLINE void InsertBefore(tNode & Node, tNode & InsertPoint) { Node.AppendTo(*InsertPoint.pPrev); }
+	X_STATIC_INLINE void InsertAfter(tNode & Node, tNode & InsertPoint) { Node.AppendTo(InsertPoint); }
 
-	X_STATIC_INLINE void Remove(tNode & Node) {
-		Node.Detach();
-	}
+	X_STATIC_INLINE void Remove(tNode & Node) { Node.Detach(); }
 };
 
 X_END
