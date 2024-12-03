@@ -18,7 +18,7 @@ X_STATIC_INLINE uint32_t FirstValidSlot(uint64_t B3) {
 }
 
 bool xObjectIdManager::Init() {
-	Bitmap = (uint64_t *)malloc(sizeof(uint64_t) * AllocSize);
+	Bitmap = (uint64_t *)malloc(AllocSize);
 	if (!Bitmap) {
 		return false;
 	}
