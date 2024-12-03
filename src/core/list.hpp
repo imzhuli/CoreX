@@ -93,7 +93,7 @@ public:
 	X_INLINE void GrabListHead(xList & other) {
 		if (other.IsEmpty()) {
 			return;
-		};
+		}
 		xListNode * remoteHead = other._Head.pNext;
 		xListNode * remoteTail = other._Head.pPrev;
 		other._Head.ResetUnsafe();
@@ -107,7 +107,7 @@ public:
 	X_INLINE void GrabListTail(xList & other) {
 		if (other.IsEmpty()) {
 			return;
-		};
+		}
 		xListNode * remoteHead = other._Head.pNext;
 		xListNode * remoteTail = other._Head.pPrev;
 		other._Head.ResetUnsafe();
