@@ -93,7 +93,7 @@ void xObjectIdManager::MarkInUse(uint32_t Id) {
 	uint_fast32_t Index1 = L1_Start + B1;
 	uint_fast32_t Index2 = L2_Start + B1 * 64 + B2;
 
-	assert(Bitmap[Index2] & (BASE_ONE << B3));
+	assert(!(Bitmap[Index2] & (BASE_ONE << B3)));
 	Bitmap[Index0] |= (BASE_ONE << B1);
 	Bitmap[Index1] |= (BASE_ONE << B2);
 	Bitmap[Index2] |= (BASE_ONE << B3);

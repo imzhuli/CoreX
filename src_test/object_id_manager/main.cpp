@@ -26,6 +26,8 @@ int main(int argc, char ** argv) {
 	OIM.Release(3200);
 	OIM.Release(3800);
 
+	OIM.MarkInUse(3800);
+
 	for (uint64_t i = 0; i < 5000; ++i) {
 		auto NewId = OIM.Acquire();
 		Touch(NewId);
