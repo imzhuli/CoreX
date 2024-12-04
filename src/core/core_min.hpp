@@ -244,6 +244,8 @@ template <typename tFuncObj, typename... Args>
 struct xInstantRun final : xNonCopyable {
 	X_INLINE xInstantRun(tFuncObj && Func, Args &&... args) { std::forward<tFuncObj>(Func)(std::forward<Args>(args)...); }
 };
+template <typename tFuncObj, typename... Args>
+xInstantRun(tFuncObj && Func, Args &&... args) -> xInstantRun<tFuncObj, Args...>;
 
 template <typename T>
 class xValueGuard final : xNonCopyable {
