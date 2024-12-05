@@ -313,8 +313,8 @@ public:
 		if (!X_LIKELY(xIndexId::IsSafeKey(Key)) || !X_LIKELY(Key == Node.Key)) {
 			return false;
 		}
-		Node.ValueHolder.Destroy();
 		Node.NextFreeIdIndex = Steal(_NextFreeIdIndex, Index);
+		Node.ValueHolder.Destroy();
 		return true;
 	}
 
