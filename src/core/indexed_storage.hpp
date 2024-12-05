@@ -261,10 +261,12 @@ public:
 	}
 
 	X_INLINE void Release(const xIndexId & Id) {
-		uint32_t Index       = Id.GetIndex();
-		auto &   Node        = _IdPoolPtr[Index];
-		Node.NextFreeIdIndex = Steal(_NextFreeIdIndex, Index);
+		uint32_t Index = Id.GetIndex();
+		auto &   Node  = _IdPoolPtr[Index];
+
 		Node.ValueHolder.Destroy();
+		Node.NextFreeIdIndex = Steal(_NextFreeIdIndex, Index);
+		Node.Key             = 0;
 	}
 
 	X_INLINE bool Check(const xIndexId & Id) const {
@@ -315,6 +317,7 @@ public:
 		}
 		Node.ValueHolder.Destroy();
 		Node.NextFreeIdIndex = Steal(_NextFreeIdIndex, Index);
+		Node.Key             = 0;
 		return true;
 	}
 
