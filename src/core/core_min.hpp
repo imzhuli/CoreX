@@ -135,6 +135,7 @@ template <typename T, size_t L>
 [[noreturn]] X_STATIC_INLINE void Fatal(const char * message) { QuickExit(message); }
 [[noreturn]] X_STATIC_INLINE void Todo(const char * info) { QuickExit(info); }
 [[noreturn]] X_STATIC_INLINE void Pure() { QuickExit("Pure funcion placeholder called"); }
+[[noreturn]] X_STATIC_INLINE void Unreachable() { QuickExit("Unreachable code is reached"); }
 
 X_API void Breakpoint();
 X_STATIC_INLINE void Pass() { }
