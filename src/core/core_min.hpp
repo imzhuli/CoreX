@@ -75,6 +75,8 @@ union xVariable {
 	struct          { uint32_t UX, UY; };
 	struct          { float    FX, FY; };
 };
+static_assert(sizeof(xVariable) == 8);
+static_assert(std::is_trivially_copyable_v<xVariable>);
 
 template <typename T> // Function to Holder
 X_INLINE std::enable_if_t<std::is_function_v<T>, function_holder_t> F2H(const T & F) {

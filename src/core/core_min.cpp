@@ -15,9 +15,6 @@
 // clang-format off
 X_COMMON_BEGIN
 
-static_assert(sizeof(xVariable) == 8);
-static_assert(std::is_trivially_copyable_v<xVariable>);
-
 void Breakpoint() {}
 void QuickExit(int ExitCode) {
 #ifdef X_SYSTEM_DARWIN
