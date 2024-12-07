@@ -27,7 +27,7 @@ public:
 		X_API_MEMBER virtual void   OnConnected(xTcpConnection * TcpConnectionPtr) {}
 		X_API_MEMBER virtual void   OnPeerClose(xTcpConnection * TcpConnectionPtr) {}
 		X_API_MEMBER virtual void   OnFlush(xTcpConnection * TcpConnectionPtr) {}
-		X_API_MEMBER virtual size_t OnData(xTcpConnection * TcpConnectionPtr, void * DataPtr, size_t DataSize) { return DataSize; }
+		X_API_MEMBER virtual size_t OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_t DataSize) { return DataSize; }
 	};
 
 public:

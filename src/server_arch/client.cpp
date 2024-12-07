@@ -117,9 +117,8 @@ void xClient::Tick(uint64_t NowMS) {
 	}
 }
 
-size_t xClient::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, size_t DataSize) {
+size_t xClient::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_t DataSize) {
 	assert(TcpConnectionPtr == &Connection);
-	auto   DataPtr    = static_cast<ubyte *>(DataPtrInput);
 	size_t RemainSize = DataSize;
 	while (RemainSize >= PacketHeaderSize) {
 		auto Header = xPacketHeader::Parse(DataPtr);

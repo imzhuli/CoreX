@@ -12,7 +12,7 @@ struct xHelloWorldClient : public xTcpConnection::iListener {
 	void   OnConnected(xTcpConnection * CP) { cout << "Connected" << endl; }
 	void   OnPeerClose(xTcpConnection * CP) { cout << "Closed" << endl; }
 	void   OnFlush(xTcpConnection * CP) { cout << "Flush" << endl; }
-	size_t OnData(xTcpConnection * CP, void * DataPtr, size_t DataSize) {
+	size_t OnData(xTcpConnection * CP, ubyte * DataPtr, size_t DataSize) {
 		cout << HexShow(DataPtr, DataSize) << endl;
 		return DataSize;
 	}

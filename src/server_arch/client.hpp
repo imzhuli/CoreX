@@ -32,7 +32,7 @@ protected:
 private:
 	X_API_MEMBER void   OnConnected(xTcpConnection * TcpConnectionPtr) override;
 	X_API_MEMBER void   OnPeerClose(xTcpConnection * TcpConnectionPtr) override;
-	X_API_MEMBER size_t OnData(xTcpConnection * TcpConnectionPtr, void * DataPtr, size_t DataSize) override;
+	X_API_MEMBER size_t OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_t DataSize) override;
 
 private:
 	// config

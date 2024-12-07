@@ -12,7 +12,7 @@ class xUdpChannel
 public:
 	struct iListener {  // clang-format off
 		virtual void OnError(xUdpChannel * ChannelPtr) {}
-		virtual void OnData(xUdpChannel * ChannelPtr, void * DataPtr, size_t DataSize, const xNetAddress & RemoteAddress) = 0;
+		virtual void OnData(xUdpChannel * ChannelPtr, ubyte * DataPtr, size_t DataSize, const xNetAddress & RemoteAddress) = 0;
 	};  // clang-format on
 
 public:
@@ -22,9 +22,7 @@ public:
 	X_API_MEMBER void PostRequestKeepAlive(const xNetAddress & DestiationAddress);
 	X_API_MEMBER void PostKeepAlive(const xNetAddress & DestiationAddress);
 
-	X_INLINE const xNetAddress & GetBindAddress() const {
-		return ActualBindAddress;
-	}
+	X_INLINE const xNetAddress & GetBindAddress() const { return ActualBindAddress; }
 
 private:
 	X_API_MEMBER bool OnIoEventInReady() override;

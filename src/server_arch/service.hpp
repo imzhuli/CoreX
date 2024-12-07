@@ -63,7 +63,7 @@ protected:
 private:
 	X_API_MEMBER void   OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandle) override;
 	X_API_MEMBER void   OnPeerClose(xTcpConnection * TcpConnectionPtr) override;
-	X_API_MEMBER size_t OnData(xTcpConnection * TcpConnectionPtr, void * DataPtr, size_t DataSize) override;
+	X_API_MEMBER size_t OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_t DataSize) override;
 
 	X_PRIVATE_MEMBER void CleanupConnection(xServiceClientConnection & Connection);
 	X_PRIVATE_MEMBER void CleanupKilledConnections();
@@ -97,7 +97,7 @@ protected:
 	virtual void OnPacket(const xNetAddress & RemoteAddress, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
 
 private:
-	X_PRIVATE_MEMBER void OnData(xUdpChannel * ChannelPtr, void * DataPtr, size_t DataSize, const xNetAddress & RemoteAddress) override;
+	X_PRIVATE_MEMBER void OnData(xUdpChannel * ChannelPtr, ubyte * DataPtr, size_t DataSize, const xNetAddress & RemoteAddress) override;
 };
 
 X_END

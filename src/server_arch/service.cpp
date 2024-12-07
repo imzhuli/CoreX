@@ -117,9 +117,8 @@ void xService::OnPeerClose(xTcpConnection * TcpConnectionPtr) {
 	DeferKillConnection(Connection);
 }
 
-size_t xService::OnData(xTcpConnection * TcpConnectionPtr, void * DataPtrInput, size_t DataSize) {
+size_t xService::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_t DataSize) {
 	auto & Connection = Cast(*TcpConnectionPtr);
-	auto   DataPtr    = static_cast<ubyte *>(DataPtrInput);
 	size_t RemainSize = DataSize;
 	while (RemainSize >= PacketHeaderSize) {
 		auto Header = xPacketHeader::Parse(DataPtr);
@@ -173,7 +172,7 @@ void xService::PostData(xServiceClientConnection & Connection, const void * Data
 }
 
 /* udp */
-void xUdpService::OnData(xUdpChannel * ChannelPtr, void * DataPtr, size_t DataSize, const xNetAddress & RemoteAddress) {
+void xUdpService::OnData(xUdpChannel * ChannelPtr, ubyte * DataPtr, size_t DataSize, const xNetAddress & RemoteAddress) {
 	assert(this == ChannelPtr);
 	if (DataSize < PacketHeaderSize) {
 		return;
