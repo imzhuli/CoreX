@@ -44,7 +44,7 @@ public:
 
 private:
 	X_INLINE void _R(std::string & V) { V = _RB(); }
-	X_INLINE void _R(std::string_view & V) { V = _ReadRawBlockView(); }
+	X_INLINE void _R(std::string_view & V) { V = _ReadBlockView(); }
 	X_INLINE void _R(xNetAddress & Addr) { _RAddr(Addr); }
 	X_INLINE void _R(bool & V) { V = static_cast<bool>(_R1()); }
 	template <typename T>
@@ -102,24 +102,12 @@ private:
 		return _Reader.R8L();
 	}
 	X_INLINE std::string _RB() {
-		auto Size = _R4();
-		if (_RemainSize < 0) {
-			return {};
-		}
-		auto R = std::string();
-		R.resize(Size);
-		_ReadRawBlock(R.data(), Size);
-		if (_RemainSize < 0) {
-			return {};
-		}
-		return R;
+		auto View = _ReadBlockView();
+		return std::string(View);
 	}
 
-	X_INLINE std::string_view _ReadRawBlockView() {
-		auto Size = _R4();
-		if (_RemainSize < 0) {
-			return {};
-		}
+	X_INLINE std::string_view _ReadBlockView() {
+		auto Size         = _R4();
 		auto RequiredSize = static_cast<ssize_t>(Size);
 		assert(RequiredSize < std::numeric_limits<ssize32_t>::max());
 		if (_RemainSize < RequiredSize) {
@@ -130,16 +118,6 @@ private:
 		return { (const char *)_Reader.Skip(Size), Size };
 	}
 
-	X_INLINE void _ReadRawBlock(void * Block, size_t Size) {
-		auto RequiredSize = static_cast<ssize_t>(Size);
-		assert(RequiredSize < std::numeric_limits<ssize32_t>::max());
-		if (_RemainSize < RequiredSize) {
-			SetError();
-			return;
-		}
-		_RemainSize -= RequiredSize;
-		_Reader.R(Block, Size);
-	}
 	void _RAddr(xNetAddress & Addr) {
 		if (_RemainSize < 1) {
 			Addr = xNetAddress();

@@ -104,9 +104,6 @@ private:
 	}
 	X_INLINE void _WB(const void * Block, size_t Size) {
 		_W4((ssize32_t)Size);
-		if (_RemainSize < 0) {
-			return;
-		}
 		_WriteRawBlock(Block, Size);
 	}
 	X_INLINE void _WriteRawBlock(const void * Block, size_t Size) {
