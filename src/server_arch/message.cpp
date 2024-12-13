@@ -48,7 +48,7 @@ size_t WritePacket(xPacketCommandId CmdId, xPacketRequestId RequestId, void * Bu
 	auto PayloadPtr     = static_cast<ubyte *>(Buffer) + PacketHeaderSize;
 	auto MaxPayloadSize = BufferSize - PacketHeaderSize;
 	auto PayloadSize    = Message.Serialize(PayloadPtr, MaxPayloadSize);
-	if (InvalidDataSize == PayloadSize) {
+	if (!PayloadSize) {
 		return 0;
 	}
 
