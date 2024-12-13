@@ -9,18 +9,24 @@ X_BEGIN
 
 class xBinaryMessageWriter {
 public:
-	void Reset(void * Dest, size_t DestSize) {
+	X_INLINE void Reset(void * Dest, size_t DestSize) {
 		_Writer.Reset(Dest);
 		_RemainSize = DestSize;
 	}
 
-	void   SetError() { _RemainSize = -1; }
-	bool   HasError() const { return _RemainSize == -1; }
-	size_t GetConsumedSize() const {
+	X_INLINE void   SetError() { _RemainSize = -1; }
+	X_INLINE bool   HasError() const { return _RemainSize == -1; }
+	X_INLINE size_t GetConsumedSize() const {
 		if (HasError()) {
 			return 0;
 		}
 		return _Writer.Offset();
+	}
+	X_INLINE ubyte * GetCurrentPosition() {
+		if (HasError()) {
+			return nullptr;
+		}
+		return _Writer;
 	}
 
 	template <typename T, typename... tArgs>

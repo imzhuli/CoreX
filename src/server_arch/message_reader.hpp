@@ -23,6 +23,13 @@ public:
 		return _Reader.Offset();
 	}
 
+	X_INLINE const ubyte * GetCurrentPosition() {
+		if (HasError()) {
+			return nullptr;
+		}
+		return _Reader;
+	}
+
 	template <typename T, typename... tArgs>
 	X_INLINE void R(T && Arg0, tArgs &&... Args) {
 		_R(std::forward<T>(Arg0));
