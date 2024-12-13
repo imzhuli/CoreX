@@ -14,19 +14,25 @@ public:
 		_RemainSize = DestSize;
 	}
 
-	X_INLINE void   SetError() { _RemainSize = -1; }
-	X_INLINE bool   HasError() const { return _RemainSize == -1; }
+	X_INLINE void    SetError() { _RemainSize = -1; }
+	X_INLINE bool    HasError() const { return _RemainSize == -1; }
+	X_INLINE ubyte * GetCurrentPosition() const {
+		if (HasError()) {
+			return nullptr;
+		}
+		return _Writer;
+	}
 	X_INLINE size_t GetConsumedSize() const {
 		if (HasError()) {
 			return 0;
 		}
 		return _Writer.Offset();
 	}
-	X_INLINE ubyte * GetCurrentPosition() {
+	X_INLINE bool HasRemainSize(size_t Size) const {
 		if (HasError()) {
-			return nullptr;
+			return false;
 		}
-		return _Writer;
+		return _RemainSize <= Size;
 	}
 
 	template <typename T, typename... tArgs>

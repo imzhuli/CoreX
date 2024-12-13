@@ -14,20 +14,25 @@ public:
 		_RemainSize = SrcSize;
 	}
 
-	X_INLINE void   SetError() { _RemainSize = -1; }
-	X_INLINE bool   HasError() const { return _RemainSize == -1; }
+	X_INLINE void          SetError() { _RemainSize = -1; }
+	X_INLINE bool          HasError() const { return _RemainSize == -1; }
+	X_INLINE const ubyte * GetCurrentPosition() const {
+		if (HasError()) {
+			return nullptr;
+		}
+		return _Reader;
+	}
 	X_INLINE size_t GetConsumedSize() const {
 		if (HasError()) {
 			return 0;
 		}
 		return _Reader.Offset();
 	}
-
-	X_INLINE const ubyte * GetCurrentPosition() {
+	X_INLINE bool HasRemainSize(size_t Size) const {
 		if (HasError()) {
-			return nullptr;
+			return false;
 		}
-		return _Reader;
+		return _RemainSize <= Size;
 	}
 
 	template <typename T, typename... tArgs>
