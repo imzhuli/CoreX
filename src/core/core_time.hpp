@@ -39,38 +39,26 @@ public:
 	using xTimePoint = xSteadyxTimePoint;
 	using xDuration  = xSteadyDuration;
 
-	X_STATIC_INLINE xTimePoint Now() {
-		return xClock::now();
-	}
+	X_STATIC_INLINE xTimePoint Now() { return xClock::now(); }
 
 private:
 	xTimePoint _LastTagTime;
 
 public:
-	X_INLINE xTimer() {
-		_LastTagTime = Now();
-	}
+	X_INLINE xTimer() { _LastTagTime = Now(); }
 
-	X_INLINE xTimer(const xZeroInit &) {
-		_LastTagTime = xTimePoint();
-	}
+	X_INLINE xTimer(const xZeroInit &) { _LastTagTime = xTimePoint(); }
 
-	X_INLINE xDuration Elapsed() {
-		return Now() - _LastTagTime;
-	}
+	X_INLINE xDuration Elapsed() { return Now() - _LastTagTime; }
 
 	X_INLINE xDuration Skip(const xDuration & duration) {
 		_LastTagTime += duration;
 		return duration;
 	}
 
-	X_INLINE void Tag() {
-		Tag(Now());
-	}
+	X_INLINE void Tag() { Tag(Now()); }
 
-	X_INLINE void Tag(xTimePoint tp) {
-		_LastTagTime = tp;
-	}
+	X_INLINE void Tag(xTimePoint tp) { _LastTagTime = tp; }
 
 	X_INLINE xTimePoint TagAndGet() {
 		auto N = Now();
@@ -94,9 +82,7 @@ public:
 		return false;
 	}
 
-	X_INLINE xTimePoint GetAndTag() {
-		return Steal(_LastTagTime, Now());
-	}
+	X_INLINE xTimePoint GetAndTag() { return Steal(_LastTagTime, Now()); }
 
 	/**
 	 * @brief Consume:
@@ -125,27 +111,12 @@ public:
 
 class xTicker final {
 public:
-	xTicker() {
-		Update();
-	}
-	xTicker(const xNoInit &) {
-		NowMS = 0;
-	}
-	xTicker(const xZeroInit &) {
-		NowMS = 0;
-	}
-	uint64_t Update() {
-		return (NowMS = GetTimestampMS());
-	}
-	void Update(uint64_t TimestampMS) {
-		NowMS = TimestampMS;
-	}
-	operator uint64_t() const {
-		return NowMS;
-	}
-	uint64_t operator()() const {
-		return NowMS;
-	}
+	xTicker() { Update(); }
+	xTicker(const xTicker &) = default;
+	xTicker(const xZeroInit &) { NowMS = 0; }
+	uint64_t Update() { return (NowMS = GetTimestampMS()); }
+	void     Update(uint64_t TimestampMS) { NowMS = TimestampMS; }
+	uint64_t operator()() const { return NowMS; }
 
 private:
 	uint64_t NowMS;
