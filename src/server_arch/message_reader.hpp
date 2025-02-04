@@ -11,11 +11,11 @@ class xBinaryMessageReader {
 public:
 	X_INLINE void Reset(const void * Src, size_t SrcSize) {
 		_Reader.Reset(Src);
-		_RemainSize = SrcSize;
+		_RemainSize = static_cast<ssize_t>(SrcSize);
 	}
 
 	X_INLINE void          SetError() { _RemainSize = -1; }
-	X_INLINE bool          HasError() const { return _RemainSize == -1; }
+	X_INLINE bool          HasError() const { return _RemainSize < 0; }
 	X_INLINE const ubyte * GetCurrentPosition() const {
 		if (HasError()) {
 			return nullptr;
@@ -32,7 +32,7 @@ public:
 		if (HasError()) {
 			return false;
 		}
-		return _RemainSize <= Size;
+		return static_cast<size_t>(_RemainSize) <= Size;
 	}
 
 	template <typename T, typename... tArgs>
