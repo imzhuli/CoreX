@@ -46,22 +46,33 @@ private:
 	// W
 	X_INLINE void _W(const xNetAddress & Address) { _WAddr(Address); }
 	X_INLINE void _W(const std::string_view & V) { _WB(V.data(), V.size()); }
-	X_INLINE void _W(bool V) { _W1(V ? (uint8_t)1 : (uint8_t)0); }
 
 	template <typename T>
-	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 1 == sizeof(T)> _W(T && V) {
+	X_INLINE std::enable_if_t<std::is_same_v<bool, std::remove_cvref_t<T>> && !std::is_rvalue_reference_v<T &&>> _W(T && V) {
+		_W1(std::forward<T>(V) ? (uint8_t)1 : (uint8_t)0);
+	}
+	template <typename T>
+	X_INLINE
+		std::enable_if_t<!std::is_same_v<bool, std::remove_cvref_t<T>> && std::is_integral_v<std::remove_cvref_t<T>> && !std::is_rvalue_reference_v<T &&> && 1 == sizeof(T)>
+		_W(T && V) {
 		_W1(V);
 	}
 	template <typename T>
-	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 2 == sizeof(T)> _W(T && V) {
+	X_INLINE
+		std::enable_if_t<!std::is_same_v<bool, std::remove_cvref_t<T>> && std::is_integral_v<std::remove_cvref_t<T>> && !std::is_rvalue_reference_v<T &&> && 2 == sizeof(T)>
+		_W(T && V) {
 		_W2(V);
 	}
 	template <typename T>
-	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 4 == sizeof(T)> _W(T && V) {
+	X_INLINE
+		std::enable_if_t<!std::is_same_v<bool, std::remove_cvref_t<T>> && std::is_integral_v<std::remove_cvref_t<T>> && !std::is_rvalue_reference_v<T &&> && 4 == sizeof(T)>
+		_W(T && V) {
 		_W4(V);
 	}
 	template <typename T>
-	X_INLINE std::enable_if_t<std::is_integral_v<std::remove_reference_t<T &&>> && !std::is_rvalue_reference_v<T &&> && 8 == sizeof(T)> _W(T && V) {
+	X_INLINE
+		std::enable_if_t<!std::is_same_v<bool, std::remove_cvref_t<T>> && std::is_integral_v<std::remove_cvref_t<T>> && !std::is_rvalue_reference_v<T &&> && 8 == sizeof(T)>
+		_W(T && V) {
 		_W8(V);
 	}
 
