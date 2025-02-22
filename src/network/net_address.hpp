@@ -45,7 +45,7 @@ struct xNetAddress final {
 		return AF_UNSPEC;
 	}
 
-	X_INLINE xNetAddress RemovePort() const {
+	X_INLINE xNetAddress Ip() const {
 		auto A = *this;
 		A.Port = 0;
 		return A;
