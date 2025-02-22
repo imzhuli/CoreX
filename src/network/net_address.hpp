@@ -45,6 +45,11 @@ struct xNetAddress final {
 		return AF_UNSPEC;
 	}
 
+	X_INLINE xNetAddress RemovePort() const {
+		auto A = *this;
+		A.Port = 0;
+		return A;
+	}
 	X_INLINE xNetAddress Decay() const { return { .Type = this->Type }; }
 
 	X_INLINE void Dump(sockaddr_in * Addr4Ptr) const {
