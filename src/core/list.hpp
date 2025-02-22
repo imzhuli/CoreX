@@ -21,7 +21,6 @@ public:
 
 protected:
 	X_INLINE             xListNode(const xListNode & Other) noexcept { ResetUnsafe(); }
-	X_INLINE             xListNode(xListNode && Other) noexcept { TakePlaceOfUnsafe(Other); }
 	X_INLINE xListNode & operator=(const xListNode & Other) noexcept { return *this; }
 	X_INLINE xListNode & operator=(xListNode && Other) = delete;
 
