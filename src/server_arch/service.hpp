@@ -19,6 +19,7 @@ class xServiceClientConnection final
 	: public xTcpConnection
 	, public xServiceClientConnectionNode {
 public:
+	X_INLINE void              SetUserContext(xVariable V) { UserContext = V; }
 	X_INLINE uint64_t          GetConnectionId() const { return ConnectionId; }
 	X_INLINE xVariable &       GetUserContext() { return UserContext; }
 	X_INLINE const xVariable & GetUserContext() const { return UserContext; }
