@@ -47,7 +47,9 @@ void xTcpServer::Clean() {
 bool xTcpServer::OnIoEventInReady() {
 	auto NewSocket = InvalidSocket;
 	while (TryAccept(NewSocket)) {
-		LP->OnNewConnection(this, Steal(NewSocket, InvalidSocket));
+		if (NewSocket != InvalidSocket) {
+			LP->OnNewConnection(this, std::move(NewSocket));
+		}
 	}
 	return true;
 }
@@ -56,7 +58,7 @@ bool xTcpServer::TryListen() {
 	setsockopt(NativeSocket, SOL_SOCKET, SO_SNDBUF, (char *)X2P(int(0)), sizeof(int));
 	auto ListenRet = listen(NativeSocket, SOMAXCONN);
 	if (ListenRet == -1) {
-		X_PFATAL("failed to listen on address");
+		X_DEBUG_PRINTF("failed to listen on address");
 		return false;
 	}
 	return true;
@@ -69,10 +71,11 @@ bool xTcpServer::TryAccept(xSocket & NewConnectionSocket) {
 	NewConnectionSocket = accept(NativeSocket, (struct sockaddr *)&SockAddr, &SockAddrLen);
 	if (NewConnectionSocket == InvalidSocket) {
 		auto Error = errno;
-		if (Error != EAGAIN) {
-			X_PFATAL("failed to accept new connection: %s", strerror(Error));
+		if (Error == EAGAIN) {
+			return false;  // break the outer loop
 		}
-		return false;
+		// note: still need to return true, so that further queued connection request could be processed
+		X_DEBUG_PRINTF("failed to accept new connection: %s", strerror(Error));
 	}
 	return true;
 }
