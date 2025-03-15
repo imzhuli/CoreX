@@ -146,11 +146,11 @@ X_STATIC_INLINE constexpr auto MakeSigned(const T & Value) { return static_cast<
 template <typename T>
 X_STATIC_INLINE constexpr auto MakeUnsigned(const T & Value) { return static_cast<std::make_unsigned_t<T>>(Value); }
 template <typename T1, typename T0>
-X_STATIC_INLINE constexpr auto Diff(T1 && Value, T0 && FromValue) { return std::forward<T1>(Value) - std::forward<T0>(FromValue); }
+X_STATIC_INLINE constexpr auto Diff(const T1 & Value, const T0 & FromValue) { return Value - FromValue; }
 template <typename T1, typename T0>
-X_STATIC_INLINE constexpr auto SignedDiff(T1 && Value, T0 && FromValue) { return MakeSigned(Diff(std::forward<T1>(Value), std::forward<T0>(FromValue))); }
+X_STATIC_INLINE constexpr auto SignedDiff(const T1 & Value, const T0 & FromValue) { return MakeSigned(Diff(Value, FromValue)); }
 template <typename T1, typename T0>
-X_STATIC_INLINE constexpr auto UnignedDiff(T1 && Value, T0 && FromValue) { return MakeUnsigned(Diff(std::forward<T1>(Value), std::forward<T0>(FromValue))); }
+X_STATIC_INLINE constexpr auto UnsignedDiff(const T1 & Value, const T0 & FromValue) { return MakeUnsigned(Diff(Value, FromValue)); }
 
 template <typename T>
 X_STATIC_INLINE constexpr bool IsDefaultValue(const T & Target) { return Target == T{}; }
