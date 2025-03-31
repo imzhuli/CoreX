@@ -42,6 +42,7 @@ public:
 	X_API_MEMBER xNetAddress GetRemoteAddress() const;
 	X_API_MEMBER xNetAddress GetLocalAddress() const;
 
+	X_INLINE bool     IsOpen() const { return State != eState::UNSPEC; }
 	X_INLINE bool     IsConnected() const { return State == eState::CONNECTED; }
 	X_INLINE void     ResizeSendBuffer(size_t Size) { xel::ResizeSendBuffer(NativeSocket, Size); };
 	X_INLINE void     ResizeRecvBuffer(size_t Size) { xel::ResizeRecvBuffer(NativeSocket, Size); };

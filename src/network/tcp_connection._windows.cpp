@@ -23,8 +23,8 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeSocket, iL
 	auto BaseG         = xScopeGuard([this] {
         DestroySocket(std::move(this->NativeSocket));
         xSocketIoReactor::Clean();
-        Reset(ICP);
-        Reset(LP);
+        X_DEBUG_RESET(ICP);
+        X_DEBUG_RESET(LP);
     });
 
 	// add to event loop
@@ -51,8 +51,8 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & TargetA
 	this->LP   = ListenerPtr;
 	auto BaseG = xScopeGuard([this] {
 		xSocketIoReactor::Clean();
-		Reset(ICP);
-		Reset(LP);
+		X_DEBUG_RESET(ICP);
+		X_DEBUG_RESET(LP);
 	});
 
 	if (!CreateNonBlockingTcpSocket(NativeSocket, BindAddress)) {
@@ -111,11 +111,13 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & TargetA
 }
 
 void xTcpConnection::Clean() {
+	assert(IsOpen());
 	this->ICP->Remove(*this);
 	DestroySocket(std::move(NativeSocket));
 	xSocketIoReactor::Clean();
-	Reset(ICP);
-	Reset(LP);
+	State = eState::UNSPEC;
+	X_DEBUG_RESET(ICP);
+	X_DEBUG_RESET(LP);
 }
 
 void xTcpConnection::SuspendReading() {
