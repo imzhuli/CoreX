@@ -6,6 +6,11 @@ using namespace std;
 using namespace xel;
 
 struct xEchoService : xService {
+	void OnClientConnected(xServiceClientConnection & Connection) override {
+		cout << "OnClientConnected" << endl;
+		//
+		Connection.PostData("Hello World!\n", 13);
+	}
 	bool OnPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) override {
 		auto Ret = xService::OnPacket(Connection, Header, PayloadPtr, PayloadSize);
 
@@ -13,6 +18,10 @@ struct xEchoService : xService {
 		auto  Size = xPacketHeader::MakeKeepAlive(Buffer);
 		PostData(Connection, Buffer, Size);
 		return Ret;
+	}
+	void OnClientClose(xServiceClientConnection & Connection) override {
+		cout << "OnClientDisconnected" << endl;
+		//
 	}
 };
 

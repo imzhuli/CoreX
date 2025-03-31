@@ -28,7 +28,6 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeSocket, iL
 	}
 
 	State = eState::CONNECTED;
-	IoContextPtr->DeferWrite(*this);
 
 	Dismiss(BaseG, SG);
 	return true;
