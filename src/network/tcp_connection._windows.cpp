@@ -35,6 +35,7 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, xSocket && NativeSocket, iL
 	auto EG = xScopeGuard([this] { this->ICP->Remove(*this); });
 
 	State = eState::CONNECTED;
+	IoContextPtr->DeferWrite(*this);
 	AsyncAcquireInput();
 
 	Dismiss(BaseG, EG);
