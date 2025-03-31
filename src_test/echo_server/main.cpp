@@ -9,7 +9,6 @@ struct xEchoService : xService {
 	void OnClientConnected(xServiceClientConnection & Connection) override {
 		cout << "OnClientConnected" << endl;
 		//
-		Connection.PostData("Hello World!\n", 13);
 	}
 	bool OnPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) override {
 		auto Ret = xService::OnPacket(Connection, Header, PayloadPtr, PayloadSize);
