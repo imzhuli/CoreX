@@ -30,12 +30,10 @@ static constexpr const size_t           MaxDispatchableCommandIdCount = 1 + MaxD
 */
 struct xPacketHeader final {
 
-	static constexpr const size_t           Size                                       = 2 * sizeof(uint32_t) + sizeof(uint64_t);
-	static constexpr const xPacketCommandId CmdId_InnernalRequest                      = xPacketCommandId(-1);
-	static constexpr const xPacketRequestId InternalRequest_KeepAlive                  = xPacketRequestId(-0);
-	static constexpr const xPacketRequestId InternalRequest_RequestKeepAlive           = xPacketRequestId(-1);
-	static constexpr const xPacketRequestId InternalRequest_RegisterDispatcherConsumer = xPacketRequestId(-2);
-	static constexpr const xPacketRequestId InternalRequest_RegisterDispatcherObserver = xPacketRequestId(-3);
+	static constexpr const size_t           Size                             = 2 * sizeof(uint32_t) + sizeof(uint64_t);
+	static constexpr const xPacketCommandId CmdId_InnernalRequest            = xPacketCommandId(-1);
+	static constexpr const xPacketRequestId InternalRequest_KeepAlive        = xPacketRequestId(-0);
+	static constexpr const xPacketRequestId InternalRequest_RequestKeepAlive = xPacketRequestId(-1);
 
 	xPacketSize      PacketSize = 0;  // header size included, lower 24 bits as length, higher 8 bits as a magic check
 	xPacketCommandId CommandId  = 0;
@@ -55,13 +53,9 @@ struct xPacketHeader final {
 		RequestId  = S.R8L();
 	}
 
-	X_INLINE size_t GetPayloadSize() const {
-		return PacketSize - PacketHeaderSize;
-	}
+	X_INLINE size_t GetPayloadSize() const { return PacketSize - PacketHeaderSize; }
 
-	X_INLINE operator bool() const {
-		return PacketSize;
-	}
+	X_INLINE operator bool() const { return PacketSize; }
 
 	X_STATIC_INLINE xPacketHeader Parse(void * PacketPtr) {
 		xPacketHeader Header;
@@ -93,21 +87,9 @@ struct xPacketHeader final {
 		return PacketHeaderSize;
 	}
 
-	X_INLINE bool IsInternalRequest() const {
-		return CommandId == CmdId_InnernalRequest;
-	}
-	X_INLINE bool IsKeepAlive() const {
-		return IsInternalRequest() && RequestId == InternalRequest_KeepAlive;
-	}
-	X_INLINE bool IsRequestKeepAlive() const {
-		return IsInternalRequest() && RequestId == InternalRequest_RequestKeepAlive;
-	}
-	X_INLINE bool IsRegisterDispatcherConsumer() const {
-		return IsInternalRequest() && RequestId == InternalRequest_RegisterDispatcherConsumer;
-	}
-	X_INLINE bool IsRegisterDispatcherObserver() const {
-		return IsInternalRequest() && RequestId == InternalRequest_RegisterDispatcherObserver;
-	}
+	X_INLINE bool IsInternalRequest() const { return CommandId == CmdId_InnernalRequest; }
+	X_INLINE bool IsKeepAlive() const { return IsInternalRequest() && RequestId == InternalRequest_KeepAlive; }
+	X_INLINE bool IsRequestKeepAlive() const { return IsInternalRequest() && RequestId == InternalRequest_RequestKeepAlive; }
 
 private:
 	X_STATIC_INLINE uint32_t MakeHeaderLength(uint32_t PacketSize) {
@@ -122,31 +104,13 @@ private:
 
 struct xPacket final {
 
-	X_STATIC_INLINE ubyte * GetPayloadPtr(void * PacketPtr) {
-		return (ubyte *)PacketPtr + xPacketHeader::Size;
-	}
-	X_STATIC_INLINE const ubyte * GetPayloadPtr(const void * PacketPtr) {
-		return (const ubyte *)PacketPtr + xPacketHeader::Size;
-	}
-	X_STATIC_INLINE size_t GetPayloadSize(size_t PacketSize) {
-		return PacketSize - PacketHeaderSize;
-	}
+	X_STATIC_INLINE ubyte *       GetPayloadPtr(void * PacketPtr) { return (ubyte *)PacketPtr + xPacketHeader::Size; }
+	X_STATIC_INLINE const ubyte * GetPayloadPtr(const void * PacketPtr) { return (const ubyte *)PacketPtr + xPacketHeader::Size; }
+	X_STATIC_INLINE size_t        GetPayloadSize(size_t PacketSize) { return PacketSize - PacketHeaderSize; }
 
-	X_STATIC_INLINE ubyte * GetPacketPtr(void * PayloedPtr) {
-		return (ubyte *)PayloedPtr - xPacketHeader::Size;
-	}
-	X_STATIC_INLINE const ubyte * GetPacketPtr(const void * PayloedPtr) {
-		return (const ubyte *)PayloedPtr - xPacketHeader::Size;
-	}
-	X_STATIC_INLINE size_t GetPacketSize(size_t PayloadSize) {
-		return PayloadSize + PacketHeaderSize;
-	}
-
-	X_API_STATIC_MEMBER size_t MakeRegisterDispatcherConsumer(void * PacketBuffer, size_t PacketBufferSize, const xPacketCommandId * CmdIds, size_t Total);
-	X_API_STATIC_MEMBER std::vector<xPacketCommandId> ParseRegisterDispatcherConsumer(const void * PayloadPtr, size_t PayloadSize);
-
-	X_API_STATIC_MEMBER size_t MakeRegisterDispatcherObserver(void * PacketBuffer, size_t PacketBufferSize, const xPacketCommandId * CmdIds, size_t Total);
-	X_API_STATIC_MEMBER std::vector<xPacketCommandId> ParseRegisterDispatcherObserver(const void * PayloadPtr, size_t PayloadSize);
+	X_STATIC_INLINE ubyte *       GetPacketPtr(void * PayloedPtr) { return (ubyte *)PayloedPtr - xPacketHeader::Size; }
+	X_STATIC_INLINE const ubyte * GetPacketPtr(const void * PayloedPtr) { return (const ubyte *)PayloedPtr - xPacketHeader::Size; }
+	X_STATIC_INLINE size_t        GetPacketSize(size_t PayloadSize) { return PayloadSize + PacketHeaderSize; }
 };
 
 X_END

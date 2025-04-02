@@ -31,14 +31,9 @@ function(build_app sub_dir_name)
 endfunction()
 
 build_app(abort)
-build_app(broadcaster)
-build_app(dispatcher)
-build_app(guard)
 
 install(TARGETS
 	x_abort
-	x_broadcaster
-	x_dispatcher
 	RUNTIME DESTINATION bin
 	ARCHIVE DESTINATION lib
 	LIBRARY DESTINATION lib
