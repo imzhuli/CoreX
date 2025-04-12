@@ -210,9 +210,9 @@ template <typename T, typename TValue>
 X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget, TValue && value) { RenewValue(ExpiringTarget, std::forward<TValue>(value)); }
 
 template <typename T>
-[[nodiscard]] X_STATIC_INLINE T Steal(T & ExpiringTarget) { T ret = std::move(ExpiringTarget); ExpiringTarget = T(); return ret; }
+[[nodiscard]] X_STATIC_INLINE T Steal(T & ExpiringTarget) { T ret = std::move(ExpiringTarget); Reset(ExpiringTarget); return ret; }
 template <typename T, typename TValue>
-[[nodiscard]] X_STATIC_INLINE T Steal(T & ExpiringTarget, TValue && value) { T ret = std::move(ExpiringTarget); ExpiringTarget = std::forward<TValue>(value); return ret; }
+[[nodiscard]] X_STATIC_INLINE T Steal(T & ExpiringTarget, TValue && value) { T ret = std::move(ExpiringTarget); Reset(ExpiringTarget, std::forward<TValue>(value)); return ret; }
 
 
 X_STATIC_INLINE constexpr const char * YN(bool y) { return y ? "yes" : "no"; }
