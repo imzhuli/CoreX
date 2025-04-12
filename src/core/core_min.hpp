@@ -207,7 +207,7 @@ X_STATIC_INLINE void RenewValueWithList(T & ExpiringTarget, tArgs &&... Args) { 
 template <typename T>
 X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget) { RenewValue(ExpiringTarget); }
 template <typename T, typename TValue>
-X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget, TValue && value) { ExpiringTarget = std::forward<TValue>(value); }
+X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget, TValue && value) { RenewValue(ExpiringTarget, std::forward<TValue>(value)); }
 
 template <typename T>
 [[nodiscard]] X_STATIC_INLINE T Steal(T & ExpiringTarget) { T ret = std::move(ExpiringTarget); ExpiringTarget = T(); return ret; }
