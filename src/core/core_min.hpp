@@ -159,10 +159,6 @@ template <typename...T>
 X_STATIC_INLINE void Ignore(const T&...) {}
 template <typename...T>
 X_STATIC_INLINE void Touch(const T&...) {}
-template <typename T>
-X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget) { ExpiringTarget = T(); }
-template <typename T, typename TValue>
-X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget, TValue && value) { ExpiringTarget = std::forward<TValue>(value); }
 
 template <typename T>
 X_STATIC_INLINE void Construct(T & ExpiringTarget) { new (AddressOf(ExpiringTarget)) T; }
@@ -206,6 +202,12 @@ template <typename T, typename... tArgs>
 X_STATIC_INLINE void RenewValue(T & ExpiringTarget, tArgs &&... Args) { ExpiringTarget.~T(); ConstructValue(ExpiringTarget, std::forward<tArgs>(Args)...); }
 template <typename T, typename... tArgs>
 X_STATIC_INLINE void RenewValueWithList(T & ExpiringTarget, tArgs &&... Args) { ExpiringTarget.~T(); ConstructValueWithList(ExpiringTarget, std::forward<tArgs>(Args)...); }
+
+
+template <typename T>
+X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget) { RenewValue(ExpiringTarget); }
+template <typename T, typename TValue>
+X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget, TValue && value) { ExpiringTarget = std::forward<TValue>(value); }
 
 template <typename T>
 [[nodiscard]] X_STATIC_INLINE T Steal(T & ExpiringTarget) { T ret = std::move(ExpiringTarget); ExpiringTarget = T(); return ret; }

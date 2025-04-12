@@ -78,6 +78,7 @@ public:
 	X_INLINE ~xList() { assert(IsEmpty()); }
 
 public:
+	X_INLINE void ResetUnsafe() { _Head.ResetUnsafe(); }
 	X_INLINE bool IsEmpty() const { return _Head.pNext == &_Head; }
 	X_INLINE void AddHead(tNode & rTarget) { static_cast<xListNode &>(rTarget).AppendTo(_Head); }
 	X_INLINE void AddTail(tNode & rTarget) { static_cast<xListNode &>(rTarget).AppendTo(*_Head.pPrev); }
