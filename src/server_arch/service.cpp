@@ -129,7 +129,7 @@ size_t xService::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size
 		if (RemainSize < PacketSize) {        // wait for data
 			break;
 		}
-		if (Header.IsRequestKeepAlive()) {
+		if (Header.IsRequestKeepAlive() && !Connection.IsBeingKilled()) {
 			// X_DEBUG_PRINTF("RequestKeepAlive: %" PRIx64 "", Connection.ConnectionId());
 			Connection.PostKeepAlive();
 			KeepAlive(Connection);
@@ -168,7 +168,19 @@ void xService::PostData(uint64_t ConnectionId, const void * DataPtr, size_t Data
 }
 
 void xService::PostData(xServiceClientConnection & Connection, const void * DataPtr, size_t DataSize) {
+	if (Connection.IsBeingKilled()) {
+		return;
+	}
 	Connection.PostData(DataPtr, DataSize);
+}
+
+void xService::PostPacket(xServiceClientConnection & Connection, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
+	ubyte Buffer[MaxPacketSize];
+	auto  PSize = WritePacket(CmdId, RequestId, Buffer, Message);
+	if (!PSize) {
+		return;
+	}
+	PostData(Connection, Buffer, PSize);
 }
 
 /* udp */

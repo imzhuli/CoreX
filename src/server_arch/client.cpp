@@ -180,4 +180,13 @@ void xClient::PostData(const void * DataPtr, size_t DataSize) {
 	Connection.PostData(DataPtr, DataSize);
 }
 
+void xClient::PostPacket(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
+	ubyte Buffer[MaxPacketSize];
+	auto  PSize = WritePacket(CmdId, RequestId, Buffer, Message);
+	if (!PSize) {
+		return;
+	}
+	PostData(Buffer, PSize);
+}
+
 X_END

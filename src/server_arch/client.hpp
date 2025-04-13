@@ -1,5 +1,6 @@
 #pragma once
 #include "../network/tcp_connection.hpp"
+#include "./message.hpp"
 
 X_BEGIN
 
@@ -19,6 +20,7 @@ public:
 	X_API_MEMBER void SetKeepAliveTimeout(uint64_t TimeoutMS);
 	X_API_MEMBER void SetMaxWriteBuffer(size_t Size);
 	X_API_MEMBER void PostData(const void * DataPtr, size_t DataSize);
+	X_API_MEMBER void PostPacket(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 	X_API_MEMBER void PostRequestKeepAlive();
 	X_API_MEMBER void Kill();
 

@@ -4,6 +4,7 @@
 #include "../network/tcp_connection.hpp"
 #include "../network/tcp_server.hpp"
 #include "../network/udp_channel.hpp"
+#include "./message.hpp"
 
 X_BEGIN
 
@@ -12,6 +13,11 @@ class xServiceClientConnection;
 
 class xServiceClientConnectionNode : public xListNode {
 public:
+	static constexpr const uint64_t BEING_KILLED = (uint64_t)-1;
+
+	void SetBeingKilled() { TimestampMS = BEING_KILLED; }
+	bool IsBeingKilled() const { return TimestampMS == BEING_KILLED; }
+
 	uint64_t TimestampMS = 0;
 };
 
@@ -48,9 +54,14 @@ public:
 	X_API_MEMBER void SetMaxWriteBuffer(size_t Size);
 	X_API_MEMBER void PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
 	X_API_MEMBER void PostData(xServiceClientConnection & Connection, const void * DataPtr, size_t DataSize);
+	X_API_MEMBER void PostPacket(xServiceClientConnection & Connection, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 
-	X_INLINE void DeferKillConnection(xServiceClientConnection & Connection) { ServiceConnectionKillList.GrabTail(Connection); }
+	X_INLINE void DeferKillConnection(xServiceClientConnection & Connection) {
+		Connection.SetBeingKilled();
+		ServiceConnectionKillList.GrabTail(Connection);
+	}
 	X_INLINE void KeepAlive(xServiceClientConnection & Connection) {
+		assert(!Connection.IsBeingKilled());
 		Connection.TimestampMS = NowMS;
 		ServiceConnectionTimeoutList.GrabTail(Connection);
 	}
