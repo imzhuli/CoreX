@@ -54,7 +54,7 @@ public:
 	X_API_MEMBER void SetMaxWriteBuffer(size_t Size);
 	X_API_MEMBER void PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
 	X_API_MEMBER void PostData(xServiceClientConnection & Connection, const void * DataPtr, size_t DataSize);
-	X_API_MEMBER void PostPacket(xServiceClientConnection & Connection, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
+	X_API_MEMBER void PostMessage(xServiceClientConnection & Connection, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 
 	X_INLINE void DeferKillConnection(xServiceClientConnection & Connection) {
 		Connection.SetBeingKilled();

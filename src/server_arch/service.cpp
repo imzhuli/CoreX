@@ -174,7 +174,7 @@ void xService::PostData(xServiceClientConnection & Connection, const void * Data
 	Connection.PostData(DataPtr, DataSize);
 }
 
-void xService::PostPacket(xServiceClientConnection & Connection, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
+void xService::PostMessage(xServiceClientConnection & Connection, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
 	ubyte Buffer[MaxPacketSize];
 	auto  PSize = WritePacket(CmdId, RequestId, Buffer, Message);
 	if (!PSize) {
