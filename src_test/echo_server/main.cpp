@@ -12,11 +12,28 @@ struct xEchoService : xService {
 	}
 	bool OnPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) override {
 		auto Ret = xService::OnPacket(Connection, Header, PayloadPtr, PayloadSize);
+		RuntimeAssert(Ret);
 
-		ubyte Buffer[128];
-		auto  Size = xPacketHeader::MakeKeepAlive(Buffer);
-		PostData(Connection, Buffer, Size);
-		return Ret;
+		do {
+			PostData(Connection, PayloadPtr, PayloadSize);
+		} while (false);
+
+		return true;
+
+		// ubyte Buffer[MaxPacketSize];
+		// assert(xPacketHeader::Size + PayloadSize <= sizeof(Buffer));
+
+		// auto SW = xStreamWriter(Buffer);
+		// SW.Offset(PacketHeaderSize);
+		// SW.W(PayloadPtr, PayloadSize);
+		// auto RSize = SW.Offset();
+
+		// auto RespHeader       = Header;
+		// RespHeader.PacketSize = RSize;
+		// RespHeader.Serialize(Buffer);
+
+		// PostData(Connection, Buffer, RSize);
+		// return Ret;
 	}
 	void OnClientClose(xServiceClientConnection & Connection) override {
 		cout << "OnClientDisconnected" << endl;

@@ -27,6 +27,8 @@ X_API xOverlappedIoBuffer * Release(xOverlappedIoBuffer * IBP) {
 
 X_API_MEMBER bool xSocketIoReactor::Init() {
 #if defined(X_SYSTEM_DARWIN) || defined(X_SYSTEM_LINUX)
+	assert(!IBP->ReadDataSize);
+	assert(!IBP->WriteBufferChain.Peek());
 	return true;
 #elif defined(X_SYSTEM_WINDOWS)
 	IBP = new (std::nothrow) std::decay_t<decltype(*IBP)>();
@@ -46,6 +48,7 @@ X_API_MEMBER void xSocketIoReactor::Clean() {
 		delete BP;
 	}
 #if defined(X_SYSTEM_DARWIN) || defined(X_SYSTEM_LINUX)
+	Reset(IBP->ReadDataSize);
 	return;
 #elif defined(X_SYSTEM_WINDOWS)
 	Release(Steal(IBP));
