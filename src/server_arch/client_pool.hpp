@@ -23,6 +23,8 @@ class xClientConnection
 	friend class xClientPool;
 
 public:
+	xVariable UserContext = {};
+
 private:
 	uint64_t    ConnectionId;
 	xNetAddress TargetAddress;
