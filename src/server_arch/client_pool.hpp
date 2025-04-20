@@ -50,14 +50,14 @@ public:
 	void                RemoveServer(uint64_t ConnectionId);
 
 	bool PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
-	bool PostData(xClientConnection * PC, const void * DataPtr, size_t DataSize);
+	bool PostData(xClientConnection & PC, const void * DataPtr, size_t DataSize);
 	bool PostMessage(uint64_t ConnectionId, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
-	bool PostMessage(xClientConnection * PC, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
+	bool PostMessage(xClientConnection & PC, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 
 protected:
-	virtual void OnServerConnected(xClientConnection * PC);
-	virtual void OnServerClose(xClientConnection * PC);
-	virtual bool OnServerPacket(xClientConnection * PC, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
+	virtual void OnServerConnected(xClientConnection & PC);
+	virtual void OnServerClose(xClientConnection & PC);
+	virtual bool OnServerPacket(xClientConnection & PC, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
 
 private:
 	void CheckTimeoutConnection();

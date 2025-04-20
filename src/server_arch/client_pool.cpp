@@ -164,14 +164,14 @@ void xClientPool::OnConnected(xTcpConnection * TcpConnectionPtr) {
 	auto PC = static_cast<xClientConnection *>(TcpConnectionPtr);
 	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", PC->ConnectionId, PC->TargetAddress.ToString().c_str());
 	OnKeepAlive(PC);
-	OnServerConnected(PC);
+	OnServerConnected(*PC);
 }
 
 void xClientPool::OnPeerClose(xTcpConnection * TcpConnectionPtr) {
 	auto PC = static_cast<xClientConnection *>(TcpConnectionPtr);
 	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", PC->ConnectionId, PC->TargetAddress.ToString().c_str());
 
-	OnServerClose(PC);
+	OnServerClose(*PC);
 	KillConnectionList.GrabTail(*PC);
 }
 
@@ -179,7 +179,7 @@ size_t xClientPool::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, s
 
 	auto PC = static_cast<xClientConnection *>(TcpConnectionPtr);
 	assert(PC == static_cast<xClientConnection *>(ConnectionPool.CheckAndGet(PC->ConnectionId)));
-	X_DEBUG_PRINTF("\n%s", HexShow(DataPtr, DataSize).c_str());
+	// X_DEBUG_PRINTF("\n%s", HexShow(DataPtr, DataSize).c_str());
 
 	size_t RemainSize = DataSize;
 	while (RemainSize >= PacketHeaderSize) {
@@ -197,7 +197,7 @@ size_t xClientPool::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, s
 		} else {
 			auto PayloadPtr  = xPacket::GetPayloadPtr(DataPtr);
 			auto PayloadSize = Header.GetPayloadSize();
-			if (!OnServerPacket(PC, Header, PayloadPtr, PayloadSize)) { /* packet error */
+			if (!OnServerPacket(*PC, Header, PayloadPtr, PayloadSize)) { /* packet error */
 				return InvalidDataSize;
 			}
 		}
@@ -207,16 +207,16 @@ size_t xClientPool::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, s
 	return DataSize - RemainSize;
 }
 
-void xClientPool::OnServerConnected(xClientConnection * PC) {
-	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", PC->ConnectionId, PC->TargetAddress.ToString().c_str());
+void xClientPool::OnServerConnected(xClientConnection & CC) {
+	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", CC.ConnectionId, CC.TargetAddress.ToString().c_str());
 }
 
-void xClientPool::OnServerClose(xClientConnection * PC) {
-	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", PC->ConnectionId, PC->TargetAddress.ToString().c_str());
+void xClientPool::OnServerClose(xClientConnection & CC) {
+	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", CC.ConnectionId, CC.TargetAddress.ToString().c_str());
 }
 
-bool xClientPool::OnServerPacket(xClientConnection * PC, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) {
-	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s, CommandId=%" PRIx32 "", PC->ConnectionId, PC->TargetAddress.ToString().c_str(), Header.CommandId);
+bool xClientPool::OnServerPacket(xClientConnection & CC, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) {
+	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s, CommandId=%" PRIx32 "", CC.ConnectionId, CC.TargetAddress.ToString().c_str(), Header.CommandId);
 	return true;
 }
 
@@ -225,14 +225,14 @@ bool xClientPool::PostData(uint64_t ConnectionId, const void * DataPtr, size_t D
 	if (!PC) {
 		return false;
 	}
-	return PostData(PC, DataPtr, DataSize);
+	return PostData(*PC, DataPtr, DataSize);
 }
 
-bool xClientPool::PostData(xClientConnection * PC, const void * DataPtr, size_t DataSize) {
-	if (!PC->IsOpen()) {
+bool xClientPool::PostData(xClientConnection & CC, const void * DataPtr, size_t DataSize) {
+	if (!CC.IsOpen()) {
 		return false;
 	}
-	PC->PostData(DataPtr, DataSize);
+	CC.PostData(DataPtr, DataSize);
 	return true;
 }
 
@@ -241,11 +241,11 @@ bool xClientPool::PostMessage(uint64_t ConnectionId, xPacketCommandId CmdId, xPa
 	if (!PC) {
 		return false;
 	}
-	return PostMessage(PC, CmdId, RequestId, Message);
+	return PostMessage(*PC, CmdId, RequestId, Message);
 }
 
-bool xClientPool::PostMessage(xClientConnection * PC, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
-	if (!PC->IsOpen()) {
+bool xClientPool::PostMessage(xClientConnection & CC, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
+	if (!CC.IsOpen()) {
 		return false;
 	}
 
@@ -254,7 +254,7 @@ bool xClientPool::PostMessage(xClientConnection * PC, xPacketCommandId CmdId, xP
 	if (!PSize) {
 		return false;
 	}
-	PC->PostData(Buffer, PSize);
+	CC.PostData(Buffer, PSize);
 	return true;
 }
 

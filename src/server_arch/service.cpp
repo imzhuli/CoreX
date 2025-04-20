@@ -174,6 +174,15 @@ void xService::PostData(xServiceClientConnection & Connection, const void * Data
 	Connection.PostData(DataPtr, DataSize);
 }
 
+void xService::PostMessage(uint64_t ConnectionId, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
+	auto HolderPtr = ConnectionIdPool.CheckAndGet(ConnectionId);
+	if (!HolderPtr) {
+		return;
+	}
+	auto ConnectionPtr = *HolderPtr;
+	PostMessage(*ConnectionPtr, CmdId, RequestId, Message);
+}
+
 void xService::PostMessage(xServiceClientConnection & Connection, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
 	ubyte Buffer[MaxPacketSize];
 	auto  PSize = WritePacket(CmdId, RequestId, Buffer, Message);

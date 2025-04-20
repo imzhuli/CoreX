@@ -16,15 +16,15 @@ struct xHello : public xBinaryMessage {
 
 struct xMyPool : public xClientPool {
 
-	void OnServerConnected(xClientConnection * PC) {
-		xClientPool::OnServerConnected(PC);
+	void OnServerConnected(xClientConnection & CC) {
+		xClientPool::OnServerConnected(CC);
 		auto HW = xHello();
-		auto PM = PostMessage(PC, 1, 2, HW);
+		auto PM = PostMessage(CC, 1, 2, HW);
 		RuntimeAssert(PM);
 	}
 
-	bool OnServerPacket(xClientConnection * PC, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) override {
-		xClientPool::OnServerPacket(PC, Header, PayloadPtr, PayloadSize);
+	bool OnServerPacket(xClientConnection & CC, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) override {
+		xClientPool::OnServerPacket(CC, Header, PayloadPtr, PayloadSize);
 		X_DEBUG_PRINTF("?????????????????");
 		return true;
 	}
