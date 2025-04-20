@@ -23,8 +23,8 @@ class xClientConnection
 	friend class xClientPool;
 
 public:
-	inline uint64_t    GetConnectionId() const { return ConnectionId; }
-	inline xNetAddress GetTargetAddress() const { return TargetAddress; }
+	inline uint64_t            GetConnectionId() const { return ConnectionId; }
+	inline const xNetAddress & GetTargetAddress() const { return TargetAddress; }
 
 public:
 	xVariable UserContext = {};
