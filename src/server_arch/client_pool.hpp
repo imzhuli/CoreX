@@ -23,14 +23,14 @@ class xClientConnection
 	friend class xClientPool;
 
 public:
-	inline uint64_t            GetConnectionId() const { return ConnectionId; }
+	inline xIndexId            GetConnectionId() const { return ConnectionId; }
 	inline const xNetAddress & GetTargetAddress() const { return TargetAddress; }
 
 public:
 	xVariable UserContext = {};
 
 private:
-	uint64_t    ConnectionId;
+	xIndexId    ConnectionId;
 	xNetAddress TargetAddress;
 	bool        ReleaseMark = false;
 };
