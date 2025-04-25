@@ -70,8 +70,8 @@ public:
 protected:
 	X_API_MEMBER virtual void OnClientConnected(xServiceClientConnection & Connection);
 	X_API_MEMBER virtual void OnClientClose(xServiceClientConnection & Connection);
-	X_API_MEMBER virtual bool OnPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
-	X_API_MEMBER virtual void OnCleanupConnection(const xServiceClientConnection & Connection);
+	X_API_MEMBER virtual bool OnClientPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
+	X_API_MEMBER virtual void OnCleanupClientConnection(const xServiceClientConnection & Connection);
 
 private:
 	X_API_MEMBER void   OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandle) override;

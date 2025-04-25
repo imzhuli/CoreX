@@ -59,7 +59,7 @@ void xService::Tick(uint64_t UpdatedNowMS) {
 
 void xService::CleanupConnection(xServiceClientConnection & Connection) {
 	assert(ConnectionIdPool.Check(Connection.ConnectionId));
-	OnCleanupConnection(Connection);
+	OnCleanupClientConnection(Connection);
 	ConnectionIdPool.Release(Connection.ConnectionId);
 	Connection.Clean();
 	delete &Connection;
@@ -136,7 +136,7 @@ size_t xService::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size
 		} else {
 			auto PayloadPtr  = xPacket::GetPayloadPtr(DataPtr);
 			auto PayloadSize = Header.GetPayloadSize();
-			if (!OnPacket(Connection, Header, PayloadPtr, PayloadSize)) { /* packet error */
+			if (!OnClientPacket(Connection, Header, PayloadPtr, PayloadSize)) { /* packet error */
 				return InvalidDataSize;
 			}
 		}
@@ -146,12 +146,12 @@ size_t xService::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size
 	return DataSize - RemainSize;
 }
 
-bool xService::OnPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) {
+bool xService::OnClientPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) {
 	X_DEBUG_PRINTF("CommandId: %" PRIx32 ", RequestId:%" PRIx64 ":  \n%s", Header.CommandId, Header.RequestId, HexShow(PayloadPtr, PayloadSize).c_str());
 	return true;
 }
 
-void xService::OnCleanupConnection(const xServiceClientConnection & Connection) {
+void xService::OnCleanupClientConnection(const xServiceClientConnection & Connection) {
 }
 
 void xService::SetMaxWriteBuffer(size_t Size) {

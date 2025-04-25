@@ -10,8 +10,8 @@ struct xEchoService : xService {
 		cout << "OnClientConnected" << endl;
 		//
 	}
-	bool OnPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) override {
-		auto Ret = xService::OnPacket(Connection, Header, PayloadPtr, PayloadSize);
+	bool OnClientPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) override {
+		auto Ret = xService::OnClientPacket(Connection, Header, PayloadPtr, PayloadSize);
 		RuntimeAssert(Ret);
 
 		ubyte Buffer[MaxPacketSize];
