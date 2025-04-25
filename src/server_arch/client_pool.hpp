@@ -54,9 +54,10 @@ public:
 	bool PostMessage(xClientConnection & PC, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 
 protected:
-	virtual void OnServerConnected(xClientConnection & PC);
-	virtual void OnServerClose(xClientConnection & PC);
-	virtual bool OnServerPacket(xClientConnection & PC, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
+	virtual void OnServerConnected(xClientConnection & CC);
+	virtual void OnServerClose(xClientConnection & CC);
+	virtual bool OnServerPacket(xClientConnection & CC, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
+	virtual void OnCleanupServerConnection(xClientConnection & CC);
 
 private:
 	void CheckTimeoutConnection();
