@@ -57,7 +57,6 @@ protected:
 	virtual void OnServerConnected(xClientConnection & CC);
 	virtual void OnServerClose(xClientConnection & CC);
 	virtual bool OnServerPacket(xClientConnection & CC, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
-	virtual void OnCleanupServerConnection(xClientConnection & CC);
 
 private:
 	void CheckTimeoutConnection();

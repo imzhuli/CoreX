@@ -145,7 +145,6 @@ void xClientPool::ReleaseConnections() {
 	while (auto PC = static_cast<xClientConnection *>(ReleaseConnectionList.PopHead())) {
 		assert(PC == ConnectionPool.CheckAndGet(PC->ConnectionId));
 		X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", PC->ConnectionId, PC->TargetAddress.ToString().c_str());
-		OnCleanupServerConnection(*PC);
 		ConnectionPool.Release(PC->ConnectionId);
 	}
 }
@@ -218,11 +217,6 @@ void xClientPool::OnServerClose(xClientConnection & CC) {
 bool xClientPool::OnServerPacket(xClientConnection & CC, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) {
 	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s, CommandId=%" PRIx32 "", CC.ConnectionId, CC.TargetAddress.ToString().c_str(), Header.CommandId);
 	return true;
-}
-
-void xClientPool::OnCleanupServerConnection(xClientConnection & CC) {
-	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", CC.ConnectionId, CC.TargetAddress.ToString().c_str());
-	return;
 }
 
 bool xClientPool::PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize) {
