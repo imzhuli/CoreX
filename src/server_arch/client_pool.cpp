@@ -26,8 +26,7 @@ void xClientPool::Clean() {
 }
 
 void xClientPool::Tick() {
-	Ticker.Update();
-	OnTick();
+	Tick(GetTimestampMS());
 }
 
 void xClientPool::Tick(uint64_t NowMS) {
