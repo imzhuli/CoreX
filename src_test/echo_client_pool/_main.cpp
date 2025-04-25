@@ -53,7 +53,6 @@ void ReleaseChecker() {
 	static bool Processed = false;
 	static auto Timer     = xTimer();
 	if (Processed) {
-		assert(!Pool.GetConnection(CID_Release));
 		return;
 	}
 	if (Timer.Elapsed() <= std::chrono::seconds(5)) {

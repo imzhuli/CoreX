@@ -45,9 +45,8 @@ public:
 	void Tick();
 	void Tick(uint64_t NowMS);
 
-	uint64_t            AddServer(const xNetAddress & Address);
-	xClientConnection * GetConnection(uint64_t ConnectionId);
-	void                RemoveServer(uint64_t ConnectionId);
+	uint64_t AddServer(const xNetAddress & Address);
+	void     RemoveServer(uint64_t ConnectionId);
 
 	bool PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
 	bool PostData(xClientConnection & PC, const void * DataPtr, size_t DataSize);
@@ -72,6 +71,8 @@ private:
 	void   OnConnected(xTcpConnection * TcpConnectionPtr) override;
 	void   OnPeerClose(xTcpConnection * TcpConnectionPtr) override;
 	size_t OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_t DataSize) override;
+
+	xClientConnection * GetConnection(uint64_t ConnectionId);
 
 private:
 	xIoContext *                       ICP = nullptr;
