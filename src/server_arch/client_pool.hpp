@@ -36,7 +36,7 @@ private:
 };
 
 class xClientPool
-	: public xTcpConnection::iListener
+	: xTcpConnection::iListener
 	, xAbstract {
 
 public:
