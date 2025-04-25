@@ -9,6 +9,7 @@ X_BEGIN
 class xClientConnection;
 class xClientPool;
 
+struct xCLientConnectionAvailableNode : xListNode {};
 struct xClientConnectionTimeoutNode : xListNode {
 	union {
 		uint64_t InitTimestampMS;
@@ -19,6 +20,7 @@ struct xClientConnectionTimeoutNode : xListNode {
 
 class xClientConnection
 	: public xTcpConnection
+	, public xCLientConnectionAvailableNode
 	, public xClientConnectionTimeoutNode {
 	friend class xClientPool;
 
@@ -48,8 +50,10 @@ public:
 	xIndexId AddServer(const xNetAddress & Address);
 	void     RemoveServer(xIndexId ConnectionId);
 
+	bool PostData(const void * DataPtr, size_t DataSize);
 	bool PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
 	bool PostData(xClientConnection & PC, const void * DataPtr, size_t DataSize);
+	bool PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 	bool PostMessage(uint64_t ConnectionId, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 	bool PostMessage(xClientConnection & PC, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 
@@ -79,12 +83,13 @@ private:
 	xIndexedStorage<xClientConnection> ConnectionPool;
 	xTicker                            Ticker;
 
-	xList<xClientConnectionTimeoutNode> ReleaseConnectionList;
-	xList<xClientConnectionTimeoutNode> KillConnectionList;
-	xList<xClientConnectionTimeoutNode> AutoConnectionList;
-	xList<xClientConnectionTimeoutNode> WaitForConnectionEstablishmentQueue;
-	xList<xClientConnectionTimeoutNode> RequestKeepAliveQueue;
-	xList<xClientConnectionTimeoutNode> WaitForKeepAliveQueue;
+	xList<xCLientConnectionAvailableNode> EstablishedConnectionList;
+	xList<xClientConnectionTimeoutNode>   ReleaseConnectionList;
+	xList<xClientConnectionTimeoutNode>   KillConnectionList;
+	xList<xClientConnectionTimeoutNode>   AutoConnectionList;
+	xList<xClientConnectionTimeoutNode>   WaitForConnectionEstablishmentQueue;
+	xList<xClientConnectionTimeoutNode>   RequestKeepAliveQueue;
+	xList<xClientConnectionTimeoutNode>   WaitForKeepAliveQueue;
 };
 
 X_END

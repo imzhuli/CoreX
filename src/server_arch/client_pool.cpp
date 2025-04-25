@@ -163,6 +163,7 @@ void xClientPool::OnConnected(xTcpConnection * TcpConnectionPtr) {
 	auto PC = static_cast<xClientConnection *>(TcpConnectionPtr);
 	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", PC->ConnectionId, PC->TargetAddress.ToString().c_str());
 	OnKeepAlive(PC);
+	EstablishedConnectionList.AddTail(*PC);
 	OnServerConnected(*PC);
 }
 
@@ -171,6 +172,7 @@ void xClientPool::OnPeerClose(xTcpConnection * TcpConnectionPtr) {
 	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", PC->ConnectionId, PC->TargetAddress.ToString().c_str());
 
 	OnServerClose(*PC);
+	EstablishedConnectionList.Remove(*PC);
 	KillConnectionList.GrabTail(*PC);
 }
 
@@ -219,6 +221,18 @@ bool xClientPool::OnServerPacket(xClientConnection & CC, const xPacketHeader & H
 	return true;
 }
 
+bool xClientPool::PostData(const void * DataPtr, size_t DataSize) {
+	auto PC = static_cast<xClientConnection *>(EstablishedConnectionList.PopHead());
+	if (!PC) {
+		return false;
+	}
+	EstablishedConnectionList.AddTail(*PC);
+
+	assert(PC->IsOpen());
+	PC->PostData(DataPtr, DataSize);
+	return true;
+}
+
 bool xClientPool::PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize) {
 	auto PC = GetConnection(ConnectionId);
 	if (!PC) {
@@ -232,6 +246,22 @@ bool xClientPool::PostData(xClientConnection & CC, const void * DataPtr, size_t 
 		return false;
 	}
 	CC.PostData(DataPtr, DataSize);
+	return true;
+}
+
+bool xClientPool::PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
+	auto PC = static_cast<xClientConnection *>(EstablishedConnectionList.PopHead());
+	if (!PC) {
+		return false;
+	}
+	EstablishedConnectionList.AddTail(*PC);
+
+	ubyte Buffer[MaxPacketSize];
+	auto  PSize = WritePacket(CmdId, RequestId, Buffer, Message);
+	if (!PSize) {
+		return false;
+	}
+	PC->PostData(Buffer, PSize);
 	return true;
 }
 
