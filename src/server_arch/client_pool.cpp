@@ -42,7 +42,7 @@ void xClientPool::OnTick() {
 	DoAutoReconnect();
 }
 
-uint64_t xClientPool::AddServer(const xNetAddress & Address) {
+xIndexId xClientPool::AddServer(const xNetAddress & Address) {
 	if (!Address) {
 		return 0;
 	}
@@ -63,7 +63,7 @@ xClientConnection * xClientPool::GetConnection(uint64_t ConnectionId) {
 	return ConnectionPool.CheckAndGet(ConnectionId);
 }
 
-void xClientPool::RemoveServer(uint64_t ConnectionId) {
+void xClientPool::RemoveServer(xIndexId ConnectionId) {
 	auto CCP = ConnectionPool.CheckAndGet(ConnectionId);
 	if (!CCP) {
 		return;

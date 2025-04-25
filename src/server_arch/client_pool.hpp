@@ -45,8 +45,8 @@ public:
 	void Tick();
 	void Tick(uint64_t NowMS);
 
-	uint64_t AddServer(const xNetAddress & Address);
-	void     RemoveServer(uint64_t ConnectionId);
+	xIndexId AddServer(const xNetAddress & Address);
+	void     RemoveServer(xIndexId ConnectionId);
 
 	bool PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
 	bool PostData(xClientConnection & PC, const void * DataPtr, size_t DataSize);
