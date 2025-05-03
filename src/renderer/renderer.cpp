@@ -131,7 +131,7 @@ bool xRenderer::CreateSwapchain() {
 	SwapchainExtent = Swapchain.extent;
 	// store swapchain and its related images
 	SwapchainImages               = Swapchain.get_images().value();
-	auto SwapchainImageViewResult = Swapchain.create_image_views();
+	auto SwapchainImageViewResult = Swapchain.get_image_views();
 	if (!SwapchainImageViewResult.has_value()) {
 		X_DEBUG_PRINTF("failed to get swapchain images");
 		return false;
@@ -307,7 +307,7 @@ bool xRenderer::CreateFrameBuffers() {
 
 	// grab how many images we have in the swapchain
 	assert(FrameBuffers.empty());
-	const auto  swapchain_imagecount = (uint32_t)SwapchainImages.size();
+	const auto swapchain_imagecount = (uint32_t)SwapchainImages.size();
 
 	// create framebuffers for each of the swapchain image views
 	for (uint32_t i = 0; i < swapchain_imagecount; i++) {
@@ -370,7 +370,7 @@ void xRenderer::Render() {
 	}
 
 	auto CmdBeginInfo = vkinit::CommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-	Surely(vkBeginCommandBuffer(MainCommandBuffer, &CmdBeginInfo));
+	VkRuntimeAssert(vkBeginCommandBuffer(MainCommandBuffer, &CmdBeginInfo));
 	{
 		VkClearValue clearValue;
 		float        flash = abs(sin(FrameNumber / 120.f));
@@ -395,7 +395,7 @@ void xRenderer::Render() {
 		vkCmdBeginRenderPass(MainCommandBuffer, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
 		vkCmdEndRenderPass(MainCommandBuffer);
 	}
-	Surely(vkEndCommandBuffer(MainCommandBuffer));
+	VkRuntimeAssert(vkEndCommandBuffer(MainCommandBuffer));
 
 	// prepare the submission to the queue.
 	// we want to wait on the _presentSemaphore, as that semaphore is signaled when the swapchain is ready
@@ -419,7 +419,7 @@ void xRenderer::Render() {
 
 	// submit command buffer to the queue and execute it.
 	//  _renderFence will now block until the graphic commands finish execution
-	Surely(vkResetFences(Device, 1, &RenderFence));
+	VkRuntimeAssert(vkResetFences(Device, 1, &RenderFence));
 	Result = vkQueueSubmit(GraphicsQueue, 1, &submit, RenderFence);
 	if (Result) {
 		X_DEBUG_PRINTF("vkQueueSubmit error: %s", ToString(Result).c_str());

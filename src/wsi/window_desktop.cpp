@@ -213,8 +213,8 @@ void xDesktopWindow::Update() {
 void xDesktopWindow::OnClosed() {
 }
 
-void WSILoopOnce() {
-	glfwWaitEventsTimeout(0.05);
+void WSILoopOnce(uint_fast32_t TimeoutMS) {
+	glfwWaitEventsTimeout(TimeoutMS / 1000.);
 	WindowUpdateList.ForEach([](xWindowUpdateListNode & N) {
 		auto & Window = static_cast<xDesktopWindow &>(N);
 		Window.Update();

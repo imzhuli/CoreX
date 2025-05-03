@@ -70,7 +70,7 @@ void FrameLimitThreadFunction() {
 	xTimer Timer;
 	FrameSynchronizer.Acquire();
 	while (EngineRunState) {
-		std::this_thread::sleep_for(9ms);
+		std::this_thread::sleep_for(1ms);
 		FrameSynchronizer.Synchronize();
 	}
 	FrameSynchronizer.Release();
@@ -86,18 +86,16 @@ void RenderThreadFunction() {
 			std::cout << "FPS: " << FrameCounter << endl;
 			FrameCounter = 0;
 		}
-
 		xRenderer::UpdateAll();
 		FrameSynchronizer.Synchronize();
 	}
-
 	FrameSynchronizer.Release();
 	xRenderer::CleanAll();
 }
 
 void MainLoop() {
 	while (EngineRunState) {
-		// Note! dont use synchronizer here, since rendering thread may have implicit lock with the wsi message event.
+		// no need to call synchronizer here
 		WSILoopOnce();
 	}
 }

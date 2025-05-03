@@ -57,33 +57,20 @@ struct xWindowSettings final {
 
 class iWindow : xAbstract {
 public:
-	virtual bool Init(const xWindowSettings & Settings) {
-		return false;
-	}
-	virtual void Clean() {
-	}
+	virtual bool Init(const xWindowSettings & Settings) { return false; }
+	virtual void Clean() {}
 
-	virtual bool IsClosed() {
-		return true;
-	}
-	virtual bool IsFullScreen() {
-		return false;
-	}
+	virtual bool IsClosed() { return true; }
+	virtual bool IsFullScreen() { return false; }
 
-	virtual void SetCursorMode(eWindowCursorMode Mode) {
-	}
+	virtual void SetCursorMode(eWindowCursorMode Mode) {}
 
 	// event processing
-	virtual void OnCreated() {
-	}
-	virtual void OnRefresh() {
-	}
-	virtual void OnResized(size_t Width, size_t Height) {
-	}
-	virtual void OnCursorMove(double OffsetX, double OffsetY) {
-	}
-	virtual void OnClosed() {
-	}
+	virtual void OnCreated() {}
+	virtual void OnRefresh() {}
+	virtual void OnResized(size_t Width, size_t Height) {}
+	virtual void OnCursorMove(double OffsetX, double OffsetY) {}
+	virtual void OnClosed() {}
 };
 
 struct xWindowUpdateListNode : xListNode {};
@@ -94,7 +81,7 @@ X_API void CleanWSI();
 
 X_API iWindow * CreateWindow(const xWindowSettings & Settings = {});
 X_API void      DestroyWindow(iWindow * WindowPtr);
-X_API void      WSILoopOnce();
+X_API void      WSILoopOnce(uint_fast32_t TimeoutMS = 1);
 X_API bool      WSIHasOpenWindow();
 
 X_END

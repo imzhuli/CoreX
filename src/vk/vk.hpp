@@ -13,12 +13,7 @@ X_PRIVATE vkb::Instance VulkanInstance;  // Vulkan library handle
 
 X_PRIVATE bool InitVulkan();
 X_PRIVATE void CleanVulkan();
-
-X_INLINE void Surely(VkResult Result) {
-	if (Result) {
-		X_DEBUG_PRINTF("Unexpected vulkan error: %llx", (long long unsigned)Result);
-		abort();
-	}
+X_INLINE void  VkRuntimeAssert(VkResult Result) {
+    RuntimeAssert(VK_SUCCESS == Result);
 }
-
 X_END
