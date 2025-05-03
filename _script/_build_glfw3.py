@@ -8,8 +8,8 @@ cwd = os.getcwd()
 unzip_dir = f"{cwd}/_3rd_build"
 
 libname = "glfw3"
-src_file = f"{cwd}/_3rd_source/glfw-3.3.9.zip"
-unzipped_src_dir = f"{unzip_dir}/glfw-3.3.9"
+src_file = f"{cwd}/_3rd_source/glfw-3.4.zip"
+unzipped_src_dir = f"{unzip_dir}/glfw-3.4"
 install_dir = f"{cwd}/_3rd_installed"
 
 def build():

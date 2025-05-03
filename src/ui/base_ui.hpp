@@ -3,64 +3,58 @@
 
 X_BEGIN
 
-enum struct eUIEventSourceType : uint16_t {
-	UNSPEC,
-	KEYBOARD,
-	MOUSE,
-	JOYPAD,
-	USER,
-};
-
-struct iUIEventSource {
-	virtual eUIEventSourceType GetUIEventSourceType() { return eUIEventSourceType::UNSPEC; }
-};
-
 enum struct eUIEventType : uint16_t {
 	UNSPEC,
-	KEYBOARD,
-	MOUSE,
-	JOYPAD,
+	GET_WINDOW_FOCUS,
+	LOST_WINDOW_FOCUS,
+	KEYBOARD_INPUT,
+	MOUSE_BUTTON,
+	JOYPAD_AXIS,
+	JOYPAD_BUTTON,
 	USER,
 };
 
-struct xUIEvent {
-	eUIEventType     Type;
-	iUIEventSource * Source;
-	xVariable        Value;
-	xVariable        ValueEx;
+struct xUIEvent final {
+	eUIEventType Type;
+	xVariable    EventSource;
+	xVariable    Value;
+	xVariable    ValueEx;
 };
 
-class xBaseUI {
+class xUIBaseElement {
 public:
-	enum eUIType : int {
-		UIT_CANVAS    = 0,
-		UIT_LABEL     = 1,
-		UIT_BUTTON    = 2,
-		UIT_CHECKBOX  = 3,
-		UIT_LIST      = 4,
-		UIT_COMBOLIST = 5,
-		UIT_INPUT     = 5,
-		UIT_TEXTAREA  = 6,
-		UIT_USER      = 1024,
+	enum eType : int {
+		UIT_UNSPEC = 0,
+		UIT_CANVAS,
+		UIT_LABEL,
+		UIT_BUTTON,
+		UIT_CHECKBOX,
+		UIT_LIST,
+		UIT_COMBOLIST,
+		UIT_INPUT,
+		UIT_TEXTAREA,
+		UIT_USER = 1024,
 	};
 
-	X_INLINE bool IsEnabled() const { return Status & UIS_ENABLED; }
-	X_INLINE void SetEnabled(bool Enabled) { Status |= (Enabled ? UIS_ENABLED : UIS_NO_FLAG); }
-	X_INLINE bool CanHaveFocus() const { return Status & UIS_CAN_HAVE_FOCUS; }
-	X_INLINE void SetCanHaveFocus(bool Enabled) { Status |= (Enabled ? UIS_CAN_HAVE_FOCUS : UIS_NO_FLAG); }
-	X_INLINE bool IsFocused() const { return Status & UIS_HAS_FOCUS; }
-	X_INLINE void SetFocused(bool Enabled) { Status |= (Enabled ? UIS_HAS_FOCUS : UIS_NO_FLAG); }
+	X_INLINE eType GetType() const { return Type; }
+	X_INLINE bool  IsEnabled() const { return Status & UIF_ENABLED; }
+	X_INLINE void  SetEnabled(bool Enabled) { Status |= (Enabled ? UIF_ENABLED : UIF_NO_FLAG); }
+	X_INLINE bool  CanHaveFocus() const { return Status & UIF_CAN_HAVE_FOCUS; }
+	X_INLINE void  SetCanHaveFocus(bool Enabled) { Status |= (Enabled ? UIF_CAN_HAVE_FOCUS : UIF_NO_FLAG); }
+	X_INLINE bool  IsFocused() const { return Status & UIF_HAS_FOCUS; }
+	X_INLINE void  SetFocused(bool Enabled) { Status |= (Enabled ? UIF_HAS_FOCUS : UIF_NO_FLAG); }
 
 private:
-	enum eUIStatus : uint32_t {
-		UIS_NO_FLAG        = 0x00,
-		UIS_ENABLED        = 0x01,
-		UIS_VISIBLE        = 0x02,
-		UIS_CAN_HAVE_FOCUS = 0x04,
-		UIS_HAS_FOCUS      = 0x08,
+	enum eUIFlag : uint32_t {
+		UIF_NO_FLAG        = 0x00,
+		UIF_ENABLED        = 0x01,
+		UIF_VISIBLE        = 0x02,
+		UIF_CAN_HAVE_FOCUS = 0x04,
+		UIF_HAS_FOCUS      = 0x08,
 	};
 
-	uint32_t Status = UIS_NO_FLAG;
+	eType    Type   = UIT_UNSPEC;
+	uint32_t Status = UIF_NO_FLAG;
 };
 
 X_END

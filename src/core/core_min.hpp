@@ -219,7 +219,7 @@ template <typename T, typename TValue>
 X_STATIC_INLINE constexpr const char * YN(bool y) { return y ? "yes" : "no"; }
 X_STATIC_INLINE constexpr const char * TF(bool t) { return t ? "true" : "false"; }
 template <typename T>
-[[nodiscard]] X_STATIC_INLINE constexpr bool IsPow2(const T x) { static_assert(std::is_unsigned_v<T>); return !(x & (x - 1)); }
+[[nodiscard]] X_STATIC_INLINE constexpr bool IsPow2(const T x) { static_assert(std::is_unsigned_v<T>); return x && !(x & (x - 1)); }
 
 template <typename T>
 class xRef final {
