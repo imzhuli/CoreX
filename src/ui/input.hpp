@@ -20,19 +20,21 @@ public:
 	void DetectRawInputChanges();
 
 	// 向查询者(事件循环), 输出转化后的事件
-	const xUIEvent * GetInputEvent();
+	X_INLINE const xUIEvent * GetInputEvent() {
+		if (IsEventQueueEmpty()) {
+			return nullptr;
+		}
+		return &EventQueue[EventStartIndex];
+	}
 
 protected:
 	X_INLINE bool       IsEventQueueEmpty() const { return EventStartIndex == EventEndIndex; }
 	X_INLINE bool       IsEventQueueFull() const { return EventStartIndex == (0x0FFu & (EventEndIndex + 1)); }
 	X_INLINE xUIEvent * PeekLastEvent() {
-		if (RequireRawEventDetection && !IsEventQueueFull()) {
-			DetectRawInputChanges();
-		}
 		if (IsEventQueueEmpty()) {
 			return nullptr;
 		}
-		return &EventQueue[EventStartIndex];
+		return &EventQueue[EventEndIndex];
 	}
 
 private:

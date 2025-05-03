@@ -22,13 +22,13 @@ bool xService::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, 
 	if (!TcpServer.Init(IoContextPtr, BindAddress, this)) {
 		return false;
 	}
-	auto TcpServerCleaner = MakeResourceCleaner(TcpServer);
+	auto TcpServerCleaner = xScopeCleaner(TcpServer);
 
 	MaxConnectionId = std::max(DefaultMinConnectionId, MaxConnectionId);
 	if (!ConnectionIdPool.Init(MaxConnectionId)) {
 		return false;
 	}
-	auto ConnectionIdPoolCleaner = MakeResourceCleaner(ConnectionIdPool);
+	auto ConnectionIdPoolCleaner = xScopeCleaner(ConnectionIdPool);
 
 	TcpServerCleaner.Dismiss();
 	ConnectionIdPoolCleaner.Dismiss();
@@ -39,7 +39,7 @@ void xService::Clean() {
 	ServiceConnectionKillList.GrabListTail(ServiceConnectionTimeoutList);
 	CleanupKilledConnections();
 
-	auto TcpServerCleaner = MakeResourceCleaner(TcpServer);
+	auto TcpServerCleaner = xScopeCleaner(TcpServer);
 }
 
 void xService::Tick() {

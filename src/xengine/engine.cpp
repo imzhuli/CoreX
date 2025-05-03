@@ -23,11 +23,7 @@ X_BEGIN
 static xBaseLogger EngineLogger;
 xLogger *          XELogger = &EngineLogger;
 
-static constexpr const uint8_t EngineState_NoInstance = 0;
-static constexpr const uint8_t EngineState_Running    = 0x01;
-static constexpr const uint8_t EngineState_Stopping   = 0x02;
-
-static std::atomic_uint8_t EngineInstanceState;
+static xRunState           EngineRunState;
 static xThreadSynchronizer FrameSynchronizer;
 
 bool InitXEngine() {
@@ -35,7 +31,7 @@ bool InitXEngine() {
 		cerr << "Failed to init logger" << endl;
 		return false;
 	}
-	auto LogCleaner = MakeResourceCleaner(EngineLogger);
+	auto LogCleaner = xScopeCleaner(EngineLogger);
 
 	if (!InitWSI()) {
 		cerr << "Failed to init wsi" << endl;
@@ -73,7 +69,7 @@ void CleanXEngine() {
 void FrameLimitThreadFunction() {
 	xTimer Timer;
 	FrameSynchronizer.Acquire();
-	while (EngineInstanceState.load() == EngineState_Running) {
+	while (EngineRunState) {
 		std::this_thread::sleep_for(9ms);
 		FrameSynchronizer.Synchronize();
 	}
@@ -84,7 +80,7 @@ void RenderThreadFunction() {
 	size_t FrameCounter = 0;
 	xTimer Timer;
 	FrameSynchronizer.Acquire();
-	while (EngineInstanceState.load() == EngineState_Running) {
+	while (EngineRunState) {
 		++FrameCounter;
 		if (Timer.TestAndTag(std::chrono::seconds(1))) {
 			std::cout << "FPS: " << FrameCounter << endl;
@@ -100,21 +96,19 @@ void RenderThreadFunction() {
 }
 
 void MainLoop() {
-	while (EngineInstanceState.load() == EngineState_Running) {
+	while (EngineRunState) {
 		// Note! dont use synchronizer here, since rendering thread may have implicit lock with the wsi message event.
 		WSILoopOnce();
 	}
 }
 
 void RunXEngine(XEngineScopeCallback Callbacks) {
-	auto Expected    = EngineState_NoInstance;
-	bool NewInstance = EngineInstanceState.compare_exchange_strong(Expected, EngineState_Running);
-	if (!NewInstance) {
+	if (!EngineRunState.Start()) {
 		cerr << "RunXEngine failed: multiple engine instance" << endl;
 		return;
 	}
+	auto StateCleaner = xScopeGuard([] { EngineRunState.Finish(); });
 
-	auto StateCleaner = xScopeGuard([] { EngineInstanceState = EngineState_NoInstance; });
 	if (!InitXEngine()) {
 		cerr << "RunXEngine failed: init engine error" << endl;
 		return;
@@ -137,8 +131,7 @@ void RunXEngine(XEngineScopeCallback Callbacks) {
 }
 
 void StopXEngine() {
-	auto Expected = EngineState_Running;
-	EngineInstanceState.compare_exchange_strong(Expected, EngineState_Stopping);
+	EngineRunState.Stop();
 }
 
 X_END

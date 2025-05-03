@@ -307,6 +307,17 @@ xScopeGuard(const tExit & Exit) -> xScopeGuard<xPass, std::decay_t<tExit>>;
 template <typename tEntry, typename tExit>
 xScopeGuard(xScopeGuard<tEntry, tExit> && Other) -> xScopeGuard<tEntry, tExit>;
 
+template <typename xTarget>
+class xScopeCleaner final : xNonCopyable {
+public:
+	xScopeCleaner(xTarget & T) : Ref(T){}
+	~xScopeCleaner() { if (!Dismissed) { Ref.Clean(); }}
+	void Dismiss() { Dismissed = true; }
+private:
+	xTarget & Ref;
+	bool Dismissed = false;
+};
+
 X_STATIC_INLINE void Dismiss() {}
 template<typename T0, typename...T>
 X_STATIC_INLINE void Dismiss(T0 & Guard0, T & ...Guards) {
@@ -365,23 +376,6 @@ struct xResourceGuardThrowable final
 };
 template <typename T, typename... tArgs>
 xResourceGuardThrowable(T & Resource, tArgs &&... Args) -> xResourceGuardThrowable<T>;
-
-X_INLINE void CleanResource() {}
-template<typename T, typename... TOthers>
-X_INLINE void CleanResource(T & Target, TOthers &...Others) {
-	Target.Clean();
-	CleanResource(Others...);
-}
-X_INLINE void CleanResourceReversed() {}
-template<typename T, typename... TOthers>
-X_INLINE void CleanResourceReversed(T & Target, TOthers &...Others) {
-	CleanResourceReversed(Others...);
-	Target.Clean();
-}
-template <typename...xTargets>
-[[nodiscard]] X_INLINE auto MakeResourceCleaner(xTargets &... Targets) {
-	return xScopeGuard([&Targets...] { CleanResourceReversed(Targets...); });
-}
 
 class xRunState final {
 public:
