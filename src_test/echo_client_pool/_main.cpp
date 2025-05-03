@@ -16,7 +16,7 @@ struct xHello : public xBinaryMessage {
 
 struct xMyPool : public xClientPool {
 
-	void OnServerConnected(xClientConnection & CC) {
+	void OnServerConnected(xClientConnection & CC) override {
 		xClientPool::OnServerConnected(CC);
 		auto HW = xHello();
 		auto PM = PostMessage(CC, 1, 2, HW);
@@ -28,6 +28,7 @@ struct xMyPool : public xClientPool {
 		X_DEBUG_PRINTF("?????????????????");
 		return true;
 	}
+	
 };
 auto Pool = xMyPool();
 
