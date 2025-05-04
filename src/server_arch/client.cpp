@@ -182,7 +182,7 @@ void xClient::PostData(const void * DataPtr, size_t DataSize) {
 
 void xClient::PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
 	ubyte Buffer[MaxPacketSize];
-	auto  PSize = WritePacket(CmdId, RequestId, Buffer, Message);
+	auto  PSize = WriteMessage(CmdId, RequestId, Buffer, Message);
 	if (!PSize) {
 		return;
 	}

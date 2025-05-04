@@ -257,7 +257,7 @@ bool xClientPool::PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId
 	EstablishedConnectionList.AddTail(*PC);
 
 	ubyte Buffer[MaxPacketSize];
-	auto  PSize = WritePacket(CmdId, RequestId, Buffer, Message);
+	auto  PSize = WriteMessage(CmdId, RequestId, Buffer, Message);
 	if (!PSize) {
 		return false;
 	}
@@ -279,7 +279,7 @@ bool xClientPool::PostMessage(xClientConnection & CC, xPacketCommandId CmdId, xP
 	}
 
 	ubyte Buffer[MaxPacketSize];
-	auto  PSize = WritePacket(CmdId, RequestId, Buffer, Message);
+	auto  PSize = WriteMessage(CmdId, RequestId, Buffer, Message);
 	if (!PSize) {
 		return false;
 	}

@@ -185,7 +185,7 @@ void xService::PostMessage(uint64_t ConnectionId, xPacketCommandId CmdId, xPacke
 
 void xService::PostMessage(xServiceClientConnection & Connection, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
 	ubyte Buffer[MaxPacketSize];
-	auto  PSize = WritePacket(CmdId, RequestId, Buffer, Message);
+	auto  PSize = WriteMessage(CmdId, RequestId, Buffer, Message);
 	if (!PSize) {
 		return;
 	}

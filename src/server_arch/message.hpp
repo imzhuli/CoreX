@@ -28,10 +28,10 @@ private:
 	bool IsDeserializing = false;
 };
 
-X_API size_t WritePacket(xPacketCommandId CmdId, xPacketRequestId RequestId, void * Buffer, size_t BufferSize, xBinaryMessage & Message);
+X_API size_t WriteMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, void * Buffer, size_t BufferSize, xBinaryMessage & Message);
 template <size_t Size>
-X_INLINE size_t WritePacket(xPacketCommandId CmdId, xPacketRequestId RequestId, ubyte (&Buffer)[Size], xBinaryMessage & Message) {
-	return WritePacket(CmdId, RequestId, Buffer, Size, Message);
+X_INLINE size_t WriteMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, ubyte (&Buffer)[Size], xBinaryMessage & Message) {
+	return WriteMessage(CmdId, RequestId, Buffer, Size, Message);
 }
 
 X_END
