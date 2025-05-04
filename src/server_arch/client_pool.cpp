@@ -198,7 +198,7 @@ size_t xClientPool::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, s
 		} else {
 			auto PayloadPtr  = xPacket::GetPayloadPtr(DataPtr);
 			auto PayloadSize = Header.GetPayloadSize();
-			if (!OnServerPacket(*PC, Header, PayloadPtr, PayloadSize)) { /* packet error */
+			if (!OnServerPacket(*PC, Header.CommandId, Header.RequestId, PayloadPtr, PayloadSize)) { /* packet error */
 				return InvalidDataSize;
 			}
 		}
@@ -216,8 +216,8 @@ void xClientPool::OnServerClose(xClientConnection & CC) {
 	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", CC.ConnectionId, CC.TargetAddress.ToString().c_str());
 }
 
-bool xClientPool::OnServerPacket(xClientConnection & CC, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) {
-	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s, CommandId=%" PRIx32 "", CC.ConnectionId, CC.TargetAddress.ToString().c_str(), Header.CommandId);
+bool xClientPool::OnServerPacket(xClientConnection & CC, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize) {
+	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s, CommandId=%" PRIx32 "", CC.ConnectionId, CC.TargetAddress.ToString().c_str(), CommandId);
 	return true;
 }
 

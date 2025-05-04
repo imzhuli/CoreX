@@ -111,6 +111,8 @@ struct xPacket final {
 	X_STATIC_INLINE ubyte *       GetPacketPtr(void * PayloedPtr) { return (ubyte *)PayloedPtr - xPacketHeader::Size; }
 	X_STATIC_INLINE const ubyte * GetPacketPtr(const void * PayloedPtr) { return (const ubyte *)PayloedPtr - xPacketHeader::Size; }
 	X_STATIC_INLINE size_t        GetPacketSize(size_t PayloadSize) { return PayloadSize + PacketHeaderSize; }
+
+	//
 };
 
 X_END

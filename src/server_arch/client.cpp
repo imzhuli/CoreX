@@ -135,7 +135,7 @@ size_t xClient::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_
 		} else {
 			auto PayloadPtr  = xPacket::GetPayloadPtr(DataPtr);
 			auto PayloadSize = Header.GetPayloadSize();
-			if (!OnPacket(Header, PayloadPtr, PayloadSize)) { /* packet error */
+			if (!OnPacket(Header.CommandId, Header.RequestId, PayloadPtr, PayloadSize)) { /* packet error */
 				return InvalidDataSize;
 			}
 		}
@@ -145,8 +145,8 @@ size_t xClient::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_
 	return DataSize - RemainSize;
 }
 
-bool xClient::OnPacket(const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) {
-	X_DEBUG_PRINTF("CommandId: %" PRIu32 ", RequestId:%" PRIx64 ": \n%s", Header.CommandId, Header.RequestId, HexShow(PayloadPtr, PayloadSize).c_str());
+bool xClient::OnPacket(xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize) {
+	X_DEBUG_PRINTF("CommandId: %" PRIu32 ", RequestId:%" PRIx64 ": \n%s", CommandId, RequestId, HexShow(PayloadPtr, PayloadSize).c_str());
 	return true;
 }
 

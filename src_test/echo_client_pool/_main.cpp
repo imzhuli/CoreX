@@ -23,12 +23,11 @@ struct xMyPool : public xClientPool {
 		RuntimeAssert(PM);
 	}
 
-	bool OnServerPacket(xClientConnection & CC, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) override {
-		xClientPool::OnServerPacket(CC, Header, PayloadPtr, PayloadSize);
+	bool OnServerPacket(xClientConnection & CC, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize) override {
+		xClientPool::OnServerPacket(CC, CommandId, RequestId, PayloadPtr, PayloadSize);
 		X_DEBUG_PRINTF("?????????????????");
 		return true;
 	}
-	
 };
 auto Pool = xMyPool();
 

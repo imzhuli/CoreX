@@ -27,7 +27,7 @@ public:
 protected:
 	X_API_MEMBER virtual void OnServerConnected();
 	X_API_MEMBER virtual void OnServerClose();
-	X_API_MEMBER virtual bool OnPacket(const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize);
+	X_API_MEMBER virtual bool OnPacket(xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize);
 	X_API_MEMBER virtual void OnOpenConnection();
 	X_API_MEMBER virtual void OnCleanupConnection();
 

@@ -10,8 +10,8 @@ struct xEchoService : xService {
 		cout << "OnClientConnected" << endl;
 		//
 	}
-	bool OnClientPacket(xServiceClientConnection & Connection, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) override {
-		auto Ret = xService::OnClientPacket(Connection, Header, PayloadPtr, PayloadSize);
+	bool OnClientPacket(xServiceClientConnection & Connection, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize) override {
+		auto Ret = xService::OnClientPacket(Connection, CommandId, RequestId, PayloadPtr, PayloadSize);
 		RuntimeAssert(Ret);
 
 		ubyte Buffer[MaxPacketSize];
@@ -22,7 +22,10 @@ struct xEchoService : xService {
 		SW.W(PayloadPtr, PayloadSize);
 		auto RSize = SW.Offset();
 
-		auto RespHeader       = Header;
+		auto RespHeader = xPacketHeader{
+			.CommandId = CommandId,
+			.RequestId = RequestId,
+		};
 		RespHeader.PacketSize = RSize;
 		RespHeader.Serialize(Buffer);
 
