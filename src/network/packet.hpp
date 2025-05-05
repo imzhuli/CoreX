@@ -118,7 +118,7 @@ struct xPacket final {
 X_API size_t BuildPacket(void * Buffer, size_t BufferSize, xPacketCommandId CommandId, xPacketRequestId RequestId, const void * PayloadPtr, size_t PayloadSize);
 template <size_t BS>
 X_INLINE size_t BuildPacket(ubyte (&Buffer)[BS], xPacketCommandId CommandId, xPacketRequestId RequestId, const void * PayloadPtr, size_t PayloadSize) {
-	return BuildPacket(Buffer, BS, CommandId, PayloadPtr, PayloadSize);
+	return BuildPacket(Buffer, BS, CommandId, RequestId, PayloadPtr, PayloadSize);
 }
 
 X_END
