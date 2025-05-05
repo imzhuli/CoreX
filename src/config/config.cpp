@@ -33,9 +33,9 @@ void xConfigLoader::Require(int64_t & Dst, const char * Key) {
 	return;
 }
 
-void xConfigLoader::Optional(std::string & Dst, const char * Key, const char * DefaultValue) {
+void xConfigLoader::Optional(std::string & Dst, const char * Key, const std::string & DefaultValue) {
 	assert(Key);
-	Dst = Reader->Get(Key, DefaultValue);
+	Dst = Reader->Get(Key, DefaultValue.c_str());
 }
 
 void xConfigLoader::Optional(int64_t & Dst, const char * Key, int64_t DefaultValue) {

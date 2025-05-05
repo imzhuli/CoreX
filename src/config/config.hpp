@@ -28,7 +28,7 @@ public:
 		Dst = (T)Temp;
 	}
 
-	void Optional(std::string & Dst, const char * Key, const char * DefaultValue = "");
+	void Optional(std::string & Dst, const char * Key, const std::string & DefaultValue = {});
 	void Optional(int64_t & Dst, const char * Key, int64_t DefaultValue = 0);
 	void Optional(bool & Dst, const char * Key, bool DefaultValue = false);
 	template <typename T, typename U>

@@ -139,14 +139,14 @@ public:
 		return &static_cast<tNode &>(*ret);
 	}
 	template <typename tCond>
-	X_INLINE tNode * PopHead(const tCond & C) {
+	X_INLINE tNode * PopHead(tCond && C) {
 		if (IsEmpty()) {
 			return nullptr;
 		}
 		auto   ret   = _Head.pNext;
 		auto & Node  = static_cast<tNode &>(*ret);
 		auto & CNode = static_cast<const tNode &>(Node);
-		if (!C(CNode)) {
+		if (!std::forward<tCond>(C)(CNode)) {
 			return nullptr;
 		}
 		ret->Detach();
@@ -161,14 +161,14 @@ public:
 		return &static_cast<tNode &>(*ret);
 	}
 	template <typename tCond>
-	X_INLINE tNode * PopTail(const tCond & C) {
+	X_INLINE tNode * PopTail(tCond && C) {
 		if (IsEmpty()) {
 			return nullptr;
 		}
 		auto   ret   = _Head.pPrev;
 		auto & Node  = static_cast<tNode &>(*ret);
 		auto & CNode = static_cast<const tNode &>(Node);
-		if (!C(CNode)) {
+		if (!std::forward<tCond>(C)(CNode)) {
 			return nullptr;
 		}
 		ret->Detach();
