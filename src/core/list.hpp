@@ -175,9 +175,9 @@ public:
 		return &Node;
 	}
 	template <typename tProc>
-	X_INLINE void ForEach(const tProc & P) const {
+	X_INLINE void ForEach(tProc && P) const {
 		for (auto NP = _Head.pNext; NP != &_Head; NP = NP->pNext) {
-			P(static_cast<tNode &>(*NP));
+			std::forward<tProc>(P)(static_cast<tNode &>(*NP));
 		}
 	}
 
