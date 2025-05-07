@@ -31,7 +31,7 @@ bool xClient::Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress,
 
 void xClient::Clean() {
 	if (Open) {
-		OnCleanupConnection();
+		OnCleanupServerConnection();
 		Connection.Clean();
 	}
 	X_DEBUG_RESET(IoContextPtr);
@@ -56,11 +56,11 @@ void xClient::OnServerClose() {
 	// X_DEBUG_PRINTF("");
 }
 
-void xClient::OnOpenConnection() {
+void xClient::OnOpenServerConnection() {
 	// X_DEBUG_PRINTF("");
 }
 
-void xClient::OnCleanupConnection() {
+void xClient::OnCleanupServerConnection() {
 	// X_DEBUG_PRINTF("");
 }
 
@@ -75,7 +75,7 @@ void xClient::Tick(uint64_t NowMS) {
 	if (Steal(KillConnection)) {
 		// X_DEBUG_PRINTF("KillConnection");
 		assert(Open);
-		OnCleanupConnection();
+		OnCleanupServerConnection();
 		Connection.Clean();
 		Open                            = false;
 		LastKeepAliveTimestampMS        = 0;
@@ -113,7 +113,7 @@ void xClient::Tick(uint64_t NowMS) {
 		Open                            = true;
 		LastKeepAliveTimestampMS        = NowMS;
 		LastRequestKeepAliveTimestampMS = NowMS;
-		OnOpenConnection();
+		OnOpenServerConnection();
 	}
 }
 
@@ -135,7 +135,7 @@ size_t xClient::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_
 		} else {
 			auto PayloadPtr  = xPacket::GetPayloadPtr(DataPtr);
 			auto PayloadSize = Header.GetPayloadSize();
-			if (!OnPacket(Header.CommandId, Header.RequestId, PayloadPtr, PayloadSize)) { /* packet error */
+			if (!OnServerPacket(Header.CommandId, Header.RequestId, PayloadPtr, PayloadSize)) { /* packet error */
 				return InvalidDataSize;
 			}
 		}
@@ -145,7 +145,7 @@ size_t xClient::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_
 	return DataSize - RemainSize;
 }
 
-bool xClient::OnPacket(xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize) {
+bool xClient::OnServerPacket(xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize) {
 	X_DEBUG_PRINTF("CommandId: %" PRIu32 ", RequestId:%" PRIx64 ": \n%s", CommandId, RequestId, HexShow(PayloadPtr, PayloadSize).c_str());
 	return true;
 }
