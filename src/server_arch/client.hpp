@@ -13,8 +13,10 @@ public:
 	X_API_MEMBER void Tick(uint64_t NowMS);
 	X_API_MEMBER void Clean();
 
-	X_INLINE bool     IsOpen() const { return Open; }
-	X_INLINE uint64_t GetTickTimeMS() const { return NowMS; }
+	X_INLINE bool                IsOpen() const { return Open; }
+	X_INLINE uint64_t            GetTickTimeMS() const { return NowMS; }
+	X_INLINE const xNetAddress & GetTargetAddress() const { return TargetAddress; }
+
 	X_API_MEMBER void DisableKeepAliveOnTick();
 	X_API_MEMBER void SetDefaultKeepAliveTimeout();
 	X_API_MEMBER void SetKeepAliveTimeout(uint64_t TimeoutMS);
