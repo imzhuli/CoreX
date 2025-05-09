@@ -193,7 +193,7 @@ bool xTcpConnection::OnIoEventInReady() {
 
 		auto ProcessDataPtr = ReadBuffer;
 		while (ReadDataSize) {
-			auto ProcessedDataSize = LP->OnData(this, NewInput.Data(), NewInput.Size());
+			auto ProcessedDataSize = LP->OnData(this, ProcessDataPtr, ReadDataSize);
 			if (ProcessedDataSize == InvalidDataSize) {
 				return false;
 			}
