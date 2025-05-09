@@ -190,12 +190,21 @@ bool xTcpConnection::OnIoEventInReady() {
 		if (!NewInput) {
 			break;
 		}
-		auto ProcessedDataSize = LP->OnData(this, NewInput.Data(), NewInput.Size());
-		if (ProcessedDataSize == InvalidDataSize) {
-			return false;
-		}
-		if ((ReadDataSize -= ProcessedDataSize)) {
-			memmove(ReadBuffer, ReadBuffer + ProcessedDataSize, ReadDataSize);
+
+		auto ProcessDataPtr = ReadBuffer;
+		while (ReadDataSize) {
+			auto ProcessedDataSize = LP->OnData(this, NewInput.Data(), NewInput.Size());
+			if (ProcessedDataSize == InvalidDataSize) {
+				return false;
+			}
+			if (!ProcessedDataSize) {
+				if (ProcessDataPtr != ReadBuffer) {  // some data are processed
+					memmove(ReadBuffer, ProcessDataPtr, ReadDataSize);
+				}
+				break;
+			}
+			ProcessDataPtr += ProcessedDataSize;
+			ReadDataSize   -= ProcessedDataSize;
 		}
 	}
 	return true;
