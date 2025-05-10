@@ -222,17 +222,36 @@ bool xTcpConnection::OnIoEventInReady() {
 	AsyncReading = false;
 	do {
 		auto G = xValueGuard(ProcessReading, true);
-		X_DEBUG_PRINTF("ReadDataSize: %zi", IBP->ReadDataSize);
-		if (!IBP->ReadDataSize) {
-			return false;
+
+		auto & ReadBuffer     = IBP->ReadBuffer;
+		auto & ReadDataSize   = IBP->ReadDataSize;
+		auto   ProcessDataPtr = ReadBuffer;
+		while (ReadDataSize) {
+			auto ProcessedDataSize = LP->OnData(this, ProcessDataPtr, ReadDataSize);
+			if (ProcessedDataSize == InvalidDataSize) {
+				return false;
+			}
+			if (!ProcessedDataSize) {
+				if (ProcessDataPtr != ReadBuffer) {  // some data are processed
+					memmove(ReadBuffer, ProcessDataPtr, ReadDataSize);
+				}
+				break;
+			}
+			ProcessDataPtr += ProcessedDataSize;
+			ReadDataSize   -= ProcessedDataSize;
 		}
-		auto ProcessedDataSize = LP->OnData(this, IBP->ReadBuffer, IBP->ReadDataSize);
-		if (ProcessedDataSize == InvalidDataSize) {
-			return false;
-		}
-		if ((IBP->ReadDataSize -= ProcessedDataSize)) {
-			memmove(IBP->ReadBuffer, IBP->ReadBuffer + ProcessedDataSize, IBP->ReadDataSize);
-		}
+
+		// X_DEBUG_PRINTF("ReadDataSize: %zi", IBP->ReadDataSize);
+		// if (!IBP->ReadDataSize) {
+		// 	return false;
+		// }
+		// auto ProcessedDataSize = LP->OnData(this, IBP->ReadBuffer, IBP->ReadDataSize);
+		// if (ProcessedDataSize == InvalidDataSize) {
+		// 	return false;
+		// }
+		// if ((IBP->ReadDataSize -= ProcessedDataSize)) {
+		// 	memmove(IBP->ReadBuffer, IBP->ReadBuffer + ProcessedDataSize, IBP->ReadDataSize);
+		// }
 	} while (false);
 	AsyncAcquireInput();
 	return true;
