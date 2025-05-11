@@ -4,6 +4,8 @@
 #include "../core/optional.hpp"
 #include "../network/net_address.hpp"
 
+#include <string>
+
 X_BEGIN
 
 class xConfigLoader : xNonCopyable {
