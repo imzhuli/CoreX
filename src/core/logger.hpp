@@ -25,15 +25,8 @@ public:
 	X_API_MEMBER xLogger();
 	X_API_MEMBER ~xLogger();
 
-	X_API_MEMBER
-	virtual void UpdateConfig(const char * aConfigData, size_t cConfigDataSize);
 	virtual void SetLogLevel(eLogLevel ll)                = 0;
 	virtual void Log(eLogLevel ll, const char * fmt, ...) = 0;
-
-	// helper functions
-	X_INLINE void UpdateConfig(const char * aConfigData) {
-		UpdateConfig(aConfigData, strlen(aConfigData));
-	}
 
 	template <typename... Args>
 	X_INLINE void V(const char * fmt, Args &&... args) {
@@ -69,10 +62,8 @@ public:
 };
 
 class xNonLogger final : public xLogger {
-	void SetLogLevel(eLogLevel ll) override {
-	}
-	void Log(eLogLevel ll, const char * fmt, ...) override {
-	}
+	void SetLogLevel(eLogLevel ll) override {}
+	void Log(eLogLevel ll, const char * fmt, ...) override {}
 };
 
 class xBaseLogger final : public xLogger {
@@ -83,13 +74,9 @@ public:
 	X_API_MEMBER bool Init(const char * PathPtr = nullptr, bool AutoStdout = true);
 	X_API_MEMBER void Clean();
 
-	X_INLINE bool IsStdout() const {
-		return _LogFile == stdout;
-	}
+	X_INLINE bool IsStdout() const { return _LogFile == stdout; }
 
-	X_API_MEMBER void SetLogLevel(eLogLevel ll) override {
-		_LogLevel = ll;
-	}
+	X_API_MEMBER void SetLogLevel(eLogLevel ll) override { _LogLevel = ll; }
 	X_API_MEMBER void Log(eLogLevel ll, const char * fmt, ...) override;
 
 	X_API_MEMBER FILE * Lock() {
@@ -119,9 +106,7 @@ public:
 	X_API_MEMBER bool Init(size32_t MaxLineNumber = 10000, size32_t MaxLineSize = 1024);
 	X_API_MEMBER void Clean();
 
-	X_API_MEMBER void SetLogLevel(eLogLevel ll) override {
-		_LogLevel = ll;
-	}
+	X_API_MEMBER void SetLogLevel(eLogLevel ll) override { _LogLevel = ll; }
 	X_API_MEMBER void Log(eLogLevel ll, const char * fmt, ...) override;
 	X_API_MEMBER void Output(FILE * fp = stdout);
 

@@ -41,9 +41,6 @@ xLogger::xLogger() {
 xLogger::~xLogger() {
 }
 
-void xLogger::UpdateConfig(const char * aConfigData, size_t cConfigDataSize) {
-}
-
 xBaseLogger::xBaseLogger() {
 }
 
