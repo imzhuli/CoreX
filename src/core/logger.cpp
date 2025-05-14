@@ -7,14 +7,33 @@
 #include <cstdio>
 #include <cstring>
 #include <ctime>
+#include <filesystem>
 #include <string>
 #include <thread>
 
 X_BEGIN
 
+namespace fs = std::filesystem;
+
 static constexpr const char gcHint[] = {
 	'V', 'D', 'I', 'W', 'E',
 };
+
+static bool EnsureDirectoryExists(const fs::path & path) {
+	try {
+		fs::path dir = path.parent_path();
+
+		if (dir.empty()) {
+			return true;
+		}
+		if (!fs::exists(dir)) {
+			fs::create_directories(dir);
+		}
+	} catch (const fs::filesystem_error & e) {
+		return false;
+	}
+	return true;
+}
 
 xLogger::xLogger() {
 }
@@ -38,6 +57,7 @@ bool xBaseLogger::Init(const char * PathPtr, bool AutoStdout) {
 	} else {
 		return (AutoStdout ? (_LogFile = stdout) : (_LogFile = nullptr));
 	}
+	EnsureDirectoryExists(_LogFilename);
 	_LogFile = fopen(_LogFilename.string().c_str(), "at");
 	return _LogFile != nullptr;
 }
