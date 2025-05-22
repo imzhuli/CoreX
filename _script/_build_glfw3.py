@@ -25,6 +25,7 @@ def build():
             '-Wno-dev '
             '-DGLFW_BUILD_DOCS=OFF '
             '-DBUILD_SHARED_LIBS=OFF '
+            '-DGLFW_USE_WAYLAND=OFF'
             f'-DCMAKE_INSTALL_PREFIX="{install_dir}" -B build .')
         os.system(f"cmake --build build {xsetup.cmake_build_config}")
         os.system(f"cmake --install build {xsetup.cmake_build_config}")
