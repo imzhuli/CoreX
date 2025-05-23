@@ -25,13 +25,13 @@ public:
 	X_INLINE const xNetAddress & GetBindAddress() const { return ActualBindAddress; }
 
 private:
-	X_API_MEMBER bool OnIoEventInReady() override;
-	X_API_MEMBER void OnIoEventError() override;
+	X_PRIVATE_MEMBER bool OnIoEventInReady() override;
+	X_PRIVATE_MEMBER void OnIoEventError() override;
 
-	X_API_MEMBER xNetAddress GetLocalAddress() const;
+	X_PRIVATE_MEMBER xNetAddress GetLocalAddress() const;
 
 #ifdef X_SYSTEM_WINDOWS
-	X_API_MEMBER void AsyncAcquireInput();
+	X_PRIVATE_MEMBER void AsyncAcquireInput();
 #endif
 
 private:

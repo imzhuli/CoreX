@@ -15,8 +15,8 @@ class xServiceClientConnectionNode : public xListNode {
 public:
 	static constexpr const uint64_t BEING_KILLED = (uint64_t)-1;
 
-	void SetBeingKilled() { TimestampMS = BEING_KILLED; }
-	bool IsBeingKilled() const { return TimestampMS == BEING_KILLED; }
+	X_INLINE void SetBeingKilled() { TimestampMS = BEING_KILLED; }
+	X_INLINE bool IsBeingKilled() const { return TimestampMS == BEING_KILLED; }
 
 	uint64_t TimestampMS = 0;
 };
@@ -25,8 +25,8 @@ class xServiceClientConnection final
 	: public xTcpConnection
 	, public xServiceClientConnectionNode {
 public:
-	X_INLINE void              SetUserContext(xVariable V) { UserContext = V; }
 	X_INLINE uint64_t          GetConnectionId() const { return ConnectionId; }
+	X_INLINE void              SetUserContext(xVariable V) { UserContext = V; }
 	X_INLINE xVariable &       GetUserContext() { return UserContext; }
 	X_INLINE const xVariable & GetUserContext() const { return UserContext; }
 
@@ -76,9 +76,9 @@ protected:
 	X_API_MEMBER virtual void OnCleanupClientConnection(const xServiceClientConnection & Connection);
 
 private:
-	X_API_MEMBER void   OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandle) override;
-	X_API_MEMBER void   OnPeerClose(xTcpConnection * TcpConnectionPtr) override;
-	X_API_MEMBER size_t OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_t DataSize) override;
+	X_PRIVATE_MEMBER void   OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandle) override;
+	X_PRIVATE_MEMBER void   OnPeerClose(xTcpConnection * TcpConnectionPtr) override;
+	X_PRIVATE_MEMBER size_t OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_t DataSize) override;
 
 	X_PRIVATE_MEMBER void CleanupConnection(xServiceClientConnection & Connection);
 	X_PRIVATE_MEMBER void CleanupKilledConnections();

@@ -62,30 +62,30 @@
 
 #if defined(_MSC_VER)
 
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
+	#ifndef NOMINMAX
+	#define NOMINMAX
+	#endif
 
-#define X_LIKELY(x)   (x)
-#define X_UNLIKELY(x) (x)
-#define X_PRINTF_LIKE(a, b)
+	#define X_LIKELY(x)   (x)
+	#define X_UNLIKELY(x) (x)
+	#define X_PRINTF_LIKE(a, b)
 
-#define X_INLINE        __forceinline
-#define X_STATIC_INLINE static __forceinline
+	#define X_INLINE        __forceinline
+	#define X_STATIC_INLINE static __forceinline
 
-#define X_PRIVATE extern
-#define X_PRIVATE_MEMBER
-#define X_PRIVATE_STATIC_MEMBER    static
-#define X_PRIVATE_CONSTEXPR        constexpr
-#define X_PRIVATE_STATIC_CONSTEXPR static constexpr
-#define X_PRIVATE_INLINE           __forceinline
+	#define X_PRIVATE extern
+	#define X_PRIVATE_MEMBER
+	#define X_PRIVATE_STATIC_MEMBER    static
+	#define X_PRIVATE_CONSTEXPR        constexpr
+	#define X_PRIVATE_STATIC_CONSTEXPR static constexpr
+	#define X_PRIVATE_INLINE           __forceinline
 
-#define X_EXPORT               __declspec(dllexport) extern
-#define X_EXPORT_MEMBER        __declspec(dllexport)
-#define X_EXPORT_STATIC_MEMBER __declspec(dllexport) static
-#define X_IMPORT               __declspec(dllimport) extern
-#define X_IMPORT_MEMBER        __declspec(dllimport)
-#define X_IMPORT_STATIC_MEMBER __declspec(dllimport) static
+	#define X_EXPORT               __declspec(dllexport) extern
+	#define X_EXPORT_MEMBER        __declspec(dllexport)
+	#define X_EXPORT_STATIC_MEMBER __declspec(dllexport) static
+	#define X_IMPORT               __declspec(dllimport) extern
+	#define X_IMPORT_MEMBER        __declspec(dllimport)
+	#define X_IMPORT_STATIC_MEMBER __declspec(dllimport) static
 
 #elif defined(__clang__) || defined(__GNUC__)
 

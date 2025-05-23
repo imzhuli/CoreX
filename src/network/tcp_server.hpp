@@ -11,24 +11,21 @@ public:
 	struct iListener {
 		virtual void OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandle) = 0;
 	};
-	X_INLINE xIoContext * GetIoContextPtr() const {
-		return ICP;
-	}
+	X_INLINE xIoContext * GetIoContextPtr() const { return ICP; }
 
 public:  // clang-format off
 	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & Address, iListener * ListenerPtr);
 	X_API_MEMBER void Clean();
 
-
 private:  // clang-format off
-	X_API_MEMBER void OnIoEventError() override { X_PFATAL("TcpServerError"); }
-	X_API_MEMBER bool OnIoEventInReady() override;
+	X_PRIVATE_MEMBER void OnIoEventError() override { X_PFATAL("TcpServerError"); }
+	X_PRIVATE_MEMBER bool OnIoEventInReady() override;
 
 #ifdef X_SYSTEM_WINDOWS
-	X_API_MEMBER void TryPreAccept();
+	X_PRIVATE_MEMBER void TryPreAccept();
 #else
-	X_API_MEMBER bool TryListen();
-	X_API_MEMBER bool TryAccept(xSocket & NewConnectionSocket);
+	X_PRIVATE_MEMBER bool TryListen();
+	X_PRIVATE_MEMBER bool TryAccept(xSocket & NewConnectionSocket);
 #endif
 
 	// clang-format on

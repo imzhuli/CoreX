@@ -34,9 +34,9 @@ protected:
 	X_API_MEMBER virtual void OnCleanupServerConnection();
 
 private:
-	X_API_MEMBER void   OnConnected(xTcpConnection * TcpConnectionPtr) override;
-	X_API_MEMBER void   OnPeerClose(xTcpConnection * TcpConnectionPtr) override;
-	X_API_MEMBER size_t OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_t DataSize) override;
+	X_PRIVATE_MEMBER void   OnConnected(xTcpConnection * TcpConnectionPtr) override;
+	X_PRIVATE_MEMBER void   OnPeerClose(xTcpConnection * TcpConnectionPtr) override;
+	X_PRIVATE_MEMBER size_t OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_t DataSize) override;
 
 private:
 	// config

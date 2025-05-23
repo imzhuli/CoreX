@@ -17,15 +17,15 @@ private:
 	X_API_MEMBER virtual void Render();
 
 protected:
-	X_PRIVATE_MEMBER bool CreateSwapchain();
-	X_PRIVATE_MEMBER void DestroySwapchain();
-	X_PRIVATE_MEMBER bool RecreateSwapchain();
+	X_API_MEMBER bool CreateSwapchain();
+	X_API_MEMBER void DestroySwapchain();
+	X_API_MEMBER bool RecreateSwapchain();
 
-	X_PRIVATE_MEMBER bool CreateCommands();
-	X_PRIVATE_MEMBER void DestroyCommands();
+	X_API_MEMBER bool CreateCommands();
+	X_API_MEMBER void DestroyCommands();
 
-	X_PRIVATE_MEMBER bool CreateSyncStructures();
-	X_PRIVATE_MEMBER void DestroySyncStructures();
+	X_API_MEMBER bool CreateSyncStructures();
+	X_API_MEMBER void DestroySyncStructures();
 
 private:
 	X_PRIVATE_MEMBER bool CreateDefaultRenderPass();

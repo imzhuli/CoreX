@@ -25,15 +25,16 @@ class xClientConnection
 	friend class xClientPool;
 
 public:
-	inline xIndexId            GetConnectionId() const { return ConnectionId; }
-	inline const xNetAddress & GetTargetAddress() const { return TargetAddress; }
-
-public:
-	xVariable UserContext = {};
+	X_INLINE uint64_t            GetConnectionId() const { return ConnectionId; }
+	X_INLINE const xNetAddress & GetTargetAddress() const { return TargetAddress; }
+	X_INLINE void                SetUserContext(xVariable V) { UserContext = V; }
+	X_INLINE xVariable &         GetUserContext() { return UserContext; }
+	X_INLINE const xVariable &   GetUserContext() const { return UserContext; }
 
 private:
 	xIndexId    ConnectionId;
 	xNetAddress TargetAddress;
+	xVariable   UserContext = {};
 	bool        ReleaseMark = false;
 };
 
@@ -42,41 +43,43 @@ class xClientPool
 	, xAbstract {
 
 public:
-	bool Init(xIoContext * ICP, size_t MaxConnectionCount = 1024);
-	void Clean();
-	void Tick();
-	void Tick(uint64_t NowMS);
+	X_API_MEMBER bool Init(xIoContext * ICP, size_t MaxConnectionCount = 1024);
+	X_API_MEMBER void Clean();
+	X_API_MEMBER void Tick();
+	X_API_MEMBER void Tick(uint64_t NowMS);
 
-	xIndexId AddServer(const xNetAddress & Address);
-	void     RemoveServer(xIndexId ConnectionId);
+	X_API_MEMBER xIndexId AddServer(const xNetAddress & Address);
+	X_API_MEMBER void     RemoveServer(xIndexId ConnectionId);
 
-	bool PostData(const void * DataPtr, size_t DataSize);
-	bool PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
-	bool PostData(xClientConnection & PC, const void * DataPtr, size_t DataSize);
-	bool PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
-	bool PostMessage(uint64_t ConnectionId, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
-	bool PostMessage(xClientConnection & PC, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
+	X_API_MEMBER bool PostData(const void * DataPtr, size_t DataSize);
+	X_API_MEMBER bool PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
+	X_API_MEMBER bool PostData(xClientConnection & PC, const void * DataPtr, size_t DataSize);
+	X_API_MEMBER bool PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
+	X_API_MEMBER bool PostMessage(uint64_t ConnectionId, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
+	X_API_MEMBER bool PostMessage(xClientConnection & PC, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
+
+	X_INLINE uint64_t GetTickTimeMS() const { return Ticker(); }
 
 protected:
-	virtual void OnServerConnected(xClientConnection & CC);
-	virtual void OnServerClose(xClientConnection & CC);
-	virtual bool OnServerPacket(xClientConnection & CC, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize);
+	X_API_MEMBER virtual void OnServerConnected(xClientConnection & CC);
+	X_API_MEMBER virtual void OnServerClose(xClientConnection & CC);
+	X_API_MEMBER virtual bool OnServerPacket(xClientConnection & CC, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize);
 
 private:
-	void CheckTimeoutConnection();
-	void KillAllConnections();
-	void ReleaseConnections();
-	void DoRequestKeepAlive();
-	void DoAutoReconnect();
+	X_PRIVATE_MEMBER void CheckTimeoutConnection();
+	X_PRIVATE_MEMBER void KillAllConnections();
+	X_PRIVATE_MEMBER void ReleaseConnections();
+	X_PRIVATE_MEMBER void DoRequestKeepAlive();
+	X_PRIVATE_MEMBER void DoAutoReconnect();
 
-	void OnTick();
-	void OnKeepAlive(xClientConnection * PC);
+	X_PRIVATE_MEMBER void OnTick();
+	X_PRIVATE_MEMBER void OnKeepAlive(xClientConnection * PC);
 
-	void   OnConnected(xTcpConnection * TcpConnectionPtr) override;
-	void   OnPeerClose(xTcpConnection * TcpConnectionPtr) override;
-	size_t OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_t DataSize) override;
+	X_PRIVATE_MEMBER void   OnConnected(xTcpConnection * TcpConnectionPtr) override;
+	X_PRIVATE_MEMBER void   OnPeerClose(xTcpConnection * TcpConnectionPtr) override;
+	X_PRIVATE_MEMBER size_t OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_t DataSize) override;
 
-	xClientConnection * GetConnection(uint64_t ConnectionId);
+	X_PRIVATE_MEMBER xClientConnection * GetConnection(uint64_t ConnectionId);
 
 private:
 	xIoContext *                       ICP = nullptr;
