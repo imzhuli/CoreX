@@ -25,7 +25,7 @@ class xClientConnection
 	friend class xClientPool;
 
 public:
-	X_INLINE uint64_t            GetConnectionId() const { return ConnectionId; }
+	X_INLINE xIndexId            GetConnectionId() const { return ConnectionId; }
 	X_INLINE const xNetAddress & GetTargetAddress() const { return TargetAddress; }
 	X_INLINE void                SetUserContext(xVariable V) { UserContext = V; }
 	X_INLINE xVariable &         GetUserContext() { return UserContext; }
