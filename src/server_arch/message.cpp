@@ -43,7 +43,7 @@ void xBinaryMessage::DeserializeMembers() {
 }
 
 /****************/
-size_t WriteMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, void * Buffer, size_t BufferSize, xBinaryMessage & Message) {
+size_t WriteMessage(void * Buffer, size_t BufferSize, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
 	assert(BufferSize >= PacketHeaderSize);
 	auto PayloadPtr     = static_cast<ubyte *>(Buffer) + PacketHeaderSize;
 	auto MaxPayloadSize = BufferSize - PacketHeaderSize;
