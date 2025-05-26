@@ -29,6 +29,7 @@ def build():
             'cmake '
             f'{xsetup.cmake_build_type} ' \
             '-Wno-dev '
+            '-DCMAKE_POLICY_VERSION_MINIMUM=3.5 '
             '-DLWS_WITH_MBEDTLS=ON '
             '-DLWS_WITH_SHARED=OFF '
             '-DLWS_WITHOUT_TESTAPPS=ON '
