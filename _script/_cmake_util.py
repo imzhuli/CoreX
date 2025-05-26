@@ -93,8 +93,6 @@ def ensure_cmake_minimum_required(cmake_file, min_version = "3.5", default_versi
         cmake_min_req_index = -1
         pattern = re.compile(r'cmake_minimum_required\s*\(\s*VERSION\s+["\']?(\d+\.\d+(.\d+)*)["\']?\s*\)', flags=re.IGNORECASE)
         for index,line in enumerate(lines):
-            if index > 50:
-                break
             match = pattern.search(line)
             if match:
                 if cmake_min_req_index == -1:
@@ -148,3 +146,9 @@ def remake_dir(dir):
         print(f"MK: Exception: {e}")
         return False
     return True
+
+
+if __name__ == "__main__":
+    cr = __compare_cmake_versions("3.0", "3.5")
+    print(cr)
+
