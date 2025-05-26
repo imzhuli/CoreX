@@ -23,6 +23,7 @@ def build():
             'cmake '
             f'{xsetup.cmake_build_type} ' \
             '-Wno-dev '
+            '-DCMAKE_POLICY_VERSION_MINIMUM=3.5 '
             '-DGLFW_BUILD_DOCS=OFF '
             '-DBUILD_SHARED_LIBS=OFF '
             '-DGLFW_BUILD_WAYLAND=OFF '

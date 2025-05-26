@@ -26,6 +26,7 @@ def build():
             'cmake '
             f'{xsetup.cmake_build_type} ' \
             '-Wno-dev '
+            '-DCMAKE_POLICY_VERSION_MINIMUM=3.5 '
             '-DBUILD_SHARED_LIBS=OFF '
             '-DFT_DISABLE_HARFBUZZ=TRUE '
             '-DCMAKE_CXX_STANDARD=20 '
