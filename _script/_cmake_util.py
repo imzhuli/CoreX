@@ -98,7 +98,7 @@ def ensure_cmake_minimum_required(cmake_file, min_version = "3.5", default_versi
                 if cmake_min_req_index == -1:
                     cmake_min_req_index = index
                 current_version = match.group(1)
-                if compare_versions(current_version, min_version) <= 0:
+                if __compare_cmake_versions(current_version, min_version) <= 0:
                     lines[index] = pattern.sub(f'cmake_minimum_required(VERSION "{default_version}")', line)
 
         if cmake_min_req_index == -1:
