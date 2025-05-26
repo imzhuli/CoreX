@@ -22,6 +22,7 @@ def build():
 
     try:
         os.chdir(unzipped_src_dir)
+        cu.update_cmake_minimum_required("CMakeLists.txt")
         os.system(
             'cmake '
             f'{xsetup.cmake_build_type} ' \
