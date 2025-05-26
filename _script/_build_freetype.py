@@ -3,6 +3,7 @@
 import tarfile
 import os
 import xsetup
+import _cmake_util as cu
 
 cwd = os.getcwd()
 unzip_dir = f"{cwd}/_3rd_build"
@@ -22,11 +23,11 @@ def build():
 
     try:
         os.chdir(unzipped_src_dir)
+        cu.ensure_cmake_minimum_required("CMakeLists.txt")
         os.system(
             'cmake '
             f'{xsetup.cmake_build_type} ' \
             '-Wno-dev '
-            '-DCMAKE_POLICY_VERSION_MINIMUM=3.5 '
             '-DBUILD_SHARED_LIBS=OFF '
             '-DFT_DISABLE_HARFBUZZ=TRUE '
             '-DCMAKE_CXX_STANDARD=20 '

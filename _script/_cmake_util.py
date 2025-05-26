@@ -5,6 +5,12 @@ import re
 import shutil
 import stat
 
+__ignore_cmake_params = """\
+if (DEFINED CMAKE_POLICY_VERSION_MINIMUM)
+    set(CMAKE_POLICY_VERSION_MINIMUM ${CMAKE_POLICY_VERSION_MINIMUM})
+endif()
+"""
+
 __fix_compiler_flags = """
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-implicit-function-declaration")
@@ -77,58 +83,40 @@ def __compare_cmake_versions(version1, version2):
             return 1
     return 0
 
-def ensure_cmake_minimum_required(cmake_file, version="3.10"):
+def ensure_cmake_minimum_required(cmake_file, min_version = "3.5", default_version="3.10"):
     try:
         # 读取文件内容
         with open(cmake_file, 'r', encoding='utf-8') as f:
             lines = f.readlines()
         
         # 检查是否已存在cmake_minimum_required命令
-        pattern = re.compile(r'^\s*cmake_minimum_required\s*\(')
-        has_cmake_min_req = any(pattern.match(line.strip()) for line in lines)
-        
-        if not has_cmake_min_req:
-            new_line = f"cmake_minimum_required(VERSION {version})\n"
+        cmake_min_req_index = -1
+        pattern = re.compile(r'cmake_minimum_required\s*\(\s*VERSION\s+["\']?(\d+\.\d+)["\']?\s*\)')
+        for index,line in enumerate(lines):
+            match = pattern.search(line)
+            if match:
+                if cmake_min_req_index == -1:
+                    cmake_min_req_index = index
+                current_version = match.group(1)
+                if compare_versions(current_version, min_version) <= 0:
+                    lines[index] = pattern.sub(f'cmake_minimum_required(VERSION "{default_version}")', line)
+
+        if cmake_min_req_index == -1:
+            new_line = f"cmake_minimum_required(VERSION {default_version})\n"
             lines.insert(0, new_line)
-            with open(cmake_file, 'w', encoding='utf-8') as f:
-                f.writelines(lines)
-            print(f"cmake_minimum_required added to {cmake_file}")
+            cmake_min_req_index = 1
+
+        lines.insert(cmake_min_req_index, __ignore_cmake_params)
+        with open(cmake_file, 'w', encoding='utf-8') as f:
+            f.writelines(lines)
         return True
     except Exception as e:
-        print(f"error processing {cmake_file}: {e}")
+        print(f"error processing {cmake_file}: {e}", flush=True)
         return False
-
-def update_cmake_minimum_required(cmake_file, min_version="3.5", new_version="3.10"):
-    no_cmake_minimum_required = False
-    try:
-        with open(cmake_file, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        pattern = re.compile(r'cmake_minimum_required\s*\(\s*VERSION\s+["\']?(\d+\.\d+)["\']?\s*\)')
-        match = pattern.search(content)
-        
-        if match:
-            current_version = match.group(1)
-            if compare_versions(current_version, min_version) <= 0:
-                updated_content = pattern.sub(
-                    f'cmake_minimum_required(VERSION "{new_version}")',
-                    content
-                )
-                if updated_content != content:
-                    with open(cmake_file, 'w', encoding='utf-8') as f:
-                        f.write(updated_content)
-                    print(f"updated {cmake_file} cmake_minimum_required from {current_version} to {new_version}")
-        else:
-            # cmake_minimum_required not found:
-            no_cmake_minimum_required = True
-    except Exception as e:
-        print(f"error on processing {cmake_file}: {e}")
-        return False
-    ensure_cmake_minimum_required(cmake_file, new_version)
-    return True
 
 
 def fix_cmake(cmakefile):
+    ensure_cmake_minimum_required(cmakefile)
     try:
         find_target = r"^PROJECT\(.+\)"
         with open(cmakefile, "r") as sources:

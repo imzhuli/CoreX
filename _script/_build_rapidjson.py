@@ -30,7 +30,6 @@ def build():
             'cmake '
             f'{xsetup.cmake_build_type} ' \
             '-Wno-dev '
-            '-DCMAKE_POLICY_VERSION_MINIMUM=3.5 '
             '-DRAPIDJSON_BUILD_DOC=OFF '
             '-DRAPIDJSON_BUILD_EXAMPLES=OFF '
             f'-DCMAKE_INSTALL_PREFIX="{install_dir}" -B build . ')

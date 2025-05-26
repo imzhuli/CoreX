@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import _unzip_source as us
+import _cmake_util as cu
 import os
 import xsetup
 
@@ -19,11 +20,11 @@ def build():
 
     try:
         os.chdir(unzipped_src_dir)
+        cu.ensure_cmake_minimum_required("CMakeLists.txt")
         os.system(
             'cmake '
             f'{xsetup.cmake_build_type} ' \
             '-Wno-dev '
-            '-DCMAKE_POLICY_VERSION_MINIMUM=3.5 '
             '-DGLFW_BUILD_DOCS=OFF '
             '-DBUILD_SHARED_LIBS=OFF '
             '-DGLFW_BUILD_WAYLAND=OFF '

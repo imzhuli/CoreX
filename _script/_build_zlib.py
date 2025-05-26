@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import _cmake_util as cu
 import tarfile
 import os
 import xsetup
@@ -39,6 +40,7 @@ def build():
 
     try:
         os.chdir(unzipped_src_dir)
+        cu.ensure_cmake_minimum_required("CMakeLists.txt")
         os.system(
             'cmake '
             f'{xsetup.cmake_build_type} ' \

@@ -30,7 +30,6 @@ def build():
             'cmake '
             f'{xsetup.cmake_build_type} ' \
             '-Wno-dev '
-            '-DCMAKE_POLICY_VERSION_MINIMUM=3.5 '
             '-DBUILD_SHARED_LIBS=OFF '
             '-DBUILD_LIBCURL_DOCS=OFF '
             '-DCURL_USE_MBEDTLS=ON '
