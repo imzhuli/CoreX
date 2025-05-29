@@ -45,11 +45,18 @@ inline namespace numeric {
 	using size_t  = ::std::size_t;
 	using ssize_t = typename ::std::make_signed<size_t>::type;
 
-	using function_holder_t = void(*)();
+	using function_holder_t = void(*)();	
 
 	static constexpr const size_t InvalidDataSize = static_cast<size_t>(-1);
 
 }  // namespace numeric
+
+enum eBool : bool { 
+	// intergral type could not be IMPLICITLY cast to eBool
+	// that is safer for function default param values
+	True  = true,
+	False = false,
+};
 
 union xVariable {
 	ubyte                      B[8];
