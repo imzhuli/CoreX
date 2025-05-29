@@ -11,7 +11,6 @@ X_BEGIN
 
 static constexpr const uint64_t KeepAliveTimeoutMS     = 105'000;
 static constexpr const size_t   DefaultMinConnectionId = 1024;
-static constexpr const size_t   DefaultMaxConnectionId = 50'000;
 
 bool xService::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, size_t MaxConnectionId, bool ReusePort) {
 	NowMS = GetTimestampMS();
