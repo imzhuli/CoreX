@@ -61,19 +61,18 @@ public:
 	X_INLINE uint64_t GetTickTimeMS() const { return Ticker(); }
 
 protected:
+	X_API_MEMBER virtual void OnTick(uint64_t NowMS);
 	X_API_MEMBER virtual void OnServerConnected(xClientConnection & CC);
 	X_API_MEMBER virtual void OnServerClose(xClientConnection & CC);
 	X_API_MEMBER virtual bool OnServerPacket(xClientConnection & CC, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize);
 
 private:
-	X_PRIVATE_MEMBER void CheckTimeoutConnection();
+	X_PRIVATE_MEMBER void CheckTimeoutConnections();
 	X_PRIVATE_MEMBER void KillAllConnections();
 	X_PRIVATE_MEMBER void ReleaseConnections();
 	X_PRIVATE_MEMBER void DoRequestKeepAlive();
 	X_PRIVATE_MEMBER void DoAutoReconnect();
-
-	X_PRIVATE_MEMBER void OnTick();
-	X_PRIVATE_MEMBER void OnKeepAlive(xClientConnection * PC);
+	X_PRIVATE_MEMBER void DoKeepAlive(xClientConnection * PC);
 
 	X_PRIVATE_MEMBER void   OnConnected(xTcpConnection * TcpConnectionPtr) override;
 	X_PRIVATE_MEMBER void   OnPeerClose(xTcpConnection * TcpConnectionPtr) override;

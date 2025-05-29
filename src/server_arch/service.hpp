@@ -68,6 +68,7 @@ public:
 	}
 
 protected:
+	X_API_MEMBER virtual void OnTick(uint64_t NowMS);
 	X_API_MEMBER virtual void OnClientConnected(xServiceClientConnection & Connection);
 	X_API_MEMBER virtual void OnClientClose(xServiceClientConnection & Connection);
 	X_API_MEMBER virtual bool OnClientPacket(

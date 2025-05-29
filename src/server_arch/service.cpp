@@ -55,6 +55,8 @@ void xService::Tick(uint64_t UpdatedNowMS) {
 		ServiceConnectionKillList.GrabTail(*NP);
 	}
 	CleanupKilledConnections();
+
+	OnTick(NowMS);
 }
 
 void xService::CleanupConnection(xServiceClientConnection & Connection) {
@@ -69,6 +71,9 @@ void xService::CleanupKilledConnections() {
 	while (auto NP = ServiceConnectionKillList.PopHead()) {
 		CleanupConnection(Cast(*NP));
 	}
+}
+
+void xService::OnTick(uint64_t NowMS) {
 }
 
 void xService::OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandle) {

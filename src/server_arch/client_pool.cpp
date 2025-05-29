@@ -31,15 +31,15 @@ void xClientPool::Tick() {
 
 void xClientPool::Tick(uint64_t NowMS) {
 	Ticker.Update(NowMS);
-	OnTick();
-}
-
-void xClientPool::OnTick() {
-	CheckTimeoutConnection();
+	CheckTimeoutConnections();
 	KillAllConnections();
 	ReleaseConnections();
 	DoRequestKeepAlive();
 	DoAutoReconnect();
+	OnTick(Ticker());
+}
+
+void xClientPool::OnTick(uint64_t NowMS) {
 }
 
 xIndexId xClientPool::AddServer(const xNetAddress & Address) {
@@ -103,7 +103,7 @@ void xClientPool::DoAutoReconnect() {
 	AutoConnectionList.GrabListTail(FailedList);
 }
 
-void xClientPool::CheckTimeoutConnection() {
+void xClientPool::CheckTimeoutConnections() {
 	auto NowMS              = Ticker();
 	auto ConnectTimepoint   = NowMS - MaxConnectTimeoutMS;
 	auto KeepAliveTimepoint = NowMS - MaxKeepAliveTimeoutMS;
@@ -149,7 +149,7 @@ void xClientPool::ReleaseConnections() {
 	}
 }
 
-void xClientPool::OnKeepAlive(xClientConnection * PC) {
+void xClientPool::DoKeepAlive(xClientConnection * PC) {
 	assert(PC->IsOpen());
 	if (PC->ReleaseMark) {
 		return;
@@ -162,7 +162,7 @@ void xClientPool::OnKeepAlive(xClientConnection * PC) {
 void xClientPool::OnConnected(xTcpConnection * TcpConnectionPtr) {
 	auto PC = static_cast<xClientConnection *>(TcpConnectionPtr);
 	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", PC->ConnectionId, PC->TargetAddress.ToString().c_str());
-	OnKeepAlive(PC);
+	DoKeepAlive(PC);
 	EstablishedConnectionList.AddTail(*PC);
 	OnServerConnected(*PC);
 }
@@ -194,7 +194,7 @@ size_t xClientPool::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, s
 		}
 		if (Header.IsKeepAlive()) {
 			// X_DEBUG_PRINTF("KeepAlive");
-			OnKeepAlive(PC);
+			DoKeepAlive(PC);
 		} else {
 			auto PayloadPtr  = xPacket::GetPayloadPtr(DataPtr);
 			auto PayloadSize = Header.GetPayloadSize();
