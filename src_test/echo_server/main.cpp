@@ -12,7 +12,7 @@ struct xEchoService : xService {
 	}
 	bool OnClientPacket(xServiceClientConnection & Connection, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize) override {
 		auto Ret = xService::OnClientPacket(Connection, CommandId, RequestId, PayloadPtr, PayloadSize);
-		RuntimeAssert(Ret);
+		X_RUNTIME_ASSERT(Ret);
 
 		ubyte Buffer[MaxPacketSize];
 		assert(xPacketHeader::Size + PayloadSize <= sizeof(Buffer));

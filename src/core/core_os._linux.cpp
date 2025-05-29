@@ -10,7 +10,7 @@
 X_BEGIN
 
 void Daemonize() {
-	RuntimeAssert(!daemon(1, 1));
+	X_RUNTIME_ASSERT(!daemon(1, 1));
 }
 
 static void GuardProcess(pid_t ChildPid) {

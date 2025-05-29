@@ -69,7 +69,7 @@ void xObjectIdManagerMini::Release(uint32_t Id) {
 	Bitmap[Index1] &= ~(BASE_ONE << B2);
 }
 
-void xObjectIdManagerMini::MarkInUse(uint32_t Id) {
+bool xObjectIdManagerMini::MarkInUse(uint32_t Id) {
 	assert(Id && Id <= MaxObjectId);
 
 	Id              -= 1;
@@ -81,9 +81,15 @@ void xObjectIdManagerMini::MarkInUse(uint32_t Id) {
 	uint_fast32_t Index0 = L0_Start + B0;
 	uint_fast32_t Index1 = L1_Start + B1;
 
-	assert(!(Bitmap[Index1] & (BASE_ONE << B2)));
-	Bitmap[Index0] |= (BASE_ONE << B1);
-	Bitmap[Index1] |= (BASE_ONE << B2);
+	uint64_t FinestBitValue = BASE_ONE << B2;
+	if (Bitmap[Index1] & FinestBitValue) {  // already in use
+		return false;
+	}
+
+	if (std::numeric_limits<uint64_t>::max() == (Bitmap[Index1] |= (FinestBitValue))) {
+		Bitmap[Index0] |= (BASE_ONE << B1);
+	}
+	return true;
 }
 
 X_END

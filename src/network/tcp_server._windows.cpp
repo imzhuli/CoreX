@@ -107,7 +107,7 @@ void xTcpServer::TryPreAccept() {
 	assert(PAIP->PreAcceptSocket == InvalidSocket);
 
 	PAIP->PreAcceptSocket = WSASocket(PAIP->AF, SOCK_STREAM, IPPROTO_IP, NULL, 0, WSA_FLAG_OVERLAPPED);
-	RuntimeAssert(PAIP->PreAcceptSocket != InvalidSocket);
+	X_RUNTIME_ASSERT(PAIP->PreAcceptSocket != InvalidSocket);
 
 	auto & Overlapped = IBP->Reader.Native.Overlapped;
 	memset(&Overlapped, 0, sizeof(Overlapped));

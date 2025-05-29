@@ -140,7 +140,7 @@ template <typename T, size_t L>
 
 X_API void Breakpoint();
 X_STATIC_INLINE void Pass() { }
-X_STATIC_INLINE void RuntimeAssert(bool cond, const char * hint = nullptr /* reason */) { if (!cond) { Fatal(hint); } }
+X_STATIC_INLINE void RuntimeAssert(bool cond/* reason */, const char * hint_on_failure = "RuntimeAssertionFailure") { if (!cond) { Fatal(hint_on_failure); } }
 
 template <typename T>
 X_STATIC_INLINE constexpr auto MakeSigned(const T & Value) { return static_cast<std::make_signed_t<T>>(Value); }
@@ -396,13 +396,13 @@ X_API void FatalPrintf(const char * Filename, size_t Line, const char * Function
 
 X_COMMON_END
 
+
 #define X_PDEBUG(fmt, ...) ::xel::DebugPrintf(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
 #define X_PERROR(fmt, ...) ::xel::ErrorPrintf(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
 #define X_PFATAL(fmt, ...) ::xel::FatalPrintf(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
 
-#ifndef X_CATCH_NONE
 #define X_CATCH_NONE catch (const ::xel::xNonCatchable &)
-#endif
+#define X_RUNTIME_ASSERT(cond) ::xel::RuntimeAssert((cond), "RuntimeAssertionFailure@ " __FILE__ ":" X_STRINGIFY(__LINE__))
 
 #ifndef NDEBUG
 #define X_DEBUG

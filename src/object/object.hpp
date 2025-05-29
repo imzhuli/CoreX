@@ -42,7 +42,7 @@ public:
 
 	X_API_MEMBER uint32_t Acquire();
 	X_API_MEMBER void     Release(uint32_t Id);
-	X_API_MEMBER void     MarkInUse(uint32_t Id);
+	X_API_MEMBER bool     MarkInUse(uint32_t Id);
 
 private:
 	uint64_t * Bitmap = nullptr;
@@ -69,7 +69,7 @@ public:
 
 	X_API_MEMBER uint32_t Acquire();
 	X_API_MEMBER void     Release(uint32_t Id);
-	X_API_MEMBER void     MarkInUse(uint32_t Id);
+	X_API_MEMBER bool     MarkInUse(uint32_t Id);
 
 private:
 	uint64_t * Bitmap = nullptr;

@@ -14,6 +14,6 @@ X_PRIVATE vkb::Instance VulkanInstance;  // Vulkan library handle
 X_PRIVATE bool InitVulkan();
 X_PRIVATE void CleanVulkan();
 X_INLINE void  VkRuntimeAssert(VkResult Result) {
-    RuntimeAssert(VK_SUCCESS == Result);
+    X_RUNTIME_ASSERT(VK_SUCCESS == Result);
 }
 X_END

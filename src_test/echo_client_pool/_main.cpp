@@ -20,7 +20,7 @@ struct xMyPool : public xClientPool {
 		xClientPool::OnServerConnected(CC);
 		auto HW = xHello();
 		auto PM = PostMessage(CC, 1, 2, HW);
-		RuntimeAssert(PM);
+		X_RUNTIME_ASSERT(PM);
 	}
 
 	bool OnServerPacket(xClientConnection & CC, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize) override {
@@ -40,13 +40,13 @@ uint64_t CID_Release;
 
 void InitClientConn() {
 	CID_Release = Pool.AddServer(TA_Client);
-	RuntimeAssert(CID_Release);
+	X_RUNTIME_ASSERT(CID_Release);
 }
 //
 
 void InitReleaseConn() {
 	CID_Release = Pool.AddServer(TA_Release);
-	RuntimeAssert(CID_Release);
+	X_RUNTIME_ASSERT(CID_Release);
 }
 
 void ReleaseChecker() {
@@ -66,7 +66,7 @@ void ReleaseChecker() {
 }
 
 int main(int, char **) {
-	RuntimeAssert(PoolGuard);
+	X_RUNTIME_ASSERT(PoolGuard);
 
 	InitClientConn();
 	// InitReleaseConn();

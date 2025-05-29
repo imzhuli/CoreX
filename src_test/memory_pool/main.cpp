@@ -4,19 +4,17 @@ using std::cout;
 using std::endl;
 
 struct xMM {
-	xMM() {
-		throw 1024;
-	};
+	xMM() { throw 1024; };
 };
 
 int main(int argc, char ** argv) {
 	auto Pool = xel::xFixedObjectPool<int>();
 	auto PG   = xel::xResourceGuard(Pool, 2);
-	RuntimeAssert(PG);
+	X_RUNTIME_ASSERT(PG);
 
 	auto PoolSS = xel::xFixedObjectPool<xMM>();
 	auto PSG    = xel::xResourceGuard(PoolSS, 0);
-	RuntimeAssert(PSG);
+	X_RUNTIME_ASSERT(PSG);
 
 	auto P1 = Pool.CreateValueWithList(1024);
 	auto P2 = Pool.CreateValueWithList(1024);
@@ -48,7 +46,7 @@ int main(int argc, char ** argv) {
 
 	auto PP = PoolSS.Create();
 	cout << "PP: " << (void *)PP << endl;
-	xel::RuntimeAssert(!PP);
+	X_RUNTIME_ASSERT(!PP);
 
 	return 0;
 }

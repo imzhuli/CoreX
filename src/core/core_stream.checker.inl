@@ -22,7 +22,7 @@ namespace __detail__::__checkers__ {
 		bool LE = (TI.BS[0] == 0x01 && TF.BS[0] == 0x00);
 		bool BE = (TI.BS[0] == 0x00 && TF.BS[0] == 0x3F);
 
-		RuntimeAssert(LE ^ BE, "Inconsistent byte ordering");
+		X_RUNTIME_ASSERT(LE ^ BE);
 	});
 
 }  // namespace __detail__::__checkers__
