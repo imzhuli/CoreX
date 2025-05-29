@@ -14,10 +14,10 @@ static constexpr const size_t   DefaultMinConnectionId = 1024;
 static constexpr const size_t   DefaultMaxConnectionId = 50'000;
 
 bool xService::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, bool ReusePort) {
-	return Init(IoContextPtr, BindAddress, DefaultMaxConnectionId, ReusePort);
+	return Init(IoContextPtr, BindAddress, ReusePort, DefaultMaxConnectionId);
 }
 
-bool xService::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, size_t MaxConnectionId, bool ReusePort) {
+bool xService::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, bool ReusePort, size_t MaxConnectionId) {
 	NowMS = GetTimestampMS();
 	if (!TcpServer.Init(IoContextPtr, BindAddress, this)) {
 		return false;
