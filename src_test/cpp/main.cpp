@@ -1,5 +1,6 @@
 #include <core/core_min.hpp>
 #include <core/core_stream.hpp>
+#include <core/indexed_storage.hpp>
 #include <core/string.hpp>
 #include <iostream>
 #include <object/object.hpp>
@@ -7,49 +8,49 @@
 using namespace xel;
 using namespace std;
 
-namespace {}  // namespace
+struct xSomething {
+	char Buffer[77];
+};
 
-void f(eBool B) {
-	cout << YN(B) << endl;
-}
+xIndexedStorage<xSomething, true> IS;
 
 int main(int argc, char ** argv) {
 
-	f(True);
-	f(False);
+	auto ISG = xResourceGuard(IS, 1024);
+	X_RUNTIME_ASSERT(ISG);
 
-	// auto imm = xObjectIdManagerMini();
-	// X_RUNTIME_ASSERT(imm.Init());
+	cout << "NodeSize=" << IS.NodeSize << endl;
 
-	// uint32_t Id_1    = 1;
-	// uint32_t Id_2    = 2;
-	// uint32_t Id_3    = 3;
-	// uint32_t Id_4095 = 4095;
-	// uint32_t Id_4096 = 4096;
+	cout << hex << endl;
 
-	// X_RUNTIME_ASSERT(imm.MarkInUse(Id_1));
-	// X_RUNTIME_ASSERT(!imm.MarkInUse(Id_1));
-	// X_RUNTIME_ASSERT(imm.MarkInUse(Id_2));
-	// imm.Release(Id_1);
-	// X_RUNTIME_ASSERT(imm.MarkInUse(Id_1));
+	auto Id0 = IS.Acquire();
+	auto P0  = &IS[Id0];
+	auto P1  = (xSomething *)((ubyte *)(P0) + IS.NodeSize);
 
-	// X_RUNTIME_ASSERT(imm.Acquire() == Id_3);
+	auto CheckedId0 = IS.GetObjectId(P0);
 
-	// X_RUNTIME_ASSERT(imm.MarkInUse(Id_4096));
-	// X_RUNTIME_ASSERT(!imm.MarkInUse(Id_4096));
-	// X_RUNTIME_ASSERT(imm.MarkInUse(Id_4095));
-	// imm.Release(Id_4096);
-	// X_RUNTIME_ASSERT(imm.MarkInUse(Id_4096));
+	cout << "Id0=" << Id0 << endl;
+	cout << "CheckedId0=" << CheckedId0 << endl;
 
-	// for (int i = 0; i < 4096 - 5; ++i) {
-	// 	auto Id = imm.Acquire();
-	// 	X_RUNTIME_ASSERT(Id);
-	// 	cout << Id << endl;
-	// }
-	// X_RUNTIME_ASSERT(!imm.Acquire());
+	cout << "P0=" << P0 << endl;
+	cout << "P1=" << P1 << endl;
+	auto CheckedId1 = IS.GetObjectId(P1);
+	cout << "CheckedId1=" << CheckedId1 << endl;  // overflow
+	X_RUNTIME_ASSERT(!CheckedId1);
 
-	// imm.Clean();
+	auto Id1 = IS.Acquire();
+	auto Id2 = IS.Acquire();
+	auto Id3 = IS.Acquire();
+	IS.Release(Id3);
+	IS.Release(Id2);
+	IS.Release(Id1);
+	CheckedId1 = IS.GetObjectId(P1);  // invalid key : recycled
+	cout << "CheckedId1=" << CheckedId1 << endl;
+	X_RUNTIME_ASSERT(!CheckedId1);
 
-	// cout << "done" << endl;
+	Id1        = IS.Acquire();
+	CheckedId1 = IS.GetObjectId(P1);  // invalid key : recycled
+	cout << "Id1=" << Id1 << endl;
+	cout << "CheckedId1=" << CheckedId1 << endl;
 	return 0;
 }

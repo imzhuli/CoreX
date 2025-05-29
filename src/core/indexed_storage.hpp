@@ -43,12 +43,14 @@ private:
 	template <typename tValue, bool RandomKey>
 	friend class xIndexedStorage;
 
-	X_API_STATIC_MEMBER uint32_t    TimeSeed();
-	static constexpr const uint32_t MaxIndexSize    = ((uint32_t)0x7FFF'FFFFu);
-	static constexpr const uint32_t NoFreeIndex     = ((uint32_t)0x8000'0000u);
+	static constexpr const uint32_t MaxIndexSize    = ((uint32_t)0x1FFF'FFFFu);  // MaxIndexSize & KeyInUseBitmask == 0
+	static constexpr const uint32_t NoFreeIndex     = ((uint32_t)0x2000'0000u);  // NoFreeIndex & KeyInUseBitmask == 0
 	static constexpr const uint32_t KeyInUseBitmask = ((uint32_t)0x4000'0000u);
 	static constexpr const uint32_t KeyMask         = ((uint32_t)0x7FFF'FFFFu);  // ensure Id(Key) always positive
-	X_STATIC_INLINE bool            IsSafeKey(uint32_t Key) { return X_LIKELY(Key & KeyInUseBitmask); }
+
+	X_STATIC_INLINE bool IsSafeKey(uint32_t Key) { return X_LIKELY(Key & KeyInUseBitmask); }
+
+	X_API_STATIC_MEMBER uint32_t TimeSeed();
 };
 static_assert(sizeof(xIndexId) == sizeof(uint64_t) && alignof(xIndexId) == alignof(uint64_t));
 
@@ -319,6 +321,23 @@ public:
 	}
 
 	X_INLINE tValue & operator[](const xIndexId & Id) const { return *_IdPoolPtr[Id.GetIndex()].ValueHolder; }
+
+	X_INLINE xIndexId GetObjectId(const tValue * Reference) {
+		auto HolderPtr = xHolder<tValue>::O2H(Reference);
+		auto NodePtr   = X_Entry(HolderPtr, const xNode, ValueHolder);
+		auto Index     = MakeUnsigned(NodePtr - _IdPoolPtr);
+		if (Index >= _InitedId) {
+			// X_DEBUG_PRINTF("overflow: Index=%zi, Inited=%zi", size_t(Index), size_t(_InitedId));
+			return 0;
+		}
+		if (!xIndexId::IsSafeKey(NodePtr->Key)) {
+			// X_DEBUG_PRINTF("invalid key: %" PRIx32 "", NodePtr->Key);
+			return 0;
+		}
+		return { (static_cast<uint64_t>(NodePtr->Key) << 32) + Index };
+	};
+
+	static constexpr const size_t NodeSize = sizeof(xNode);
 
 private:
 	xNode *  _IdPoolPtr       = nullptr;

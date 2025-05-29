@@ -94,12 +94,11 @@ public:
 	X_INLINE T *	   GetAddress() { return reinterpret_cast<T *>(_PlaceHolder); }
 	X_INLINE const T * GetAddress() const { return reinterpret_cast<const T *>(_PlaceHolder); }
 
-	X_STATIC_INLINE xHolder * O2H(T* Object) {
-		auto PP = reinterpret_cast<ubyte*>(Object);
-		return X_Entry(PP, xHolder, _PlaceHolder);
+	X_STATIC_INLINE xHolder * O2H(T* ObjectPtr) {
+		return X_Entry(ObjectPtr, xHolder, _PlaceHolder);
 	}
-	X_STATIC_INLINE const xHolder * O2H(const T* Object) {
-		return O2H(const_cast<T*>(Object));
+	X_STATIC_INLINE const xHolder * O2H(const T* ObjectPtr) {
+		return X_Entry(ObjectPtr, const xHolder, _PlaceHolder);
 	}
 
 private:

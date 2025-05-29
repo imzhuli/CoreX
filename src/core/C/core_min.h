@@ -193,11 +193,11 @@
 #include <stddef.h>
 
 X_CNAME_BEGIN
-X_STATIC_INLINE void * X_Cast(void * MemberPtr, size_t MemberOffset) {
+X_STATIC_INLINE const void * X_Cast(const void * MemberPtr, size_t MemberOffset) {
 	if (!MemberPtr) {
 		return NULL;
 	}
-	return (void *)((unsigned char *)MemberPtr - MemberOffset);
+	return (const unsigned char *)MemberPtr - MemberOffset;
 }
 #define X_Entry(_MemberPtr, Type, Member) ((Type *)(X_Cast((_MemberPtr), offsetof(Type, Member))))
 X_CNAME_END
