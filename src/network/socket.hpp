@@ -4,8 +4,8 @@
 
 X_BEGIN
 
-X_API bool CreateNonBlockingTcpSocket(xSocket & Socket, const xNetAddress & BindAddress = xNetAddress::Make4());
-X_API bool CreateNonBlockingUdpSocket(xSocket & Socket, const xNetAddress & BindAddress = xNetAddress::Make4());
+X_API bool CreateNonBlockingTcpSocket(xSocket & Socket, const xNetAddress & BindAddress = xNetAddress::Make4(), bool ReuseAddress = false);
+X_API bool CreateNonBlockingUdpSocket(xSocket & Socket, const xNetAddress & BindAddress = xNetAddress::Make4(), bool ReuseAddress = false);
 X_API void DestroySocket(xSocket && Socket);
 
 X_API void SetSocketNonBlocking(xSocket Socket);

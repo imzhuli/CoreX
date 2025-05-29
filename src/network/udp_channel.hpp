@@ -16,7 +16,7 @@ public:
 	};  // clang-format on
 
 public:
-	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, iListener * ListenerPtr);
+	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, iListener * ListenerPtr, bool ReuseAddress = false);
 	X_API_MEMBER void Clean();
 	X_API_MEMBER void PostData(const void * DataPtr, size_t DataSize, const xNetAddress & DestiationAddress);
 	X_API_MEMBER void PostRequestKeepAlive(const xNetAddress & DestiationAddress);

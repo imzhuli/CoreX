@@ -6,13 +6,13 @@
 #ifdef X_SYSTEM_WINDOWS
 X_BEGIN
 
-bool xUdpChannel::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, iListener * ListenerPtr) {
+bool xUdpChannel::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, iListener * ListenerPtr, bool ReuseAddress) {
 	if (!xSocketIoReactor::Init()) {
 		return false;
 	}
 	auto BaseG = xScopeGuard([this] { xSocketIoReactor::Clean(); });
 
-	if (!CreateNonBlockingUdpSocket(NativeSocket, BindAddress)) {
+	if (!CreateNonBlockingUdpSocket(NativeSocket, BindAddress, ReuseAddress)) {
 		return false;
 	}
 	if (!IoContextPtr->Add(*this)) {

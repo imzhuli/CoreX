@@ -5,19 +5,21 @@
 #ifdef X_SYSTEM_WINDOWS
 X_BEGIN
 
-bool CreateNonBlockingTcpSocket(xSocket & Socket, const xNetAddress & BindAddress) {
+bool CreateNonBlockingTcpSocket(xSocket & Socket, const xNetAddress & BindAddress, bool ReuseAddress) {
 	auto   AFType      = BindAddress.GetAddressFamily();
 	auto   AddrStorage = sockaddr_storage{};
 	size_t AddrLen     = BindAddress.Dump(&AddrStorage);
 
 	// create socket & set non-blocking
-    Socket = WSASocket(AFType, SOCK_STREAM, IPPROTO_IP, NULL, 0, WSA_FLAG_OVERLAPPED);
+	Socket = WSASocket(AFType, SOCK_STREAM, IPPROTO_IP, NULL, 0, WSA_FLAG_OVERLAPPED);
 	if (Socket == InvalidSocket) {
 		X_DEBUG_PRINTF("Failed to create socket\n");
 		return false;
 	}
 	SetSocketNonBlocking(Socket);
-	SetSocketReuseAddress(Socket);
+	if (ReuseAddress) {
+		SetSocketReuseAddress(Socket);
+	}
 
 	// bind address
 	auto BindRet = bind(Socket, (sockaddr *)&AddrStorage, (int)AddrLen);
@@ -31,7 +33,7 @@ bool CreateNonBlockingTcpSocket(xSocket & Socket, const xNetAddress & BindAddres
 	return true;
 }
 
-bool CreateNonBlockingUdpSocket(xSocket & Socket, const xNetAddress & BindAddress) {
+bool CreateNonBlockingUdpSocket(xSocket & Socket, const xNetAddress & BindAddress, bool ReuseAddress) {
 	auto   AFType      = BindAddress.GetAddressFamily();
 	auto   AddrStorage = sockaddr_storage{};
 	size_t AddrLen     = BindAddress.Dump(&AddrStorage);
@@ -43,7 +45,9 @@ bool CreateNonBlockingUdpSocket(xSocket & Socket, const xNetAddress & BindAddres
 		return false;
 	}
 	SetSocketNonBlocking(Socket);
-	SetSocketReuseAddress(Socket);
+	if (ReuseAddress) {
+		SetSocketReuseAddress(Socket);
+	}
 
 	// bind address
 	auto BindRet = bind(Socket, (sockaddr *)&AddrStorage, (int)AddrLen);
@@ -58,11 +62,11 @@ bool CreateNonBlockingUdpSocket(xSocket & Socket, const xNetAddress & BindAddres
 }
 
 void SetSocketNonBlocking(xSocket Socket) {
-    ioctlsocket(Socket, FIONBIO, X2P((u_long)1));
+	ioctlsocket(Socket, FIONBIO, X2P((u_long)1));
 }
 
 void SetSocketReuseAddress(xSocket Socket) {
-    setsockopt(Socket, SOL_SOCKET, SO_REUSEADDR, (char *)X2P((int)1), sizeof(int));
+	setsockopt(Socket, SOL_SOCKET, SO_REUSEADDR, (char *)X2P((int)1), sizeof(int));
 }
 
 X_END

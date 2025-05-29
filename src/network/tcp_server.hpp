@@ -14,7 +14,7 @@ public:
 	X_INLINE xIoContext * GetIoContextPtr() const { return ICP; }
 
 public:  // clang-format off
-	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & Address, iListener * ListenerPtr);
+	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & Address, iListener * ListenerPtr, bool ReuseAddress = false);
 	X_API_MEMBER void Clean();
 
 private:  // clang-format off

@@ -30,7 +30,7 @@ static void PAIPDeleter(xOverlappedIoBuffer * IBP) {
 	delete PAIP;
 }
 
-bool xTcpServer::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, iListener * ListenerPtr) {
+bool xTcpServer::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, iListener * ListenerPtr, bool ReuseAddress) {
 	this->ICP = IoContextPtr;
 	this->LP  = ListenerPtr;
 	if (!xSocketIoReactor::Init()) {
@@ -57,7 +57,9 @@ bool xTcpServer::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress
 		return false;
 	}
 	ResizeSendBuffer(NativeSocket, 0);
-	SetSocketReuseAddress(NativeSocket);
+	if (ReuseAddress) {
+		SetSocketReuseAddress(NativeSocket);
+	}
 	auto SG = xScopeGuard([this] { XelCloseSocket(Steal(NativeSocket, InvalidSocket)); });
 
 	// Binding to local address

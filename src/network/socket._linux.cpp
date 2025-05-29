@@ -19,7 +19,7 @@
 
 X_BEGIN
 
-bool CreateNonBlockingTcpSocket(xSocket & Socket, const xNetAddress & BindAddress) {
+bool CreateNonBlockingTcpSocket(xSocket & Socket, const xNetAddress & BindAddress, bool ReuseAddress) {
 	auto   AFType      = BindAddress.GetAddressFamily();
 	auto   AddrStorage = sockaddr_storage{};
 	size_t AddrLen     = BindAddress.Dump(&AddrStorage);
@@ -31,7 +31,9 @@ bool CreateNonBlockingTcpSocket(xSocket & Socket, const xNetAddress & BindAddres
 		return false;
 	}
 	SetSocketNonBlocking(Socket);
-	SetSocketReuseAddress(Socket);
+	if (ReuseAddress) {
+		SetSocketReuseAddress(Socket);
+	}
 
 	// bind address
 	auto BindRet = bind(Socket, (sockaddr *)&AddrStorage, (int)AddrLen);
@@ -45,7 +47,7 @@ bool CreateNonBlockingTcpSocket(xSocket & Socket, const xNetAddress & BindAddres
 	return true;
 }
 
-bool CreateNonBlockingUdpSocket(xSocket & Socket, const xNetAddress & BindAddress) {
+bool CreateNonBlockingUdpSocket(xSocket & Socket, const xNetAddress & BindAddress, bool ReuseAddress) {
 	auto   AFType      = BindAddress.GetAddressFamily();
 	auto   AddrStorage = sockaddr_storage{};
 	size_t AddrLen     = BindAddress.Dump(&AddrStorage);
@@ -57,7 +59,9 @@ bool CreateNonBlockingUdpSocket(xSocket & Socket, const xNetAddress & BindAddres
 		return false;
 	}
 	SetSocketNonBlocking(Socket);
-	SetSocketReuseAddress(Socket);
+	if (ReuseAddress) {
+		SetSocketReuseAddress(Socket);
+	}
 
 	// bind address
 	auto BindRet = bind(Socket, (sockaddr *)&AddrStorage, (int)AddrLen);

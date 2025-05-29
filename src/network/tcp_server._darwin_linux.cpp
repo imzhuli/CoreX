@@ -4,9 +4,10 @@
 #include "./tcp_connection.hpp"
 
 #if defined(X_SYSTEM_LINUX) || defined(X_SYSTEM_DARWIN)
+
 X_BEGIN
 
-bool xTcpServer::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, iListener * ListenerPtr) {
+bool xTcpServer::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, iListener * ListenerPtr, bool ReuseAddress) {
 	this->ICP = IoContextPtr;
 	this->LP  = ListenerPtr;
 	if (!xSocketIoReactor::Init()) {
@@ -18,7 +19,7 @@ bool xTcpServer::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress
 		Reset(LP);
 	});
 
-	if (!CreateNonBlockingTcpSocket(NativeSocket, BindAddress)) {
+	if (!CreateNonBlockingTcpSocket(NativeSocket, BindAddress, ReuseAddress)) {
 		return false;
 	}
 	auto SG = xScopeGuard([this] { DestroySocket(std::move(NativeSocket)); });
