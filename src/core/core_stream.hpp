@@ -1,7 +1,8 @@
+// clang-format off
 #pragma once
+
 #include "./core_min.hpp"
 
-// clang-format off
 #include <cstring>
 #if defined(__APPLE__)
 #include <architecture/byte_order.h>

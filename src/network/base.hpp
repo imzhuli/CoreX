@@ -1,4 +1,6 @@
+// clang-format off
 #pragma once
+
 #include "../core/core_min.hpp"
 
 #if defined(X_SYSTEM_WINDOWS)
@@ -6,14 +8,12 @@
 /*
 !!! DO NOT reorder include files
  */
-// clang-format off
 #include <WinSock2.h>
 #include <Windows.h>
 #include <MSWSock.h>
 #include <WS2tcpip.h>
 #include <windef.h>
 #include <ws2def.h>
-// clang-format on
 
 X_BEGIN
 typedef SSIZE_T          ssize_t;

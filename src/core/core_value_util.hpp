@@ -1,4 +1,6 @@
+// clang-format off
 #pragma once
+
 #include "./core_min.hpp"
 
 X_COMMON_BEGIN
@@ -71,7 +73,7 @@ private:
 	alignas(Alignment) xPlaceHolder _PlaceHolder;
 };
 
-template <typename T>  // clang-format off
+template <typename T>  
 class xHolder final : xNonCopyable {
 public:
 	X_INLINE xHolder() = default;

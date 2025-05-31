@@ -1,4 +1,6 @@
+// clang-format off
 #pragma once
+
 #include "./core_min.hpp"
 #include "./optional.hpp"
 
@@ -7,8 +9,6 @@
 #include <string>
 #include <string_view>
 #include <vector>
-
-// clang-format off
 
 using namespace std::literals::string_literals;
 using namespace std::literals::string_view_literals;

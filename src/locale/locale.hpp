@@ -1,4 +1,6 @@
-#pragma once  // clang-format off
+// clang-format off
+#pragma once
+
 #include "../core/core_min.hpp"
 
 X_BEGIN

@@ -26,7 +26,7 @@ int main(int argc, char ** argv) {
 	OIM.Release(3200);
 	OIM.Release(3800);
 
-	OIM.MarkInUse(3800);
+	OIM.Acquire(3800);
 
 	for (uint64_t i = 0; i < 5000; ++i) {
 		auto NewId = OIM.Acquire();
@@ -47,19 +47,19 @@ int main(int argc, char ** argv) {
 	uint32_t Id_4095 = 4095;
 	uint32_t Id_4096 = 4096;
 
-	X_RUNTIME_ASSERT(imm.MarkInUse(Id_1));
-	X_RUNTIME_ASSERT(!imm.MarkInUse(Id_1));
-	X_RUNTIME_ASSERT(imm.MarkInUse(Id_2));
+	X_RUNTIME_ASSERT(imm.Acquire(Id_1));
+	X_RUNTIME_ASSERT(!imm.Acquire(Id_1));
+	X_RUNTIME_ASSERT(imm.Acquire(Id_2));
 	imm.Release(Id_1);
-	X_RUNTIME_ASSERT(imm.MarkInUse(Id_1));
+	X_RUNTIME_ASSERT(imm.Acquire(Id_1));
 
 	X_RUNTIME_ASSERT(imm.Acquire() == Id_3);
 
-	X_RUNTIME_ASSERT(imm.MarkInUse(Id_4096));
-	X_RUNTIME_ASSERT(!imm.MarkInUse(Id_4096));
-	X_RUNTIME_ASSERT(imm.MarkInUse(Id_4095));
+	X_RUNTIME_ASSERT(imm.Acquire(Id_4096));
+	X_RUNTIME_ASSERT(!imm.Acquire(Id_4096));
+	X_RUNTIME_ASSERT(imm.Acquire(Id_4095));
 	imm.Release(Id_4096);
-	X_RUNTIME_ASSERT(imm.MarkInUse(Id_4096));
+	X_RUNTIME_ASSERT(imm.Acquire(Id_4096));
 
 	for (int i = 0; i < 4096 - 5; ++i) {
 		auto Id = imm.Acquire();

@@ -1,9 +1,10 @@
-#pragma once  // clang-format off
+// clang-format off
+#pragma once
+
 #include "../core/core_min.hpp"
 
 #include <compare>
 #include <cstdint>
-
 
 X_BEGIN
 

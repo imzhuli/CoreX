@@ -1,4 +1,6 @@
+// clang-format off
 #pragma once
+
 #include "../core/core_min.hpp"
 #include "../core/core_value_util.hpp"
 #include "../core/list.hpp"
@@ -32,11 +34,9 @@ class xIoReactor : private __network_detail__::__xIoReactor__ {
 	friend class xIoContext;
 
 private:
-	// clang-format off
 	X_INLINE virtual void OnIoEventError() { Pure(); }
 	X_INLINE virtual bool OnIoEventInReady() { return false; }
 	X_INLINE virtual bool OnIoEventOutReady() { return false; }
-	// clang-format on
 protected:
 	X_INLINE void ResetReactorEvents() {
 		// xListNode::Unlink(EventNode);
@@ -54,10 +54,10 @@ struct xIoBuffer {
 	size_t             ReadDataSize = 0;
 	xPacketBufferChain WriteBufferChain;
 	size_t             MaxWriteBufferSize = SIZE_MAX / 2;
-#if defined(X_SYSTEM_DARWIN) || defined(X_SYSTEM_LINUX)  // clang-format off
+#if defined(X_SYSTEM_DARWIN) || defined(X_SYSTEM_LINUX)
 	X_INLINE xIoBuffer * operator->() { return this; }
 	X_INLINE const xIoBuffer * operator->() const { return this; }
-#endif  // clang-format on
+#endif
 };
 
 #if defined(X_SYSTEM_WINDOWS)
@@ -101,9 +101,7 @@ public:
 	X_API_MEMBER bool Init();
 	X_API_MEMBER void Clean();
 
-	X_INLINE xSocket GetNativeSocket() const {
-		return NativeSocket;
-	}
+	X_INLINE xSocket GetNativeSocket() const { return NativeSocket; }
 
 protected:
 	xSocket NativeSocket = InvalidSocket;
@@ -121,9 +119,7 @@ protected:
 		}
 		IBP->ReadDataSize += Size;
 	}
-	void SetWriteTransfered(size_t Size) override {
-		IBP->Writer.LastWriteSize = Size;
-	}
+	void SetWriteTransfered(size_t Size) override { IBP->Writer.LastWriteSize = Size; }
 #endif
 };
 

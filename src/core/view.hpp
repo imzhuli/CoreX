@@ -1,4 +1,6 @@
+// clang-format off
 #pragma once
+
 #include "./core_min.hpp"
 
 X_BEGIN
@@ -8,7 +10,7 @@ class xView {
 private:
 	using Type = std::remove_reference_t<T>;
 
-public:  // clang-format off
+public:
 	X_INLINE xView()              = default;
 	X_INLINE xView(const xView &) = default;
 	X_INLINE xView(Type * Start, Type * End) : Start(Start), End(End) { assert(Start && End); }

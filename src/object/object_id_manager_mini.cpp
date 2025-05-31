@@ -52,25 +52,10 @@ uint32_t xObjectIdManagerMini::Acquire() {
 	return NewId;
 }
 
-void xObjectIdManagerMini::Release(uint32_t Id) {
-	assert(Id && Id <= MaxObjectId);
-
-	Id              -= 1;
-	uint_fast32_t B2 = Id & 0x3FU;
-	Id             >>= 6;
-	uint_fast32_t B1 = Id & 0x3FU;
-
-	uint_fast32_t B0     = 0;
-	uint_fast32_t Index0 = L0_Start + B0;
-	uint_fast32_t Index1 = L1_Start + B1;
-
-	assert(Bitmap[Index1] & (BASE_ONE << B2));
-	Bitmap[Index0] &= ~(BASE_ONE << B1);
-	Bitmap[Index1] &= ~(BASE_ONE << B2);
-}
-
-bool xObjectIdManagerMini::MarkInUse(uint32_t Id) {
-	assert(Id && Id <= MaxObjectId);
+bool xObjectIdManagerMini::Acquire(uint32_t Id) {
+	if (!Id || Id > MaxObjectId) {
+		return false;
+	}
 
 	Id              -= 1;
 	uint_fast32_t B2 = Id & 0x3FU;
@@ -90,6 +75,23 @@ bool xObjectIdManagerMini::MarkInUse(uint32_t Id) {
 		Bitmap[Index0] |= (BASE_ONE << B1);
 	}
 	return true;
+}
+
+void xObjectIdManagerMini::Release(uint32_t Id) {
+	assert(Id && Id <= MaxObjectId);
+
+	Id              -= 1;
+	uint_fast32_t B2 = Id & 0x3FU;
+	Id             >>= 6;
+	uint_fast32_t B1 = Id & 0x3FU;
+
+	uint_fast32_t B0     = 0;
+	uint_fast32_t Index0 = L0_Start + B0;
+	uint_fast32_t Index1 = L1_Start + B1;
+
+	assert(Bitmap[Index1] & (BASE_ONE << B2));
+	Bitmap[Index0] &= ~(BASE_ONE << B1);
+	Bitmap[Index1] &= ~(BASE_ONE << B2);
 }
 
 X_END

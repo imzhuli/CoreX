@@ -1,4 +1,6 @@
+// clang-format off
 #pragma once
+
 #include "./C/core_min.h"
 
 #include <atomic>
@@ -12,7 +14,7 @@
 #include <new>
 #include <type_traits>
 #include <utility>
-// clang-format off
+
 
 #define X_BEGIN namespace xel {
 #define X_END }

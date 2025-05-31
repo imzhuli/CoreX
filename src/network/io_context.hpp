@@ -1,4 +1,6 @@
+// clang-format off
 #pragma once
+
 #include "../core/core_min.hpp"
 #include "../core/core_value_util.hpp"
 #include "../core/list.hpp"
@@ -38,7 +40,6 @@ private:
 	xIoContextEventList EventList;
 
 #ifdef X_SYSTEM_LINUX
-	// clang-format off
 	struct xUserEventReactor : xIoReactor, xNonCopyable {
 		bool OnIoEventInReady() override;
 		int  UserEventFd = -1;
@@ -46,7 +47,6 @@ private:
 		bool Init();
 		void Clean();
 	};
-	// clang-format on
 	xUserEventReactor UserEventReactor;
 #endif
 };

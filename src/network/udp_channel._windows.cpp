@@ -1,3 +1,5 @@
+// clang-format off
+
 #include "./udp_channel.hpp"
 
 #include "../core/string.hpp"
@@ -53,12 +55,12 @@ void xUdpChannel::AsyncAcquireInput() {
 	IBP->Reader.FromAddressLength = sizeof(IBP->Reader.FromAddress);
 	IBP->Reader.BufferUsage.buf   = (CHAR *)IBP->ReadBuffer;
 	IBP->Reader.BufferUsage.len   = (ULONG)sizeof(IBP->ReadBuffer);
-	if (WSARecvFrom(  // clang-format off
+	if (WSARecvFrom(
 			NativeSocket, &IBP->Reader.BufferUsage, 1, nullptr, X2P(DWORD(0)),
 			(sockaddr *)&IBP->Reader.FromAddress, &IBP->Reader.FromAddressLength,
 			&IBP->Reader.Native.Overlapped,
 			nullptr
-		)) {  // clang-format on
+		)) {
 		auto ErrorCode = WSAGetLastError();
 		if (ErrorCode != WSA_IO_PENDING) {
 			X_DEBUG_PRINTF("WSARecvFrom ErrorCode: %u\n", ErrorCode);

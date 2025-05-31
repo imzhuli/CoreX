@@ -10,10 +10,10 @@ class xUdpChannel
 	: xSocketIoReactor
 	, xAbstract {
 public:
-	struct iListener {  // clang-format off
+	struct iListener {
 		virtual void OnError(xUdpChannel * ChannelPtr) {}
 		virtual void OnData(xUdpChannel * ChannelPtr, ubyte * DataPtr, size_t DataSize, const xNetAddress & RemoteAddress) = 0;
-	};  // clang-format on
+	};
 
 public:
 	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, iListener * ListenerPtr, bool ReuseAddress = false);

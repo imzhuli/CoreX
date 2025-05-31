@@ -13,11 +13,11 @@ public:
 	};
 	X_INLINE xIoContext * GetIoContextPtr() const { return ICP; }
 
-public:  // clang-format off
+public:
 	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & Address, iListener * ListenerPtr, bool ReuseAddress = false);
 	X_API_MEMBER void Clean();
 
-private:  // clang-format off
+private:
 	X_PRIVATE_MEMBER void OnIoEventError() override { X_PFATAL("TcpServerError"); }
 	X_PRIVATE_MEMBER bool OnIoEventInReady() override;
 
@@ -28,7 +28,6 @@ private:  // clang-format off
 	X_PRIVATE_MEMBER bool TryAccept(xSocket & NewConnectionSocket);
 #endif
 
-	// clang-format on
 private:
 	xIoContext * ICP = nullptr;
 	iListener *  LP  = nullptr;

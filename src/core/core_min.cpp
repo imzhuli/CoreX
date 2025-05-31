@@ -1,4 +1,4 @@
-
+// clang-format off
 #include "./core_min.hpp"
 
 #include <cstdarg>
@@ -12,10 +12,10 @@
 #include <android/log.h>
 #endif
 
-// clang-format off
 X_COMMON_BEGIN
 
 void Breakpoint() {}
+
 void QuickExit(int ExitCode) {
 #ifdef X_SYSTEM_DARWIN
 	_Exit(ExitCode);
