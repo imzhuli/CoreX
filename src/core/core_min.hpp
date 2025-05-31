@@ -112,11 +112,6 @@ constexpr struct xGeneratorInit final {} GeneratorInit{};
 constexpr struct xSizeInit final { size_t value; } ZeroSizeInit{};
 constexpr struct xCapacityInit final { size_t value; } ZeroCapacityInit{};
 
-template <typename T>  // std::in_place_type_t
-struct xInPlaceType final { explicit constexpr xInPlaceType() = default;};
-template <typename T>
-inline constexpr xInPlaceType<T> const Type{};
-
 template <typename T> // eXpiring object to Reference to object
 [[nodiscard]] X_STATIC_INLINE std::remove_reference_t<T> & X2R(T && ref) { return ref; }
 template <typename T> // eXpiring object to Const Reference to object
@@ -132,12 +127,12 @@ template <typename T>
 }
 template <typename T, size_t L>
 [[nodiscard]] X_STATIC_INLINE constexpr size_t Length(const T (&)[L]) { return L; }
-template <typename T, size_t L>
-[[nodiscard]] X_STATIC_INLINE constexpr size_t SafeLength(const T (&)[L]) { return L ? L - 1 : 0; }
 template <typename... Args>
 [[nodiscard]] X_STATIC_INLINE constexpr size_t Count(const Args &... args) { return sizeof...(args); }
-template <typename T, size_t L>
-[[nodiscard]] X_STATIC_INLINE constexpr T& LastOf(T (&Array)[L]) { return Array[SafeLength(Array)]; }
+template <typename T>
+X_STATIC_INLINE void ZeroFill(T* P, size_t L) { static_assert(!std::is_const_v<T> && std::is_trivially_constructible_v<T>); memset(P, 0, sizeof(*P) * L); }
+template <typename T>
+X_STATIC_INLINE void ZeroFill(T &Array) { ZeroFill(Array, Length(Array)); }
 
 [[noreturn]] X_API void QuickExit(int ExitCode = EXIT_FAILURE);
 [[noreturn]] X_API void QuickExit(const char * PErrorMessage, int ExitCode = EXIT_FAILURE);

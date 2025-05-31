@@ -149,7 +149,7 @@ void xMemoryLogger::Log(eLogLevel ll, const char * fmt, ...) {
 
 	char LineLead[LineLeadBufferSize];
 	int  LineLeadSize = snprintf(
-        LineLead, SafeLength(LineLead), "%c<%016zx>%02d%02d%02d:%02d%02d%02d ", gcHint[static_cast<size_t>(ll)], std::hash<std::thread::id>{}(std::this_thread::get_id()),
+        LineLead, Length(LineLead), "%c<%016zx>%02d%02d%02d:%02d%02d%02d ", gcHint[static_cast<size_t>(ll)], std::hash<std::thread::id>{}(std::this_thread::get_id()),
         brokenTime.tm_year + 1900 - 2000, brokenTime.tm_mon + 1, brokenTime.tm_mday, brokenTime.tm_hour, brokenTime.tm_min, brokenTime.tm_sec
     );
 
