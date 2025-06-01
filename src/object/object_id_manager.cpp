@@ -36,8 +36,7 @@ void xObjectIdManager::Reset() {
 }
 
 uint32_t xObjectIdManager::Acquire() {
-	uint_fast32_t B0     = 0;
-	uint_fast32_t Index0 = L0_Start + B0;
+	uint_fast32_t Index0 = L0_Start;
 	uint_fast32_t B1     = FirstValidSlot(Bitmap[Index0]);
 	if (B1 == 64) {
 		return 0;
@@ -67,8 +66,7 @@ bool xObjectIdManager::Acquire(uint32_t Id) {
 	Id             >>= 6;
 	uint_fast32_t B1 = Id & 0x3FU;
 
-	uint_fast32_t B0     = 0;
-	uint_fast32_t Index0 = L0_Start + B0;
+	uint_fast32_t Index0 = L0_Start;
 	uint_fast32_t Index1 = L1_Start + B1;
 	uint_fast32_t Index2 = L2_Start + B1 * 64 + B2;
 
@@ -95,8 +93,7 @@ void xObjectIdManager::Release(uint32_t Id) {
 	Id             >>= 6;
 	uint_fast32_t B1 = Id & 0x3FU;
 
-	uint_fast32_t B0     = 0;
-	uint_fast32_t Index0 = L0_Start + B0;
+	uint_fast32_t Index0 = L0_Start;
 	uint_fast32_t Index1 = L1_Start + B1;
 	uint_fast32_t Index2 = L2_Start + B1 * 64 + B2;
 

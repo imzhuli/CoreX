@@ -36,8 +36,7 @@ void xObjectIdManagerMini::Reset() {
 }
 
 uint32_t xObjectIdManagerMini::Acquire() {
-	uint_fast32_t B0     = 0;
-	uint_fast32_t Index0 = L0_Start + B0;
+	uint_fast32_t Index0 = L0_Start;
 	uint_fast32_t B1     = FirstValidSlot(Bitmap[Index0]);
 	if (B1 == 64) {
 		return 0;
@@ -60,8 +59,7 @@ bool xObjectIdManagerMini::Acquire(uint32_t Id) {
 	Id             >>= 6;
 	uint_fast32_t B1 = Id & 0x3FU;
 
-	uint_fast32_t B0     = 0;
-	uint_fast32_t Index0 = L0_Start + B0;
+	uint_fast32_t Index0 = L0_Start;
 	uint_fast32_t Index1 = L1_Start + B1;
 
 	uint64_t FinestBitValue = BASE_ONE << B2;
@@ -83,8 +81,7 @@ void xObjectIdManagerMini::Release(uint32_t Id) {
 	Id             >>= 6;
 	uint_fast32_t B1 = Id & 0x3FU;
 
-	uint_fast32_t B0     = 0;
-	uint_fast32_t Index0 = L0_Start + B0;
+	uint_fast32_t Index0 = L0_Start;
 	uint_fast32_t Index1 = L1_Start + B1;
 
 	assert(Bitmap[Index1] & (BASE_ONE << B2));
