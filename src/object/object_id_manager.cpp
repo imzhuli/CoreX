@@ -58,9 +58,7 @@ uint32_t xObjectIdManager::Acquire() {
 }
 
 bool xObjectIdManager::Acquire(uint32_t Id) {
-	if (!Id || Id > MaxObjectId) {
-		return false;
-	}
+	assert(Id && Id <= MaxObjectId);
 
 	Id              -= 1;
 	uint_fast32_t B3 = Id & 0x3FU;
