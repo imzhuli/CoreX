@@ -92,4 +92,13 @@ void xObjectIdManagerMini::Release(uint32_t Id) {
 	Bitmap[Index1] &= ~(BASE_ONE << B2);
 }
 
+bool xObjectIdManagerMini::IsInUse(uint32_t Id) const {
+	assert(Id && Id <= MaxObjectId);
+
+	--Id;
+	auto FinestBitSetOffset = L1_Start + (Id >> 6);
+	auto FinestBitValue     = BASE_ONE << (Id & 0x3FU);
+	return Bitmap[FinestBitSetOffset] & FinestBitValue;
+}
+
 X_END

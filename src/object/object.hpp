@@ -43,6 +43,7 @@ public:
 	X_API_MEMBER uint32_t Acquire();
 	X_API_MEMBER bool     Acquire(uint32_t Id);
 	X_API_MEMBER void     Release(uint32_t Id);
+	X_API_MEMBER bool     IsInUse(uint32_t Id) const;
 
 private:
 	uint64_t * Bitmap = nullptr;
@@ -70,6 +71,7 @@ public:
 	X_API_MEMBER uint32_t Acquire();
 	X_API_MEMBER bool     Acquire(uint32_t Id);
 	X_API_MEMBER void     Release(uint32_t Id);
+	X_API_MEMBER bool     IsInUse(uint32_t Id) const;
 
 private:
 	uint64_t * Bitmap = nullptr;

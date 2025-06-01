@@ -38,8 +38,12 @@ int main(int argc, char ** argv) {
 
 	OIM.Clean();
 
-	auto imm = xObjectIdManagerMini();
+	auto imm = xObjectIdManager();
 	X_RUNTIME_ASSERT(imm.Init());
+
+	for (uint32_t Id = 1; Id <= imm.MaxObjectId; ++Id) {
+		X_RUNTIME_ASSERT(!imm.IsInUse(Id));
+	}
 
 	uint32_t Id_1    = 1;
 	uint32_t Id_2    = 2;
@@ -51,20 +55,27 @@ int main(int argc, char ** argv) {
 	X_RUNTIME_ASSERT(!imm.Acquire(Id_1));
 	X_RUNTIME_ASSERT(imm.Acquire(Id_2));
 	imm.Release(Id_1);
+	X_RUNTIME_ASSERT(!imm.IsInUse(Id_1));
 	X_RUNTIME_ASSERT(imm.Acquire(Id_1));
+	X_RUNTIME_ASSERT(imm.IsInUse(Id_1));
 
 	X_RUNTIME_ASSERT(imm.Acquire() == Id_3);
+	X_RUNTIME_ASSERT(imm.IsInUse(Id_3));
 
+	X_RUNTIME_ASSERT(!imm.IsInUse(Id_4096));
 	X_RUNTIME_ASSERT(imm.Acquire(Id_4096));
+	X_RUNTIME_ASSERT(imm.IsInUse(Id_4096));
 	X_RUNTIME_ASSERT(!imm.Acquire(Id_4096));
+
 	X_RUNTIME_ASSERT(imm.Acquire(Id_4095));
 	imm.Release(Id_4096);
+	X_RUNTIME_ASSERT(!imm.IsInUse(Id_4096));
 	X_RUNTIME_ASSERT(imm.Acquire(Id_4096));
 
-	for (int i = 0; i < 4096 - 5; ++i) {
+	for (unsigned i = 0; i < imm.MaxObjectId - 5; ++i) {
 		auto Id = imm.Acquire();
 		X_RUNTIME_ASSERT(Id);
-		cout << Id << endl;
+		X_RUNTIME_ASSERT(imm.IsInUse(Id));
 	}
 	X_RUNTIME_ASSERT(!imm.Acquire());
 
