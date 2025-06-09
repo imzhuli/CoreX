@@ -11,8 +11,8 @@ class xObjectIdManagerMini;
 
 class xObjectBase : xNonCopyable {
 public:
-	static constexpr const uint32_t OBJECT_ID_MASK   = 0x0007'FFFFu;
-	static constexpr const uint32_t OBJECT_FLAG_MASK = ~OBJECT_ID_MASK;
+	static constexpr const uint32_t ID_INDEX_MASK = 0x0007'FFFFu;
+	static constexpr const uint32_t ID_FLAG_MASK  = ~ID_INDEX_MASK;
 
 public:
 	X_INLINE void InitId(uint32_t NewId) {
@@ -60,7 +60,7 @@ private:
 
 public:
 	static constexpr const size_t MaxObjectId = L2_Size * 64;
-	static_assert(MaxObjectId <= xObjectBase::OBJECT_ID_MASK);
+	static_assert(MaxObjectId <= xObjectBase::ID_INDEX_MASK);
 };
 
 class xObjectIdManagerMini final : xNonCopyable {
@@ -87,7 +87,7 @@ private:
 public:
 	static constexpr const size_t MaxObjectId = L1_Size * 64;
 
-	static_assert(MaxObjectId <= xObjectBase::OBJECT_ID_MASK);
+	static_assert(MaxObjectId <= xObjectBase::ID_INDEX_MASK);
 };
 
 X_END
