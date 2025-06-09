@@ -1,16 +1,7 @@
 #include "./object.hpp"
 
-#include <bit>
-#include <cassert>
-#include <cinttypes>
-#include <cstdlib>
-#include <cstring>
-#include <limits>
-
-// adsfasdf
-#include <iostream>
-using namespace std;
-
 X_BEGIN
+
+static_assert(IsPow2(xObjectBase::OBJECT_ID_MASK + 1));
 
 X_END

@@ -17,5 +17,10 @@ int main(int argc, char ** argv) {
 		cout << I << endl;
 	}
 
+	cout << hex << xObjectBase::OBJECT_ID_MASK << endl;
+	cout << hex << xObjectBase::OBJECT_FLAG_MASK << endl;
+
+	cout << hex << xObjectBase::OBJECT_ID_MASK + xObjectBase::OBJECT_FLAG_MASK << endl;
+
 	return 0;
 }
