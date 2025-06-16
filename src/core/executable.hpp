@@ -52,35 +52,22 @@ public:
 	X_INLINE xCommandLine()  = default;
 	X_INLINE ~xCommandLine() = default;
 	X_API_MEMBER xCommandLine(const std::vector<std::string> & Arguments, const std::vector<xOption> & OptionList = {});
-	X_API_MEMBER xCommandLine(size_t argc, const char ** argv, const std::vector<xOption> & OptionList = {});
-	X_INLINE     xCommandLine(size_t argc, char ** argv, const std::vector<xOption> & OptionList = {})
-		: xCommandLine(argc, const_cast<const char **>(argv), OptionList) {
-	}
+	X_API_MEMBER xCommandLine(int argc, const char ** argv, const std::vector<xOption> & OptionList = {});
+	X_INLINE     xCommandLine(int argc, char ** argv, const std::vector<xOption> & OptionList = {})
+		: xCommandLine(argc, const_cast<const char **>(argv), OptionList) {}
 
 	X_API_MEMBER void AddOption(const xOption & Option);
 	X_API_MEMBER void Parse(size_t Argc, const char * Argv[]);
 
 	X_API_MEMBER xOptionValue GetOptionValue(const std::string & Key) const;
-	X_INLINE xOptionValue     operator[](const std::string & Key) const {
-        return GetOptionValue(Key);
-	}
+	X_INLINE xOptionValue     operator[](const std::string & Key) const { return GetOptionValue(Key); }
 
-	X_INLINE const std::vector<std::string> & GetArgs() const {
-		return _NonOptionArguments;
-	}
-	X_INLINE size_t GetArgCount() const {
-		return _NonOptionArguments.size();
-	}
-	X_INLINE const std::string & operator[](const size_t Index) const {
-		return _NonOptionArguments[Index];
-	}
+	X_INLINE const std::vector<std::string> & GetArgs() const { return _NonOptionArguments; }
+	X_INLINE size_t                           GetArgCount() const { return _NonOptionArguments.size(); }
+	X_INLINE const std::string & operator[](const size_t Index) const { return _NonOptionArguments[Index]; }
 
-	X_INLINE const std::vector<std::string> & GetSubArgs() const {
-		return _SubCommandArguments;
-	}
-	X_INLINE size_t GetSubArgCount() const {
-		return _SubCommandArguments.size();
-	}
+	X_INLINE const std::vector<std::string> & GetSubArgs() const { return _SubCommandArguments; }
+	X_INLINE size_t                           GetSubArgCount() const { return _SubCommandArguments.size(); }
 
 	X_API_MEMBER void CleanOptions();
 	X_API_MEMBER void CleanValues();

@@ -16,7 +16,8 @@ xCommandLine::xCommandLine(const std::vector<std::string> & Arguments, const std
 	Parse(Cmd.size(), Cmd.data());
 }
 
-xCommandLine::xCommandLine(size_t Argc, const char ** Argv, const std::vector<xOption> & OptionList) {
+xCommandLine::xCommandLine(int Argc, const char ** Argv, const std::vector<xOption> & OptionList) {
+	RuntimeAssert(Argc > 0);
 	for (const auto & Option : OptionList) {
 		AddOption(Option);
 	}
