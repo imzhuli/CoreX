@@ -25,14 +25,16 @@ void RunAsGuard() {
 	while (true) {
 		pid_t pid = fork();
 		if (pid < 0) {  // error
-			X_PFATAL("failed to create sub thread");
-			return;
+			X_PERROR("failed to create sub process");
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+			continue;
 		} else if (!pid) {  // child process
 			return;
 		} else {  // pid is Child's pid
 			GuardProcess(pid);
 		}
 	}
+	Unreachable();
 }
 
 X_END
