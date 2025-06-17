@@ -132,7 +132,7 @@ template <typename... Args>
 template <typename T>
 X_STATIC_INLINE void ZeroFill(T* P, size_t L) { static_assert(!std::is_const_v<T> && std::is_trivially_constructible_v<T>); memset(P, 0, sizeof(*P) * L); }
 template <typename T>
-X_STATIC_INLINE void ZeroFill(T &Array) { ZeroFill(Array, Length(Array)); }
+X_STATIC_INLINE std::enable_if_t<std::is_array_v<T>> ZeroFill(T &Array) { ZeroFill(Array, Length(Array)); }
 
 [[noreturn]] X_API void QuickExit(int ExitCode = EXIT_FAILURE);
 [[noreturn]] X_API void QuickExit(const char * PErrorMessage, int ExitCode = EXIT_FAILURE);
