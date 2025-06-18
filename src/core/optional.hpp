@@ -10,88 +10,17 @@ class xOptional final {
 	using xValueType = typename xCaster::Type;
 
 public:
-	X_INLINE xOptional() = default;
-	X_INLINE ~xOptional() { Clear(); }
-	X_INLINE xOptional(const xOptional & Other) {
-		if (Other._Valid) {
-			new ((void *)_Holder) Type(Other.GetReference());
-			_Valid = true;
-		}
-	}
-	X_INLINE xOptional(xOptional && Other) {
-		if (Other._Valid) {
-			new ((void *)_Holder) Type(std::move(Other.GetReference()));
-			_Valid = true;
-		}
-	}
-	template <typename U>
-	X_INLINE xOptional(U && Value) {
-		new ((void *)_Holder) Type(std::forward<U>(Value));
-		_Valid = true;
-	}
+	X_INLINE xOptional()                   = default;
+	X_INLINE xOptional(xOptional && Other) = delete;
+	X_INLINE ~xOptional() { Steal(_Valid) ? Destroy() : Pass(); }
 
-	X_INLINE xOptional & operator=(const xOptional & Other) {
-		if (_Valid) {
-			if (Other._Valid) {
-				GetReference() = Other.GetReference();
-			} else {
-				Destroy();
-				_Valid = false;
-			}
-		} else {
-			if (Other._Valid) {
-				new ((void *)_Holder) Type(Other.GetReference());
-				_Valid = true;
-			}
-		}
-		return *this;
-	}
-	X_INLINE xOptional & operator=(xOptional && Other) {
-		if (_Valid) {
-			if (Other._Valid) {
-				GetReference() = std::move(Other.GetReference());
-			} else {
-				Destroy();
-				_Valid = false;
-			}
-		} else {
-			if (Other._Valid) {
-				new ((void *)_Holder) Type(std::move(Other.GetReference()));
-				_Valid = true;
-			}
-		}
-		return *this;
-	}
-	template <typename U>
-	X_INLINE xOptional & operator=(U && Value) {
-		if (!_Valid) {
-			new ((void *)_Holder) Type(std::forward<U>(Value));
-			_Valid = true;
-		} else {
-			GetReference() = std::forward<U>(Value);
-		}
-		return *this;
-	}
-
-	X_INLINE void Clear() { Steal(_Valid) ? Destroy() : Pass(); }
-	X_INLINE void Reset() {
-		if (Steal(_Valid)) {
-			Destroy();
-		}
-		new ((void *)_Holder) Type;
-		_Valid = true;
-	}
 	template <typename... tArgs>
-	X_INLINE void ResetValue(tArgs &&... Args) {
-		if (Steal(_Valid)) {
-			Destroy();
-		}
+	X_INLINE xOptional(tArgs &&... Args) {
 		new ((void *)_Holder) Type(std::forward<tArgs>(Args)...);
 		_Valid = true;
 	}
 
-	X_INLINE bool operator()() const { return _Valid; }
-
+	X_INLINE bool   operator()() const { return _Valid; }
 	X_INLINE auto & operator*() {
 		assert(_Valid);
 		return GetValueReference();
