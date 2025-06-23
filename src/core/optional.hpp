@@ -20,7 +20,7 @@ public:
 		_Valid = true;
 	}
 
-	X_INLINE bool   operator()() const { return _Valid; }
+	X_INLINE        operator bool() const { return _Valid; }
 	X_INLINE auto & operator*() {
 		assert(_Valid);
 		return GetValueReference();

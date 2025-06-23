@@ -19,7 +19,7 @@ int main(int argc, char ** argv) {
 	);
 
 	auto OptKey = CL["pri-keyfile"];
-	if (!OptKey()) {
+	if (!OptKey) {
 		cerr << "A private key file must be provided" << endl;
 		return -1;
 	}
@@ -48,7 +48,7 @@ int main(int argc, char ** argv) {
 	cout << "Validate2: " << Validate2 << endl;
 
 	auto OptValidatorKey = CL["validator-keyfile"];
-	if (OptValidatorKey()) {
+	if (OptValidatorKey) {
 		auto Validator      = xSha256WithRsaValidator();
 		auto ValidatorGuard = xResourceGuard(Validator, *OptValidatorKey);
 

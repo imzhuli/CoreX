@@ -12,13 +12,13 @@ class xConfigLoader : xNonCopyable {
 
 public:
 	xConfigLoader() = default;
-	xConfigLoader(const char * filename) { RenewValue(Reader, filename); }
+	xConfigLoader(const char * filename) { RenewValue(ReaderOpt, filename); }
 	xConfigLoader(const std::string & filename)
 		: xConfigLoader(filename.c_str()) {}
 
-	X_INLINE void Reload(const char * filename) { RenewValue(Reader, filename); }
-	X_INLINE void Reload(const std::string & filename) { RenewValue(Reader, filename.c_str()); }
-	X_INLINE      operator bool() const { return Reader() && *Reader; }
+	X_INLINE void Reload(const char * filename) { RenewValue(ReaderOpt, filename); }
+	X_INLINE void Reload(const std::string & filename) { RenewValue(ReaderOpt, filename.c_str()); }
+	X_INLINE      operator bool() const { return ReaderOpt && *ReaderOpt; }
 
 	void Require(std::string & Dst, const char * Key);
 	void Require(xNetAddress & Dst, const char * Key);
@@ -41,7 +41,7 @@ public:
 	}
 
 private:
-	xOptional<xIniReader> Reader;
+	xOptional<xIniReader> ReaderOpt;
 };
 
 X_END

@@ -6,7 +6,7 @@ X_BEGIN
 
 void xConfigLoader::Require(std::string & Dst, const char * Key) {
 	assert(Key);
-	auto Value = Reader->Get(Key);
+	auto Value = ReaderOpt->Get(Key);
 	if (!Value) {
 		X_PFATAL("Failed to get config key: %s", Key);
 	}
@@ -35,17 +35,17 @@ void xConfigLoader::Require(int64_t & Dst, const char * Key) {
 
 void xConfigLoader::Optional(std::string & Dst, const char * Key, const std::string & DefaultValue) {
 	assert(Key);
-	Dst = Reader->Get(Key, DefaultValue.c_str());
+	Dst = ReaderOpt->Get(Key, DefaultValue.c_str());
 }
 
 void xConfigLoader::Optional(int64_t & Dst, const char * Key, int64_t DefaultValue) {
 	assert(Key);
-	Dst = Reader->GetInt64(Key, DefaultValue);
+	Dst = ReaderOpt->GetInt64(Key, DefaultValue);
 }
 
 void xConfigLoader::Optional(bool & Dst, const char * Key, bool DefaultValue) {
 	assert(Key);
-	Dst = Reader->GetBool(Key, DefaultValue);
+	Dst = ReaderOpt->GetBool(Key, DefaultValue);
 }
 
 X_END
