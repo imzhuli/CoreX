@@ -15,25 +15,26 @@ bool xClient::Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress,
 	assert(IoContextPtr);
 	assert(TargetAddress);
 
-	this->IoContextPtr                    = IoContextPtr;
-	this->TargetAddress                   = TargetAddress;
-	this->BindAddress                     = BindAddress;
-	this->NowMS                           = 0;
-	this->ReconnectTimestampMS            = 0;
-	this->KeepAliveTimeoutMS              = 0;
-	this->LastKeepAliveTimestampMS        = 0;
-	this->LastRequestKeepAliveTimestampMS = 0;
-	this->Open                            = false;
-	this->KillConnection                  = false;
+	this->IoContextPtr  = IoContextPtr;
+	this->TargetAddress = TargetAddress;
+	this->BindAddress   = BindAddress;
 	SetDefaultKeepAliveTimeout();
 	return true;
 }
 
 void xClient::Clean() {
-	if (Open) {
+	if (IsOpen()) {
 		OnCleanupServerConnection();
 		Connection.Clean();
 	}
+
+	Reset(NowMS);
+	Reset(ReconnectTimestampMS);
+	Reset(KeepAliveTimeoutMS);
+	Reset(LastKeepAliveTimestampMS);
+	Reset(LastRequestKeepAliveTimestampMS);
+	Reset(KillConnection);
+
 	X_DEBUG_RESET(IoContextPtr);
 	X_DEBUG_RESET(TargetAddress);
 	X_DEBUG_RESET(ReconnectTimestampMS);
@@ -68,24 +69,24 @@ void xClient::OnCleanupServerConnection() {
 }
 
 void xClient::Kill() {
-	if (Open) {
-		KillConnection = true;
+	if (!IsOpen()) {
+		return;
 	}
+	KillConnection = true;
 }
 
 void xClient::Tick(uint64_t NowMS) {
 	OnTick(this->NowMS = NowMS);
 	if (Steal(KillConnection)) {
 		// X_DEBUG_PRINTF("KillConnection");
-		assert(Open);
+		assert(IsOpen());
 		OnCleanupServerConnection();
 		Connection.Clean();
-		Open                            = false;
 		LastKeepAliveTimestampMS        = 0;
 		LastRequestKeepAliveTimestampMS = 0;
 		return;
 	}
-	if (Open) {
+	if (IsOpen()) {
 		auto IdleTime = SignedDiff(NowMS, LastKeepAliveTimestampMS);
 		if (IdleTime > MakeSigned(IdleTimeoutMS)) {
 			KillConnection = true;
@@ -113,7 +114,6 @@ void xClient::Tick(uint64_t NowMS) {
 		return;
 	} else {
 		Connection.SetMaxWriteBufferSize(MaxWriteBufferLimitForEachConnection);
-		Open                            = true;
 		LastKeepAliveTimestampMS        = NowMS;
 		LastRequestKeepAliveTimestampMS = NowMS;
 		OnOpenServerConnection();
@@ -170,14 +170,14 @@ void xClient::SetMaxWriteBuffer(size_t Size) {
 }
 
 void xClient::PostRequestKeepAlive() {
-	if (!Open || KillConnection) {
+	if (!IsOpen() || KillConnection) {
 		return;
 	}
 	Connection.PostRequestKeepAlive();
 }
 
 void xClient::PostData(const void * DataPtr, size_t DataSize) {
-	if (!Open || KillConnection) {
+	if (!IsOpen() || KillConnection) {
 		return;
 	}
 	Connection.PostData(DataPtr, DataSize);

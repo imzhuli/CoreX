@@ -13,7 +13,7 @@ public:
 	X_API_MEMBER void Tick(uint64_t NowMS);
 	X_API_MEMBER void Clean();
 
-	X_INLINE bool                IsOpen() const { return Open; }
+	X_INLINE bool                IsOpen() const { return Connection.IsOpen(); }
 	X_INLINE uint64_t            GetTickTimeMS() const { return NowMS; }
 	X_INLINE const xNetAddress & GetTargetAddress() const { return TargetAddress; }
 
@@ -53,7 +53,6 @@ private:
 	uint64_t KeepAliveTimeoutMS              = 0;
 	uint64_t LastKeepAliveTimestampMS        = 0;
 	uint64_t LastRequestKeepAliveTimestampMS = 0;
-	bool     Open                            = false;
 	bool     KillConnection                  = false;
 };
 
