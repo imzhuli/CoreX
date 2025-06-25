@@ -43,6 +43,9 @@ void xClient::OnConnected(xTcpConnection * TcpConnectionPtr) {
 	OnServerConnected();
 }
 
+void xClient::OnTick(uint64_t NowMS) {
+}
+
 void xClient::OnServerConnected() {
 	// X_DEBUG_PRINTF("");
 }
@@ -71,7 +74,7 @@ void xClient::Kill() {
 }
 
 void xClient::Tick(uint64_t NowMS) {
-	this->NowMS = NowMS;
+	OnTick(this->NowMS = NowMS);
 	if (Steal(KillConnection)) {
 		// X_DEBUG_PRINTF("KillConnection");
 		assert(Open);

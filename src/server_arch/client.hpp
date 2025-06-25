@@ -27,6 +27,7 @@ public:
 	X_API_MEMBER void Kill();
 
 protected:
+	X_API_MEMBER virtual void OnTick(uint64_t NowMS);
 	X_API_MEMBER virtual void OnServerConnected();
 	X_API_MEMBER virtual void OnServerClose();
 	X_API_MEMBER virtual bool OnServerPacket(xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize);
