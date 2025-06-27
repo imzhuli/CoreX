@@ -18,7 +18,6 @@ public:
 		_Holder.CreateValue(std::forward<tArgs>(Args)...);
 		_Valid = true;
 	}
-
 	X_INLINE operator bool() const { return _Valid; }
 
 	X_INLINE xValueType & operator*() {
@@ -38,6 +37,8 @@ public:
 		return &(*_Holder);
 	}
 
+	X_INLINE xValueType *       Get() { return _Valid ? &(*_Holder) : nullptr; }
+	X_INLINE const xValueType * Get() const { return _Valid ? &(*_Holder) : nullptr; }
 	X_INLINE const xValueType & Or(const xValueType & DefaultValue) const { return _Valid ? *_Holder : DefaultValue; }
 
 private:
