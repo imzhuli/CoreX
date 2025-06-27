@@ -10,7 +10,4 @@ void xAllocator::Free(void * vpObject) noexcept {
 	XelAlignedFree(vpObject);
 }
 
-static_assert(sizeof(xRetainable) == 4);
-static_assert(sizeof(xRetainableAtomic) == 4);
-
 X_END

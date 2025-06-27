@@ -7,57 +7,6 @@
 
 X_BEGIN
 
-template <bool cAtomic = false, typename T = int64_t>
-class xRetainableBase;
-
-// ref-counter
-template <bool cAtomic, typename T>
-class xRetainableBase {
-	static_assert(std::is_integral_v<T> && std::is_signed_v<T>);
-
-public:
-	using RealType = std::conditional_t<cAtomic, std::atomic<T>, T>;
-
-protected:
-	X_INLINE xRetainableBase() = default;
-	X_INLINE xRetainableBase(T initCount)
-		: _Count(initCount) {
-	}
-	X_INLINE                   xRetainableBase(const xRetainableBase &) {};
-	X_INLINE xRetainableBase & operator=(const xRetainableBase &) {
-		return *this;
-	}
-
-public:
-	X_INLINE void Retain(T increment = 1) const {
-		_Count += increment;
-	}
-	X_INLINE T Release(T decrement = 1) const {
-		return _Count -= decrement;
-	}
-	X_INLINE T GetRetainCount() const {
-		return static_cast<T>(_Count);
-	}
-	X_INLINE void SetRetainCount(T resetCount) const {
-		_Count = resetCount;
-	}
-
-private:
-	mutable RealType _Count{ 1 };
-};
-
-using xRetainable8  = xRetainableBase<false, int8_t>;
-using xRetainable16 = xRetainableBase<false, int16_t>;
-using xRetainable32 = xRetainableBase<false, int32_t>;
-using xRetainable64 = xRetainableBase<false, int64_t>;
-using xRetainable   = xRetainable32;
-
-using xRetainableAtomic8  = xRetainableBase<true, int8_t>;
-using xRetainableAtomic16 = xRetainableBase<true, int16_t>;
-using xRetainableAtomic32 = xRetainableBase<true, int32_t>;
-using xRetainableAtomic64 = xRetainableBase<true, int64_t>;
-using xRetainableAtomic   = xRetainableAtomic32;
-
 namespace __detail__ {
 	template <typename T>
 	struct __AllocAlignSize__ {
