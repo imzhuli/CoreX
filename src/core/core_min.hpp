@@ -235,21 +235,6 @@ private:
 	T * _Ref;
 };
 
-template <typename RefedT>
-struct xRefCaster {
-	static_assert(!std::is_reference_v<RefedT>);
-	using Type = RefedT;
-	X_STATIC_INLINE RefedT & Get(RefedT & R) { return R; }
-	X_STATIC_INLINE const RefedT & Get(const RefedT & R) { return R; }
-};
-
-template <typename RefedT>
-struct xRefCaster<xRef<RefedT>> {
-	static_assert(!std::is_reference_v<RefedT>);
-	using Type = RefedT;
-	X_STATIC_INLINE RefedT & Get(const xRef<RefedT> & RR) { return RR.Get(); }
-};
-
 template <typename tFuncObj, typename... Args>
 struct xInstantRun final : xNonCopyable {
 	X_INLINE xInstantRun(tFuncObj && Func, Args &&... args) { std::forward<tFuncObj>(Func)(std::forward<Args>(args)...); }
@@ -301,7 +286,7 @@ public:
 	[[nodiscard]] X_INLINE xScopeGuard(const tEntry & Entry, const tExit & Exit) : _ExitCallback(Exit) { Entry(); }
 	[[nodiscard]] X_INLINE xScopeGuard(const tExit & Exit) : _ExitCallback(Exit) { }
 	[[nodiscard]] X_INLINE xScopeGuard(xScopeGuard && Other) : _ExitCallback(Other._ExitCallback), _DismissExit(Steal(Other._DismissExit, true)) { }
-	X_INLINE ~xScopeGuard() { if (_DismissExit) { return; } xRefCaster<tExit>::Get(_ExitCallback)(); }
+	X_INLINE ~xScopeGuard() { if (_DismissExit) { return; } _ExitCallback(); }
 	X_INLINE void Dismiss() { _DismissExit = true; }
 };
 template <typename tEntry, typename tExit>
