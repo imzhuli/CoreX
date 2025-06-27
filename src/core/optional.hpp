@@ -33,7 +33,10 @@ public:
 		assert(_Valid);
 		return &(*_Holder);
 	}
-	X_INLINE const xValueType * operator->() const { return _Valid ? &(*_Holder) : nullptr; }
+	X_INLINE const xValueType * operator->() const {
+		assert(_Valid);
+		return &(*_Holder);
+	}
 
 	X_INLINE const xValueType & Or(const xValueType & DefaultValue) const { return _Valid ? *_Holder : DefaultValue; }
 
