@@ -107,6 +107,10 @@ void xService::OnClientConnected(xServiceClientConnection & Connection) {
 	// X_DEBUG_PRINTF("ConnectionId: %" PRIx64 "", Connection.ConnectionId);
 }
 
+void xService::OnClientKeepAlive(xServiceClientConnection & Connection) {
+	// X_DEBUG_PRINTF("ConnectionId: %" PRIx64 "", Connection.ConnectionId);
+}
+
 void xService::OnClientClose(xServiceClientConnection & Connection) {
 	// X_DEBUG_PRINTF("ConnectionId: %" PRIx64 "", Connection.ConnectionId);
 }
@@ -133,6 +137,7 @@ size_t xService::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size
 			// X_DEBUG_PRINTF("RequestKeepAlive: %" PRIx64 "", Connection.ConnectionId());
 			Connection.PostKeepAlive();
 			KeepAlive(Connection);
+			OnClientKeepAlive(Connection);
 		} else {
 			auto PayloadPtr  = xPacket::GetPayloadPtr(DataPtr);
 			auto PayloadSize = Header.GetPayloadSize();

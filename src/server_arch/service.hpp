@@ -67,6 +67,7 @@ public:
 protected:
 	X_API_MEMBER virtual void OnTick(uint64_t NowMS);
 	X_API_MEMBER virtual void OnClientConnected(xServiceClientConnection & Connection);
+	X_API_MEMBER virtual void OnClientKeepAlive(xServiceClientConnection & Connection);
 	X_API_MEMBER virtual void OnClientClose(xServiceClientConnection & Connection);
 	X_API_MEMBER virtual bool OnClientPacket(
 		xServiceClientConnection & Connection, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize
