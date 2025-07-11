@@ -25,16 +25,14 @@ class xClientConnection
 	friend class xClientPool;
 
 public:
+	xVariable UserContext = {};
+
 	X_INLINE xIndexId            GetConnectionId() const { return ConnectionId; }
 	X_INLINE const xNetAddress & GetTargetAddress() const { return TargetAddress; }
-	X_INLINE void                SetUserContext(xVariable V) { UserContext = V; }
-	X_INLINE xVariable &         GetUserContext() { return UserContext; }
-	X_INLINE const xVariable &   GetUserContext() const { return UserContext; }
 
 private:
 	xIndexId    ConnectionId;
 	xNetAddress TargetAddress;
-	xVariable   UserContext = {};
 	bool        ReleaseMark = false;
 };
 

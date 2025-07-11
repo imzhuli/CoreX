@@ -25,14 +25,12 @@ class xServiceClientConnection final
 	: public xTcpConnection
 	, public xServiceClientConnectionNode {
 public:
-	X_INLINE xIndexId          GetConnectionId() const { return ConnectionId; }
-	X_INLINE void              SetUserContext(xVariable V) { UserContext = V; }
-	X_INLINE xVariable &       GetUserContext() { return UserContext; }
-	X_INLINE const xVariable & GetUserContext() const { return UserContext; }
+	xVariable UserContext = {};
+
+	X_INLINE xIndexId GetConnectionId() const { return ConnectionId; }
 
 private:
-	xIndexId  ConnectionId = {};
-	xVariable UserContext  = {};
+	xIndexId ConnectionId = {};
 	friend class xService;
 };
 using xServiceClientConnectionList = xList<xServiceClientConnectionNode>;
