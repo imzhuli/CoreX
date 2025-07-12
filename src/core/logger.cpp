@@ -16,7 +16,7 @@ X_BEGIN
 namespace fs = std::filesystem;
 
 static constexpr const char gcHint[] = {
-	'V', 'D', 'I', 'W', 'E',
+	'V', 'D', 'I', 'W', 'E', 'F', 'Q',
 };
 
 static bool EnsureDirectoryExists(const fs::path & path) {

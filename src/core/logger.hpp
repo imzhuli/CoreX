@@ -17,6 +17,7 @@ enum struct eLogLevel : int_fast32_t {  // !!! Note: implementation may use the 
 	Info    = 2,
 	Warning = 3,
 	Error   = 4,
+	Fatal   = 5,
 	Quiet   = 1024,
 };
 
@@ -33,17 +34,10 @@ public:
 		Log(eLogLevel::Verbose, fmt, std::forward<Args>(args)...);
 	}
 
-#ifndef NDEBUG
 	template <typename... Args>
 	X_INLINE void D(const char * fmt, Args &&... args) {
 		Log(eLogLevel::Debug, fmt, std::forward<Args>(args)...);
 	}
-#else
-	template <typename... Args>
-	X_INLINE void D(const char * fmt, Args &&... args) {
-		Pass();
-	}
-#endif
 
 	template <typename... Args>
 	X_INLINE void I(const char * fmt, Args &&... args) {
@@ -58,6 +52,12 @@ public:
 	template <typename... Args>
 	X_INLINE void E(const char * fmt, Args &&... args) {
 		Log(eLogLevel::Error, fmt, std::forward<Args>(args)...);
+	}
+
+	template <typename... Args>
+	X_INLINE void F(const char * fmt, Args &&... args) {
+		Log(eLogLevel::Fatal, fmt, std::forward<Args>(args)...);
+		QuickExit();
 	}
 };
 
