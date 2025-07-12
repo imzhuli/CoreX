@@ -63,6 +63,12 @@ private:
 	X_INLINE std::enable_if_t<std::is_integral_v<T> && 8 == sizeof(T)> _R(T & V) {
 		V = static_cast<T>(_R8());
 	}
+	template <typename T>
+	X_INLINE std::enable_if_t<std::is_enum_v<T>> _R(T & V) {
+		std::underlying_type_t<T> U;
+		_R(U);
+		V = static_cast<T>(U);
+	}
 
 private:
 	X_INLINE uint8_t _R1() {

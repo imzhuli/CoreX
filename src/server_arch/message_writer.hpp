@@ -75,6 +75,11 @@ private:
 		_W(T && V) {
 		_W8(V);
 	}
+	template <typename T>
+	X_INLINE std::enable_if_t<std::is_enum_v<std::remove_cvref_t<T &&>>> _W(T && V) {
+		auto U = static_cast<std::underlying_type_t<std::remove_cvref_t<T &&>>>(V);
+		_W(U);
+	}
 
 private:
 	X_INLINE void _W1(uint8_t V) {
