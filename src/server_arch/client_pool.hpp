@@ -25,7 +25,8 @@ class xClientConnection
 	friend class xClientPool;
 
 public:
-	xVariable UserContext = {};
+	xVariable UserContext   = {};
+	xVariable UserContextEx = {};
 
 	X_INLINE xIndexId            GetConnectionId() const { return ConnectionId; }
 	X_INLINE const xNetAddress & GetTargetAddress() const { return TargetAddress; }
