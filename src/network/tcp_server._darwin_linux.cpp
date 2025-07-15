@@ -56,7 +56,7 @@ bool xTcpServer::OnIoEventInReady() {
 }
 
 bool xTcpServer::TryListen() {
-	setsockopt(NativeSocket, SOL_SOCKET, SO_SNDBUF, (char *)X2P(int(0)), sizeof(int));
+	setsockopt(NativeSocket, SOL_SOCKET, SO_SNDBUF, (char *)XP(int(0)), sizeof(int));
 	auto ListenRet = listen(NativeSocket, SOMAXCONN);
 	if (ListenRet == -1) {
 		X_DEBUG_PRINTF("failed to listen on address");

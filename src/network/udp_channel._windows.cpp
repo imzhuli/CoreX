@@ -56,7 +56,7 @@ void xUdpChannel::AsyncAcquireInput() {
 	IBP->Reader.BufferUsage.buf   = (CHAR *)IBP->ReadBuffer;
 	IBP->Reader.BufferUsage.len   = (ULONG)sizeof(IBP->ReadBuffer);
 	if (WSARecvFrom(
-			NativeSocket, &IBP->Reader.BufferUsage, 1, nullptr, X2P(DWORD(0)),
+			NativeSocket, &IBP->Reader.BufferUsage, 1, nullptr, XP(DWORD(0)),
 			(sockaddr *)&IBP->Reader.FromAddress, &IBP->Reader.FromAddressLength,
 			&IBP->Reader.Native.Overlapped,
 			nullptr

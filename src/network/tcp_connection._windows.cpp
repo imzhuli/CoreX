@@ -154,7 +154,7 @@ void xTcpConnection::AsyncAcquireInput() {
 	BU.len            = (ULONG)TryRecvSize;
 	auto & Overlapped = IBP->Reader.Native.Overlapped;
 	memset(&Overlapped, 0, sizeof(Overlapped));
-	auto Error = WSARecv(NativeSocket, &BU, 1, nullptr, X2P(DWORD(0)), &Overlapped, nullptr);
+	auto Error = WSARecv(NativeSocket, &BU, 1, nullptr, XP(DWORD(0)), &Overlapped, nullptr);
 	if (Error) {
 		auto ErrorCode = WSAGetLastError();
 		if (ErrorCode != WSA_IO_PENDING) {

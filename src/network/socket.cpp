@@ -12,11 +12,11 @@ X_API void SetSocketNoDelay(xSocket Socket, bool EnableNoDelay) {
 }
 
 void ResizeSendBuffer(xSocket Socket, size_t Size) {
-	setsockopt(Socket, SOL_SOCKET, SO_SNDBUF, (char *)X2P(int(Size)), sizeof(int));
+	setsockopt(Socket, SOL_SOCKET, SO_SNDBUF, (char *)XP(int(Size)), sizeof(int));
 }
 
 void ResizeRecvBuffer(xSocket Socket, size_t Size) {
-	setsockopt(Socket, SOL_SOCKET, SO_RCVBUF, (char *)X2P(int(Size)), sizeof(int));
+	setsockopt(Socket, SOL_SOCKET, SO_RCVBUF, (char *)XP(int(Size)), sizeof(int));
 }
 
 X_END

@@ -24,7 +24,7 @@ bool CreateNonBlockingTcpSocket(xSocket & Socket, const xNetAddress & BindAddres
 		X_DEBUG_PRINTF("Failed to create socket\n");
 		return false;
 	}
-	setsockopt(Socket, SOL_SOCKET, SO_NOSIGPIPE, (char *)X2P(int(1)), sizeof(int));
+	setsockopt(Socket, SOL_SOCKET, SO_NOSIGPIPE, (char *)XP(int(1)), sizeof(int));
 	SetSocketNonBlocking(Socket);
 	if (ReuseAddress) {
 		SetSocketReuseAddress(Socket);
@@ -53,7 +53,7 @@ bool CreateNonBlockingUdpSocket(xSocket & Socket, const xNetAddress & BindAddres
 		X_DEBUG_PRINTF("Failed to create socket\n");
 		return false;
 	}
-	setsockopt(Socket, SOL_SOCKET, SO_NOSIGPIPE, (char *)X2P(int(1)), sizeof(int));
+	setsockopt(Socket, SOL_SOCKET, SO_NOSIGPIPE, (char *)XP(int(1)), sizeof(int));
 	SetSocketNonBlocking(Socket);
 	if (ReuseAddress) {
 		SetSocketReuseAddress(Socket);
@@ -77,7 +77,7 @@ void SetSocketNonBlocking(xSocket Socket) {
 }
 
 void SetSocketReuseAddress(xSocket Socket) {
-	setsockopt(Socket, SOL_SOCKET, X_ENABLE_REUSEPORT, (char *)X2P(int(1)), sizeof(int));
+	setsockopt(Socket, SOL_SOCKET, X_ENABLE_REUSEPORT, (char *)XP(int(1)), sizeof(int));
 }
 
 X_END

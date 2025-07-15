@@ -62,11 +62,11 @@ bool CreateNonBlockingUdpSocket(xSocket & Socket, const xNetAddress & BindAddres
 }
 
 void SetSocketNonBlocking(xSocket Socket) {
-	ioctlsocket(Socket, FIONBIO, X2P((u_long)1));
+	ioctlsocket(Socket, FIONBIO, XP((u_long)1));
 }
 
 void SetSocketReuseAddress(xSocket Socket) {
-	setsockopt(Socket, SOL_SOCKET, SO_REUSEADDR, (char *)X2P((int)1), sizeof(int));
+	setsockopt(Socket, SOL_SOCKET, SO_REUSEADDR, (char *)XP((int)1), sizeof(int));
 }
 
 X_END

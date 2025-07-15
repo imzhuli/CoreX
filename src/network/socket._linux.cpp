@@ -81,7 +81,7 @@ void SetSocketNonBlocking(xSocket Socket) {
 }
 
 void SetSocketReuseAddress(xSocket Socket) {
-	setsockopt(Socket, SOL_SOCKET, X_ENABLE_REUSEPORT, (char *)X2P(int(1)), sizeof(int));
+	setsockopt(Socket, SOL_SOCKET, X_ENABLE_REUSEPORT, (char *)XP(int(1)), sizeof(int));
 }
 
 X_END

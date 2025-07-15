@@ -113,13 +113,9 @@ constexpr struct xSizeInit final { size_t value; } ZeroSizeInit{};
 constexpr struct xCapacityInit final { size_t value; } ZeroCapacityInit{};
 
 template <typename T> // eXpiring object to Reference to object
-[[nodiscard]] X_STATIC_INLINE std::remove_reference_t<T> & X2R(T && ref) { return ref; }
-template <typename T> // eXpiring object to Const Reference to object
-[[nodiscard]] X_STATIC_INLINE const std::remove_reference_t<T> & X2CR(T && ref) { return ref; }
+[[nodiscard]] X_STATIC_INLINE std::remove_reference_t<T> & XR(T && ref) { return ref; }
 template <typename T> // eXpiring object to Pointer to object
-[[nodiscard]] X_STATIC_INLINE std::remove_reference_t<T> * X2P(T && ref) { return &ref; }
-template <typename T> // eXpiring object to Const Pointer to object
-[[nodiscard]] X_STATIC_INLINE const std::remove_reference_t<T> * X2CP(T && ref) { return &ref; }
+[[nodiscard]] X_STATIC_INLINE std::remove_reference_t<T> * XP(T && ref) { return &ref; }
 
 template <typename T>
 [[nodiscard]] X_STATIC_INLINE constexpr std::conditional_t<std::is_const_v<T>, const void *, void *> AddressOf(T & obj) {
@@ -368,8 +364,8 @@ xResourceGuardThrowable(T & Resource, tArgs &&... Args) -> xResourceGuardThrowab
 
 class xRunState final {
 public:
-	X_INLINE bool Start()    { return _RunState.compare_exchange_strong(X2R(NO_INSTANCE), RUNNING); }
-	X_INLINE void Stop()     { _RunState.compare_exchange_strong(X2R(RUNNING), STOPPING); }
+	X_INLINE bool Start()    { return _RunState.compare_exchange_strong(XR(NO_INSTANCE), RUNNING); }
+	X_INLINE void Stop()     { _RunState.compare_exchange_strong(XR(RUNNING), STOPPING); }
 	X_INLINE void Finish()   { _RunState = NO_INSTANCE; }
 	X_INLINE operator bool() const { return _RunState == RUNNING; }
 private:
