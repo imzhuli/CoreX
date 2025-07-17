@@ -23,14 +23,16 @@ public:
 	void Require(std::string & Dst, const char * Key);
 	void Require(xNetAddress & Dst, const char * Key);
 	void Require(int64_t & Dst, const char * Key);
+	void Require(bool & Dst, const char * Key);
 	template <typename T>
-	std::enable_if_t<std::is_integral_v<T> && !std::is_same_v<int64_t, T>> Require(T & Dst, const char * Key) {
+	std::enable_if_t<std::is_integral_v<T> && !std::is_same_v<int64_t, T> && !std::is_same_v<bool, T>> Require(T & Dst, const char * Key) {
 		int64_t Temp;
 		Require(Temp, Key);
 		Dst = (T)Temp;
 	}
 
 	void Optional(std::string & Dst, const char * Key, const std::string & DefaultValue = {});
+	void Optional(xNetAddress & Dst, const char * Key, const xNetAddress & DefaultValue = {});
 	void Optional(int64_t & Dst, const char * Key, int64_t DefaultValue = 0);
 	void Optional(bool & Dst, const char * Key, bool DefaultValue = false);
 	template <typename T, typename U>

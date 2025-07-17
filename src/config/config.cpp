@@ -19,9 +19,6 @@ void xConfigLoader::Require(xNetAddress & Dst, const char * Key) {
 	auto AddrStr = std::string();
 	Require(AddrStr, Key);
 	Dst = xNetAddress::Parse(AddrStr);
-	if (!Dst) {
-		X_PFATAL("Failed to get config key: %s, addr_str=%s", Key, AddrStr.c_str());
-	}
 	return;
 }
 
@@ -33,9 +30,27 @@ void xConfigLoader::Require(int64_t & Dst, const char * Key) {
 	return;
 }
 
+void xConfigLoader::Require(bool & Dst, const char * Key) {
+	assert(Key);
+	auto ValueStr = std::string();
+	Require(ValueStr, Key);
+	Dst = ReaderOpt->GetBool(Key, {});
+}
+
 void xConfigLoader::Optional(std::string & Dst, const char * Key, const std::string & DefaultValue) {
 	assert(Key);
 	Dst = ReaderOpt->Get(Key, DefaultValue.c_str());
+}
+
+void xConfigLoader::Optional(xNetAddress & Dst, const char * Key, const xNetAddress & DefaultValue) {
+	assert(Key);
+	auto ValueStr = ReaderOpt->Get(Key, nullptr);
+	if (!ValueStr) {
+		Dst = DefaultValue;
+		return;
+	}
+	Dst = xNetAddress::Parse(ValueStr);
+	return;
 }
 
 void xConfigLoader::Optional(int64_t & Dst, const char * Key, int64_t DefaultValue) {
