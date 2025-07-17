@@ -281,7 +281,6 @@ private:
 public:
 	[[nodiscard]] X_INLINE xScopeGuard(const tEntry & Entry, const tExit & Exit) : _ExitCallback(Exit) { Entry(); }
 	[[nodiscard]] X_INLINE xScopeGuard(const tExit & Exit) : _ExitCallback(Exit) { }
-	[[nodiscard]] X_INLINE xScopeGuard(xScopeGuard && Other) : _ExitCallback(Other._ExitCallback), _DismissExit(Steal(Other._DismissExit, true)) { }
 	X_INLINE ~xScopeGuard() { if (_DismissExit) { return; } _ExitCallback(); }
 	X_INLINE void Dismiss() { _DismissExit = true; }
 };
@@ -310,57 +309,53 @@ X_STATIC_INLINE void Dismiss(T0 & Guard0, T & ...Guards) {
 	Dismiss(Guards...);
 }
 
-namespace __common_detail__ {
-	struct xCompilerUnitEntry {
-		X_API_MEMBER xCompilerUnitEntry();
-	};
-	[[maybe_unused]] inline xCompilerUnitEntry EntryObject;
+template <typename T, bool DoThrow = false>
+class xResourceGuard final : xNonCopyable {
+public:
+	template <typename... tArgs>
+	X_INLINE constexpr xResourceGuard(T & Resource, tArgs &&... Args)
+		: _Resource(Resource), _Inited(Resource.Init(std::forward<tArgs>(Args)...)) {
+	}
+	X_INLINE constexpr xResourceGuard(T && Other)
+		: _Resource(Other._Resource), _Inited(Steal(Other._Inited)) {
+	}
+	X_INLINE ~xResourceGuard() {
+		if (_Inited) {
+			_Resource.Clean();
+		}
+	}
+	X_INLINE operator bool() const {
+		return _Inited;
+	}
 
-	template <typename T, bool DoThrow = false>
-	class xResourceGuardBase : xNonCopyable {
-	public:
-		template <typename... tArgs>
-		X_INLINE constexpr xResourceGuardBase(T & Resource, tArgs &&... Args)
-			: _Resource(Resource), _Inited(Resource.Init(std::forward<tArgs>(Args)...)) {
-			if constexpr (DoThrow) {
-				if (!_Inited) {
-					throw "xResourceGuardBase failed to init resource";
-				}
-			}
-		}
-		X_INLINE constexpr xResourceGuardBase(T && Other)
-			: _Resource(Other._Resource), _Inited(Steal(Other._Inited)) {
-		}
-		X_INLINE ~xResourceGuardBase() {
-			if (_Inited) {
-				_Resource.Clean();
-			}
-		}
-		X_INLINE operator bool() const {
-			return _Inited;
-		}
-
-	private:
-		T &        _Resource;
-		const bool _Inited;
-	};
-}  // namespace __common_detail__
-
-template <typename T>
-struct xResourceGuard final
-: __common_detail__::xResourceGuardBase<T, false> {
-	using __common_detail__::xResourceGuardBase<T, false>::xResourceGuardBase;
+private:
+	T &        _Resource;
+	const bool _Inited;
 };
 template <typename T, typename... tArgs>
 xResourceGuard(T & Resource, tArgs &&... Args) -> xResourceGuard<T>;
 
 template <typename T>
-struct xResourceGuardThrowable final
-: __common_detail__::xResourceGuardBase<T, true> {
-	using __common_detail__::xResourceGuardBase<T, true>::xResourceGuardBase;
+class xConditionalResourceGuard final : xNonCopyable {
+public:
+    template <typename... tArgs>
+    X_INLINE constexpr xConditionalResourceGuard(bool Cond, T & Resource, tArgs &&... Args) 
+        : _Resource(Resource)
+        , _Inited(Cond && Resource.Init(std::forward<tArgs>(Args)...)) 
+    {}
+    X_INLINE ~xConditionalResourceGuard() {
+        if (_Inited) {
+            _Resource.Clean();
+        }
+    }
+    X_INLINE operator bool() const { return _Inited; }
+
+private:
+    T &        _Resource;
+    const bool _Inited;
 };
 template <typename T, typename... tArgs>
-xResourceGuardThrowable(T & Resource, tArgs &&... Args) -> xResourceGuardThrowable<T>;
+xConditionalResourceGuard(bool Cond, T & Resource, tArgs &&... Args) -> xConditionalResourceGuard<T>;
 
 class xRunState final {
 public:
@@ -372,6 +367,14 @@ private:
 	enum eState { NO_INSTANCE, RUNNING, STOPPING, };
 	std::atomic<eState> _RunState = NO_INSTANCE;
 };
+
+namespace __common_detail__ {
+	// force external linked object to enable checks in core_min.cpp
+	struct xCompilerUnitEntry {
+		X_API_MEMBER xCompilerUnitEntry();
+	};
+	[[maybe_unused]] inline xCompilerUnitEntry EntryObject;
+}  // namespace __common_detail__
 
 /*********************/
 
