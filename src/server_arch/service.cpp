@@ -12,9 +12,9 @@ X_BEGIN
 static constexpr const uint64_t KeepAliveTimeoutMS     = 105'000;
 static constexpr const size_t   DefaultMinConnectionId = 1024;
 
-bool xService::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, size_t MaxConnectionId, bool ReusePort) {
+bool xService::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, size_t MaxConnectionId, bool ReuseAddress) {
 	NowMS = GetTimestampMS();
-	if (!TcpServer.Init(IoContextPtr, BindAddress, this, ReusePort)) {
+	if (!TcpServer.Init(IoContextPtr, BindAddress, this, ReuseAddress)) {
 		return false;
 	}
 	auto TcpServerCleaner = xScopeCleaner(TcpServer);
