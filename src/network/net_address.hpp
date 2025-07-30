@@ -83,17 +83,6 @@ struct xNetAddress final {
 	X_STATIC_INLINE xNetAddress Make4() { return xNetAddress{ .Type = IPV4 }; }
 	X_STATIC_INLINE xNetAddress Make6() { return xNetAddress{ .Type = IPV6 }; }
 
-	X_STATIC_INLINE xNetAddress Make4Raw(const void * RawPtr, uint16_t Port) {
-		auto Address = xNetAddress{ .Type = IPV4, .Port = Port };
-		memcpy(Address.SA4, RawPtr, sizeof(Address.SA4));
-		return Address;
-	}
-	X_STATIC_INLINE xNetAddress Make6Raw(const void * RawPtr, uint16_t Port) {
-		auto Address = xNetAddress{ .Type = IPV6, .Port = Port };
-		memcpy(Address.SA6, RawPtr, sizeof(Address.SA6));
-		return Address;
-	}
-
 	X_API_STATIC_MEMBER xNetAddress Parse(const char * IpStr, uint16_t Port);
 	X_API_STATIC_MEMBER xNetAddress Parse(const std::string & AddressStr);
 
