@@ -27,14 +27,6 @@ struct xNetAddress final {
 	X_INLINE bool     IsV6() const { return Type == IPV6; }
 	X_INLINE explicit operator bool() const { return Type != UNSPEC; }
 
-	using xKeyType = std::array<ubyte, 20>;
-	X_INLINE xKeyType AsKey() const {
-		static_assert(sizeof(*this) == std::tuple_size_v<xKeyType>);
-		xKeyType Ret;
-		memcpy(Ret.data(), this, sizeof(*this));
-		return Ret;
-	}
-
 	X_INLINE int GetAddressFamily() const {
 		if (Type == IPV4) {
 			return AF_INET;
