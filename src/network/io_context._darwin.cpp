@@ -93,7 +93,7 @@ void xIoContext::Remove(xSocketIoReactor & SocketReactor) {
 
 void xIoContext::LoopOnce(int TimeoutMS) {
 	ProcessEventList();  // process deferred operations after looponce
-	struct kevent   Events[128];
+	struct kevent   Events[256];
 	struct timespec TS = {
 		TimeoutMS / 1000,
 		((long)TimeoutMS % 1000) * 1000000,
