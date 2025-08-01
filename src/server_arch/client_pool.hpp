@@ -56,6 +56,7 @@ public:
 	X_API_MEMBER bool PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 	X_API_MEMBER bool PostMessage(uint64_t ConnectionId, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 	X_API_MEMBER bool PostMessage(xClientConnection & PC, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
+	X_API_MEMBER void KillAllConnections();
 
 	X_INLINE uint64_t GetTickTimeMS() const { return Ticker(); }
 
@@ -67,7 +68,6 @@ protected:
 
 private:
 	X_PRIVATE_MEMBER void CheckTimeoutConnections();
-	X_PRIVATE_MEMBER void KillAllConnections();
 	X_PRIVATE_MEMBER void ReleaseConnections();
 	X_PRIVATE_MEMBER void DoRequestKeepAlive();
 	X_PRIVATE_MEMBER void DoAutoReconnect();
