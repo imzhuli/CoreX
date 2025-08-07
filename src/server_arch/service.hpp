@@ -50,8 +50,6 @@ public:
 
 public:
 	X_API_MEMBER void SetMaxWriteBuffer(size_t Size);
-	X_API_MEMBER void PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
-	X_API_MEMBER void PostData(xServiceClientConnection & Connection, const void * DataPtr, size_t DataSize);
 	X_API_MEMBER void PostMessage(uint64_t ConnectionId, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 	X_API_MEMBER void PostMessage(xServiceClientConnection & Connection, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 
@@ -74,6 +72,9 @@ protected:
 		xServiceClientConnection & Connection, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize
 	);
 	X_API_MEMBER virtual void OnCleanupClientConnection(const xServiceClientConnection & Connection);
+
+	X_API_MEMBER void PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
+	X_API_MEMBER void PostData(xServiceClientConnection & Connection, const void * DataPtr, size_t DataSize);
 
 private:
 	X_PRIVATE_MEMBER void   OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandle) override;
@@ -105,9 +106,11 @@ class xUdpService
 public:
 	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress) { return xUdpChannel::Init(IoContextPtr, BindAddress, this); }
 	X_API_MEMBER void Clean() { xUdpChannel::Clean(); }
-	using xUdpChannel::PostData;
+
+	X_API_MEMBER void PostMessage(const xNetAddress & RemoteAddress, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 
 protected:
+	using xUdpChannel::PostData;
 	X_API_MEMBER
 	virtual void OnPacket(const xNetAddress & RemoteAddress, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize);
 

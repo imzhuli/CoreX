@@ -228,4 +228,13 @@ void xUdpService::OnPacket(const xNetAddress & RemoteAddress, xPacketCommandId C
 	X_DEBUG_PRINTF("CommandId: %" PRIx32 ", RequestId:%" PRIx64 ":  \n%s", CommandId, RequestId, HexShow(PayloadPtr, PayloadSize).c_str());
 }
 
+void xUdpService::PostMessage(const xNetAddress & RemoteAddress, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
+	ubyte Buffer[MaxPacketSize];
+	auto  PSize = WriteMessage(Buffer, CmdId, RequestId, Message);
+	if (!PSize) {
+		return;
+	}
+	PostData(Buffer, PSize, RemoteAddress);
+}
+
 X_END
