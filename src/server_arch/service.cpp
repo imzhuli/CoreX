@@ -220,12 +220,12 @@ void xUdpService::OnData(xUdpChannel * ChannelPtr, ubyte * DataPtr, size_t DataS
 
 	auto PayloadPtr  = xPacket::GetPayloadPtr(DataPtr);
 	auto PayloadSize = Header.GetPayloadSize();
-	OnPacket(RemoteAddress, Header, PayloadPtr, PayloadSize);
+	OnPacket(RemoteAddress, Header.CommandId, Header.RequestId, PayloadPtr, PayloadSize);
 	return;
 }
 
-void xUdpService::OnPacket(const xNetAddress & RemoteAddress, const xPacketHeader & Header, ubyte * PayloadPtr, size_t PayloadSize) {
-	X_DEBUG_PRINTF("CommandId: %" PRIx32 ", RequestId:%" PRIx64 ":  \n%s", Header.CommandId, Header.RequestId, HexShow(PayloadPtr, PayloadSize).c_str());
+void xUdpService::OnPacket(const xNetAddress & RemoteAddress, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize) {
+	X_DEBUG_PRINTF("CommandId: %" PRIx32 ", RequestId:%" PRIx64 ":  \n%s", CommandId, RequestId, HexShow(PayloadPtr, PayloadSize).c_str());
 }
 
 X_END
