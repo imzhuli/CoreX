@@ -27,7 +27,7 @@ struct xNetAddress final {
 	X_INLINE bool     IsV6() const { return Type == IPV6; }
 	X_INLINE explicit operator bool() const { return Type != UNSPEC; }
 
-	X_INLINE int GetAddressFamily() const {
+	X_INLINE int AddressFamily() const {
 		if (Type == IPV4) {
 			return AF_INET;
 		}

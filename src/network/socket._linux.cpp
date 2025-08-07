@@ -20,7 +20,7 @@
 X_BEGIN
 
 bool CreateNonBlockingTcpSocket(xSocket & Socket, const xNetAddress & BindAddress, bool ReuseAddress) {
-	auto   AFType      = BindAddress.GetAddressFamily();
+	auto   AFType      = BindAddress.AddressFamily();
 	auto   AddrStorage = sockaddr_storage{};
 	size_t AddrLen     = BindAddress.Dump(&AddrStorage);
 
@@ -48,7 +48,7 @@ bool CreateNonBlockingTcpSocket(xSocket & Socket, const xNetAddress & BindAddres
 }
 
 bool CreateNonBlockingUdpSocket(xSocket & Socket, const xNetAddress & BindAddress, bool ReuseAddress) {
-	auto   AFType      = BindAddress.GetAddressFamily();
+	auto   AFType      = BindAddress.AddressFamily();
 	auto   AddrStorage = sockaddr_storage{};
 	size_t AddrLen     = BindAddress.Dump(&AddrStorage);
 
