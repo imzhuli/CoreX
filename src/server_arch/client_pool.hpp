@@ -58,7 +58,8 @@ public:
 	X_API_MEMBER bool PostMessage(xClientConnection & PC, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 	X_API_MEMBER void KillAllConnections();
 
-	X_INLINE uint64_t GetTickTimeMS() const { return Ticker(); }
+	X_API_MEMBER uint64_t            GetTickTimeMS() const { return Ticker(); }
+	X_API_MEMBER xClientConnection * GetConnection(uint64_t ConnectionId);
 
 protected:
 	X_API_MEMBER virtual void OnTick(uint64_t NowMS);
@@ -76,8 +77,6 @@ private:
 	X_PRIVATE_MEMBER void   OnConnected(xTcpConnection * TcpConnectionPtr) override;
 	X_PRIVATE_MEMBER void   OnPeerClose(xTcpConnection * TcpConnectionPtr) override;
 	X_PRIVATE_MEMBER size_t OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_t DataSize) override;
-
-	X_PRIVATE_MEMBER xClientConnection * GetConnection(uint64_t ConnectionId);
 
 private:
 	xIoContext *                       ICP = nullptr;

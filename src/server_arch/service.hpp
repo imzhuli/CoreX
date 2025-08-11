@@ -46,10 +46,15 @@ public:
 	X_API_MEMBER void Tick(uint64_t UpdatedNowMS);
 	X_API_MEMBER void Clean();
 
-	X_INLINE uint64_t GetTickTimeMS() const { return NowMS; }
+	X_API_MEMBER uint64_t                   GetTickTimeMS() const { return NowMS; }
+	X_API_MEMBER xServiceClientConnection * GetConnection(uint64_t ConnectionId) {
+		auto HolderPtr = ConnectionIdPool.CheckAndGet(ConnectionId);
+		return HolderPtr ? *HolderPtr : nullptr;
+	}
 
 public:
 	X_API_MEMBER void SetMaxWriteBuffer(size_t Size);
+
 	X_API_MEMBER void PostMessage(uint64_t ConnectionId, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 	X_API_MEMBER void PostMessage(xServiceClientConnection & Connection, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 
@@ -104,7 +109,7 @@ class xUdpService
 	: xUdpChannel
 	, xUdpChannel::iListener {
 public:
-	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress) { return xUdpChannel::Init(IoContextPtr, BindAddress, this); }
+	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress) { return xUdpChannel::Init(IoContextPtr, BindAddress, this, true); }
 	X_API_MEMBER void Clean() { xUdpChannel::Clean(); }
 
 	X_API_MEMBER void PostMessage(const xNetAddress & RemoteAddress, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
