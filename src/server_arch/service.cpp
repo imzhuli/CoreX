@@ -34,7 +34,8 @@ void xService::Clean() {
 	ServiceConnectionKillList.GrabListTail(ServiceConnectionTimeoutList);
 	CleanupKilledConnections();
 
-	auto TcpServerCleaner = xScopeCleaner(TcpServer);
+	auto TcpServerCleaner        = xScopeCleaner(TcpServer);
+	auto ConnectionIdPoolCleaner = xScopeCleaner(ConnectionIdPool);
 }
 
 void xService::Tick() {

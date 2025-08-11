@@ -157,7 +157,7 @@ template <typename T>
 X_STATIC_INLINE constexpr bool IsDefaultValue(const T & Target) { return Target == T{}; }
 
 template <typename...T>
-X_STATIC_INLINE void Ignore(const T&...) {}
+X_STATIC_INLINE void Ignore(T&&...) {}
 template <typename...T>
 X_STATIC_INLINE void Touch(const T&...) {}
 
@@ -384,6 +384,21 @@ X_API void FatalPrintf(const char * Filename, size_t Line, const char * Function
 
 X_COMMON_END
 
+#define X_CONCAT(a, b)              a##b
+#define X_CONCAT_FORCE_EXPAND(a, b) X_CONCAT(a, b)
+
+#ifndef X_GUARD
+#define X_GUARD(...)                                                                        \
+    auto X_CONCAT_FORCE_EXPAND(__X_Guard__, __LINE__) = ::xel::xResourceGuard(__VA_ARGS__); \
+    ::xel::RuntimeAssert(X_CONCAT_FORCE_EXPAND(__X_Guard__, __LINE__))
+#endif
+
+#ifndef X_COND_GUARD
+#define X_COND_GUARD(cond, ...)                                                                                                                     \
+    auto X_CONCAT_FORCE_EXPAND(__X_Cond__, __LINE__)  = (bool)(cond);                                                                               \
+    auto X_CONCAT_FORCE_EXPAND(__X_Guard__, __LINE__) = ::xel::xConditionalResourceGuard(X_CONCAT_FORCE_EXPAND(__X_Cond__, __LINE__), __VA_ARGS__); \
+    ::xel::RuntimeAssert(!X_CONCAT_FORCE_EXPAND(__X_Cond__, __LINE__) || X_CONCAT_FORCE_EXPAND(__X_Guard__, __LINE__))
+#endif
 
 #define X_PDEBUG(fmt, ...) ::xel::DebugPrintf(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
 #define X_PERROR(fmt, ...) ::xel::ErrorPrintf(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)

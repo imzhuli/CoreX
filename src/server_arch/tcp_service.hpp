@@ -1,5 +1,6 @@
 
 #pragma once
+#include "../core/core_time.hpp"
 #include "../core/indexed_storage.hpp"
 #include "../core/list.hpp"
 #include "../network/tcp_connection.hpp"
@@ -7,24 +8,130 @@
 #include "../network/udp_channel.hpp"
 #include "./message.hpp"
 
+#include <functional>
+
 X_BEGIN
 
-class xUdpService
-	: xUdpChannel
-	, xUdpChannel::iListener {
-public:
-	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress) { return xUdpChannel::Init(IoContextPtr, BindAddress, this, true); }
-	X_API_MEMBER void Clean() { xUdpChannel::Clean(); }
+class xTcpService;
+class xTcpServiceClientConnection;
+class xTcpServiceClientConnectionHandle;
 
-	X_API_MEMBER void PostMessage(const xNetAddress & RemoteAddress, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
+class xTcpServiceClientConnectionNode : public xListNode {
+private:
+	// flags
+	static constexpr const uint64_t BEING_KILLED = (uint64_t)0x01;
 
-protected:
-	using xUdpChannel::PostData;
-	X_API_MEMBER
-	virtual void OnPacket(const xNetAddress & RemoteAddress, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize);
+	//
+	X_INLINE void ClearFlag(uint64_t Flag) { Flags &= ~Flag; }
+	X_INLINE void SetFlag(uint64_t Flag) { Flags |= Flag; }
+	X_INLINE bool GetFlag(uint64_t Flag) const { return Flag == (Flags & Flag); }
+
+	X_INLINE void SetFlag_Killed() { SetFlag(BEING_KILLED); }
+	X_INLINE bool HasFlag_Killed() const { return GetFlag(BEING_KILLED); }
 
 private:
-	X_PRIVATE_MEMBER void OnData(xUdpChannel * ChannelPtr, ubyte * DataPtr, size_t DataSize, const xNetAddress & RemoteAddress) override;
+	friend class xTcpService;
+	uint64_t Flags       = 0;
+	uint64_t TimestampMS = 0;
+};
+using xTcpServiceClientConnectionList = xList<xTcpServiceClientConnectionNode>;
+
+class xTcpServiceClientConnection final
+	: private xTcpConnection
+	, private xTcpServiceClientConnectionNode {
+public:
+	xVariable UserContext   = {};
+	xVariable UserContextEx = {};
+
+	X_API_MEMBER void PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
+
+private:
+	friend class xTcpService;
+	friend class xTcpServiceClientConnectionHandle;
+	xIndexId ConnectionId = {};
+};
+
+class xTcpServiceClientConnectionHandle {
+public:
+	X_API_MEMBER xTcpServiceClientConnection * operator->() const;  // check and return
+	X_API_MEMBER xTcpServiceClientConnection & operator*() const;   // unchecked version
+
+private:
+	friend class xTcpService;
+	xTcpServiceClientConnectionHandle(xTcpService * Owner, xTcpServiceClientConnection * Connection)
+		: Owner(Owner), Connection(Connection), ConnectionId(Connection->ConnectionId) {
+		Pass();
+	}
+
+	xTcpService *                 Owner        = nullptr;  // MUST be valid
+	xTcpServiceClientConnection * Connection   = nullptr;  // valid in callbacks,
+	xIndexId                      ConnectionId = 0;        // always checked by owner, use this for safety
+};
+
+class xTcpService final
+	: xTcpServer::iListener
+	, xTcpConnection::iListener
+	, xAbstract {
+public:
+	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, size_t MaxConnectionId, bool ReuseAddress = true);
+	X_API_MEMBER void Tick(uint64_t UpdatedNowMS);
+	X_API_MEMBER void Clean();
+
+public:
+	using xOnClientConnected         = std::function<void(const xTcpServiceClientConnectionHandle &)>;
+	using xOnClientKeepAlive         = std::function<void(const xTcpServiceClientConnectionHandle &)>;
+	using xOnClientClose             = std::function<void(const xTcpServiceClientConnectionHandle &)>;
+	using xOnCleanupClientConnection = std::function<void(const xTcpServiceClientConnectionHandle &)>;
+	using xOnClientPacket            = std::function<bool(xTcpServiceClientConnectionHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t)>;
+
+	xOnClientConnected         OnClientConnected         = Ignore<const xTcpServiceClientConnectionHandle &>;
+	xOnClientKeepAlive         OnClientKeepAlive         = Ignore<const xTcpServiceClientConnectionHandle &>;
+	xOnClientClose             OnClientClose             = Ignore<const xTcpServiceClientConnectionHandle &>;
+	xOnCleanupClientConnection OnCleanupClientConnection = Ignore<const xTcpServiceClientConnectionHandle &>;
+	xOnClientPacket            OnClientPacket = [](xTcpServiceClientConnectionHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t) -> bool { return true; };
+
+public:
+	X_API_MEMBER void SetMaxWriteBuffer(size_t Size);
+
+	X_INLINE void DeferKillConnection(xTcpServiceClientConnection & Connection) {
+		Connection.SetFlag_Killed();
+		TcpServiceConnectionKillList.GrabTail(Connection);
+	}
+
+	X_INLINE void KeepAlive(xTcpServiceClientConnection & Connection) {
+		assert(!Connection.HasFlag_Killed());
+		Connection.TimestampMS = Ticker();
+		TcpServiceConnectionTimeoutList.GrabTail(Connection);
+	}
+
+private:
+	friend class xTcpServiceClientConnection;
+	friend class xTcpServiceClientConnectionHandle;
+
+	X_API_MEMBER xTcpServiceClientConnection * GetConnection(uint64_t ConnectionId) const;
+
+private:
+	X_PRIVATE_MEMBER void   OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandle) override;
+	X_PRIVATE_MEMBER void   OnPeerClose(xTcpConnection * TcpConnectionPtr) override;
+	X_PRIVATE_MEMBER size_t OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_t DataSize) override;
+
+	X_PRIVATE_MEMBER void CleanupConnection(xTcpServiceClientConnection & Connection);
+	X_PRIVATE_MEMBER void CleanupKilledConnections();
+
+	[[nodiscard]] X_STATIC_INLINE xTcpServiceClientConnection & Cast(xTcpConnection & Connection) { return static_cast<xTcpServiceClientConnection &>(Connection); };
+	[[nodiscard]] X_STATIC_INLINE xTcpServiceClientConnection & Cast(xTcpServiceClientConnectionNode & Node) { return static_cast<xTcpServiceClientConnection &>(Node); };
+
+private:
+	// config
+	size_t MaxWriteBufferLimitForEachConnection = 100'000'000 / sizeof(xPacketBuffer::Buffer);
+
+	//
+	xTicker                                        Ticker;
+	xTcpServer                                     TcpServer;
+	xIndexedStorage<xTcpServiceClientConnection *> ConnectionIdPool;
+
+	xTcpServiceClientConnectionList TcpServiceConnectionTimeoutList;
+	xTcpServiceClientConnectionList TcpServiceConnectionKillList;
 };
 
 X_END
