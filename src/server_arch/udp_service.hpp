@@ -34,18 +34,11 @@ public:
 	X_API_MEMBER void Clean() { xUdpChannel::Clean(); }
 	X_API_MEMBER void PostMessage(const xNetAddress & RemoteAddress, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 
-	using xOnPacketCallback            = std::function<void(
-        const xUdpServiceChannelHandle &,  //
-        const xNetAddress &, xPacketCommandId, xPacketRequestId, ubyte *, size_t
-    )>;
+	using xOnPacketCallback            = std::function<void(const xUdpServiceChannelHandle &, const xNetAddress &, xPacketCommandId, xPacketRequestId, ubyte *, size_t)>;
 	xOnPacketCallback OnPacketCallback = Ignore<const xUdpServiceChannelHandle &, const xNetAddress &, xPacketCommandId, xPacketRequestId, ubyte *, size_t>;
 
 private:
-	X_PRIVATE_MEMBER void    OnData(xUdpChannel * ChannelPtr, ubyte * DataPtr, size_t DataSize, const xNetAddress & RemoteAddress) override;
-	X_API_STATIC_MEMBER void OnPacket(
-		const xUdpServiceChannelHandle & Handle, const xNetAddress & RemoteAddress, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr,
-		size_t PayloadSize
-	);
+	X_PRIVATE_MEMBER void OnData(xUdpChannel * ChannelPtr, ubyte * DataPtr, size_t DataSize, const xNetAddress & RemoteAddress) override;
 };
 
 X_END

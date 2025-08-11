@@ -158,6 +158,8 @@ X_STATIC_INLINE constexpr bool IsDefaultValue(const T & Target) { return Target 
 
 template <typename...T>
 X_STATIC_INLINE void Ignore(T&&...) {}
+template <typename tRet, tRet value, typename... tArgs>
+X_STATIC_INLINE tRet IgnoreWith(tArgs &&...) { return value; }
 template <typename...T>
 X_STATIC_INLINE void Touch(const T&...) {}
 
