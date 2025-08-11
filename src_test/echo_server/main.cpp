@@ -1,6 +1,7 @@
 #include <iostream>
 #include <network/io_context.hpp>
 #include <server_arch/service.hpp>
+#include <server_arch/udp_service.hpp>
 
 using namespace std;
 using namespace xel;
@@ -43,6 +44,8 @@ static xEchoService EchoService;
 static xNetAddress  ServerAddress = xNetAddress::Parse("0.0.0.0", 10000);
 
 int main(int argc, char ** argv) {
+
+	xUdpService UdpService;
 
 	auto IR = xResourceGuard(IoCtx);
 	if (!IR) {
