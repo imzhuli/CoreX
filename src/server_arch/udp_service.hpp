@@ -16,7 +16,7 @@ class xUdpServiceChannelHandle;
 
 class xUdpServiceChannelHandle final {
 public:
-	X_API_MEMBER void PostMessage(const xNetAddress & RemoteAddress, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
+	X_API_MEMBER void PostMessage(const xNetAddress & RemoteAddress, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const;
 
 private:
 	friend class xUdpService;

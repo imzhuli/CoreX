@@ -6,33 +6,38 @@ static constexpr const uint64_t KeepAliveTimeoutMS     = 105'000;
 static constexpr const size_t   DefaultMinConnectionId = 1024;
 
 //////////////////////////
-// xTcpServiceClientConnection
+// xTcpServiceClientConnectionHandle
 //////////////////////////
 
-void xTcpServiceClientConnection::PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
+bool xTcpServiceClientConnectionHandle::IsValid() const {
+	auto VC = Owner->GetConnection(ConnectionId);
+	return VC && VC == Connection;
+}
+
+uint64_t xTcpServiceClientConnectionHandle::GetConnectionId() const {
+	return ConnectionId;
+}
+
+xNetAddress xTcpServiceClientConnectionHandle::GetLocalAddress() const {
+	return Connection->GetLocalAddress();
+}
+xNetAddress xTcpServiceClientConnectionHandle::GetRemoteAddress() const {
+	return Connection->GetRemoteAddress();
+}
+
+void xTcpServiceClientConnectionHandle::PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const {
 	ubyte Buffer[MaxPacketSize];
 	auto  PSize = WriteMessage(Buffer, CmdId, RequestId, Message);
 	if (!PSize) {
 		return;
 	}
-	PostData(Buffer, PSize);
+	Connection->PostData(Buffer, PSize);
 }
 
-//////////////////////////
-// xTcpServiceClientConnectionHandle
-//////////////////////////
-
-xTcpServiceClientConnection * xTcpServiceClientConnectionHandle::operator->() const {
-	auto VC = Owner->GetConnection(ConnectionId);
-	if (!VC) {
-		return nullptr;
+void xTcpServiceClientConnectionHandle::Kill() const {
+	if (IsValid()) {
+		Owner->DeferKillConnection(*Connection);
 	}
-	assert(VC == Connection);
-	return VC;
-}
-
-xTcpServiceClientConnection & xTcpServiceClientConnectionHandle::operator*() const {
-	return *Connection;
 }
 
 //////////////////////////

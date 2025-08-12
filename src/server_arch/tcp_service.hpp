@@ -43,8 +43,6 @@ public:
 	xVariable UserContext   = {};
 	xVariable UserContextEx = {};
 
-	X_API_MEMBER void PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
-
 private:
 	friend class xTcpService;
 	friend class xTcpServiceClientConnectionHandle;
@@ -53,8 +51,12 @@ private:
 
 class xTcpServiceClientConnectionHandle {
 public:
-	X_API_MEMBER xTcpServiceClientConnection * operator->() const;  // check and return
-	X_API_MEMBER xTcpServiceClientConnection & operator*() const;   // unchecked version
+	X_API_MEMBER bool        IsValid() const;
+	X_API_MEMBER uint64_t    GetConnectionId() const;
+	X_API_MEMBER xNetAddress GetLocalAddress() const;
+	X_API_MEMBER xNetAddress GetRemoteAddress() const;
+	X_API_MEMBER void        PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const;
+	X_API_MEMBER void        Kill() const;
 
 private:
 	friend class xTcpService;

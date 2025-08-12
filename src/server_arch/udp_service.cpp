@@ -4,7 +4,7 @@
 
 X_BEGIN
 
-void xUdpServiceChannelHandle::PostMessage(const xNetAddress & RemoteAddress, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
+void xUdpServiceChannelHandle::PostMessage(const xNetAddress & RemoteAddress, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const {
 	Service->PostMessage(RemoteAddress, CmdId, RequestId, Message);
 }
 
