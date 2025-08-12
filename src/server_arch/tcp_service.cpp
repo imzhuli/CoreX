@@ -14,17 +14,6 @@ bool xTcpServiceClientConnectionHandle::IsValid() const {
 	return VC && VC == Connection;
 }
 
-uint64_t xTcpServiceClientConnectionHandle::GetConnectionId() const {
-	return ConnectionId;
-}
-
-xNetAddress xTcpServiceClientConnectionHandle::GetLocalAddress() const {
-	return Connection->GetLocalAddress();
-}
-xNetAddress xTcpServiceClientConnectionHandle::GetRemoteAddress() const {
-	return Connection->GetRemoteAddress();
-}
-
 void xTcpServiceClientConnectionHandle::PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const {
 	ubyte Buffer[MaxPacketSize];
 	auto  PSize = WriteMessage(Buffer, CmdId, RequestId, Message);
@@ -35,9 +24,7 @@ void xTcpServiceClientConnectionHandle::PostMessage(xPacketCommandId CmdId, xPac
 }
 
 void xTcpServiceClientConnectionHandle::Kill() const {
-	if (IsValid()) {
-		Owner->DeferKillConnection(*Connection);
-	}
+	Owner->DeferKillConnection(*Connection);
 }
 
 //////////////////////////

@@ -52,9 +52,9 @@ private:
 class xTcpServiceClientConnectionHandle {
 public:
 	X_API_MEMBER bool        IsValid() const;
-	X_API_MEMBER uint64_t    GetConnectionId() const;
-	X_API_MEMBER xNetAddress GetLocalAddress() const;
-	X_API_MEMBER xNetAddress GetRemoteAddress() const;
+	X_API_MEMBER uint64_t    GetConnectionId() const { return ConnectionId; }
+	X_API_MEMBER xNetAddress GetLocalAddress() const { return Connection->GetLocalAddress(); }
+	X_API_MEMBER xNetAddress GetRemoteAddress() const { return Connection->GetRemoteAddress(); }
 	X_API_MEMBER void        PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const;
 	X_API_MEMBER void        Kill() const;
 
@@ -65,9 +65,9 @@ private:
 		Pass();
 	}
 
-	xTcpService *                 Owner        = nullptr;  // MUST be valid
-	xTcpServiceClientConnection * Connection   = nullptr;  // valid in callbacks,
-	xIndexId                      ConnectionId = 0;        // always checked by owner, use this for safety
+	xTcpService * const                 Owner        = nullptr;  // MUST be valid
+	xTcpServiceClientConnection * const Connection   = nullptr;  // valid in callbacks,
+	xIndexId const                      ConnectionId = 0;        // always checked by owner, use this for safety
 };
 
 class xTcpService final

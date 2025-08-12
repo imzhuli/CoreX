@@ -4,7 +4,7 @@
 
 X_BEGIN
 
-void xUdpServiceChannelHandle::PostMessage(const xNetAddress & RemoteAddress, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const {
+void xUdpServiceChannelHandle::PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const {
 	Service->PostMessage(RemoteAddress, CmdId, RequestId, Message);
 }
 
@@ -30,7 +30,13 @@ void xUdpService::OnData(xUdpChannel * ChannelPtr, ubyte * DataPtr, size_t DataS
 
 	auto PayloadPtr  = xPacket::GetPayloadPtr(DataPtr);
 	auto PayloadSize = Header.GetPayloadSize();
-	OnPacketCallback({ this }, RemoteAddress, Header.CommandId, Header.RequestId, PayloadPtr, PayloadSize);
+	OnPacketCallback(
+		{
+			this,
+			RemoteAddress,
+		},
+		Header.CommandId, Header.RequestId, PayloadPtr, PayloadSize
+	);
 	return;
 }
 

@@ -16,14 +16,16 @@ class xUdpServiceChannelHandle;
 
 class xUdpServiceChannelHandle final {
 public:
-	X_API_MEMBER void PostMessage(const xNetAddress & RemoteAddress, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const;
+	X_API_MEMBER xNetAddress GetRemoteAddress() const { return RemoteAddress; }
+	X_API_MEMBER void        PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const;
 
 private:
 	friend class xUdpService;
-	xUdpServiceChannelHandle(xUdpService * Service)
-		: Service(Service) {  //
+	xUdpServiceChannelHandle(xUdpService * Service, const xNetAddress & RemoteAddress)
+		: Service(Service), RemoteAddress(RemoteAddress) {  //
 	}
-	xUdpService * Service = nullptr;
+	xUdpService * const Service;
+	xNetAddress const   RemoteAddress;
 };
 
 class xUdpService final
@@ -34,8 +36,8 @@ public:
 	X_API_MEMBER void Clean() { xUdpChannel::Clean(); }
 	X_API_MEMBER void PostMessage(const xNetAddress & RemoteAddress, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 
-	using xOnPacketCallback            = std::function<void(const xUdpServiceChannelHandle &, const xNetAddress &, xPacketCommandId, xPacketRequestId, ubyte *, size_t)>;
-	xOnPacketCallback OnPacketCallback = Ignore<const xUdpServiceChannelHandle &, const xNetAddress &, xPacketCommandId, xPacketRequestId, ubyte *, size_t>;
+	using xOnPacketCallback            = std::function<void(const xUdpServiceChannelHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t)>;
+	xOnPacketCallback OnPacketCallback = Ignore<const xUdpServiceChannelHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t>;
 
 private:
 	X_PRIVATE_MEMBER void OnData(xUdpChannel * ChannelPtr, ubyte * DataPtr, size_t DataSize, const xNetAddress & RemoteAddress) override;
