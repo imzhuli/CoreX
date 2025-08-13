@@ -4,6 +4,10 @@
 
 X_BEGIN
 
+void xUdpServiceChannelHandle::PostData(const void * DataPtr, size_t DataSize) const {
+	return Service->PostData(RemoteAddress, DataPtr, DataSize);
+}
+
 void xUdpServiceChannelHandle::PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const {
 	Service->PostMessage(RemoteAddress, CmdId, RequestId, Message);
 }
@@ -46,7 +50,7 @@ void xUdpService::PostMessage(const xNetAddress & RemoteAddress, xPacketCommandI
 	if (!PSize) {
 		return;
 	}
-	PostData(Buffer, PSize, RemoteAddress);
+	PostData(RemoteAddress, Buffer, PSize);
 }
 
 X_END

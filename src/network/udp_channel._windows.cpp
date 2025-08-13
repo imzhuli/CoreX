@@ -71,7 +71,7 @@ void xUdpChannel::AsyncAcquireInput() {
 	Retain(IBP);
 }
 
-void xUdpChannel::PostData(const void * DataPtr, size_t DataSize, const xNetAddress & Address) {
+void xUdpChannel::PostData(const xNetAddress & Address, const void * DataPtr, size_t DataSize) {
 	sockaddr_storage AddrStorage = {};
 	size_t           AddrLen     = Address.Dump(&AddrStorage);
 	auto             SendResult  = sendto(NativeSocket, (const char *)DataPtr, DataSize, 0, (const sockaddr *)&AddrStorage, (socklen_t)AddrLen);

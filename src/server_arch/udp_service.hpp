@@ -17,6 +17,7 @@ class xUdpServiceChannelHandle;
 class xUdpServiceChannelHandle final {
 public:
 	X_API_MEMBER xNetAddress GetRemoteAddress() const { return RemoteAddress; }
+	X_API_MEMBER void        PostData(const void * DataPtr, size_t DataSize) const;
 	X_API_MEMBER void        PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const;
 
 private:
@@ -32,8 +33,11 @@ class xUdpService final
 	: xUdpChannel
 	, xUdpChannel::iListener {
 public:
-	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress) { return xUdpChannel::Init(IoContextPtr, BindAddress, this, true); }
-	X_API_MEMBER void Clean() { xUdpChannel::Clean(); }
+	using xUdpChannel::Init;
+	//
+	using xUdpChannel::Clean;
+	//
+	using xUdpChannel::PostData;
 	X_API_MEMBER void PostMessage(const xNetAddress & RemoteAddress, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 
 	using xOnPacketCallback            = std::function<void(const xUdpServiceChannelHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t)>;

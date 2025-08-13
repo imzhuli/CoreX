@@ -16,9 +16,9 @@ public:
 	};
 
 public:
-	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, iListener * ListenerPtr, bool ReuseAddress = false);
+	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, iListener * ListenerPtr, bool ReuseAddress = true);
 	X_API_MEMBER void Clean();
-	X_API_MEMBER void PostData(const void * DataPtr, size_t DataSize, const xNetAddress & DestiationAddress);
+	X_API_MEMBER void PostData(const xNetAddress & DestiationAddress, const void * DataPtr, size_t DataSize);
 	X_API_MEMBER void PostRequestKeepAlive(const xNetAddress & DestiationAddress);
 	X_API_MEMBER void PostKeepAlive(const xNetAddress & DestiationAddress);
 

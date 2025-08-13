@@ -14,6 +14,10 @@ bool xTcpServiceClientConnectionHandle::IsValid() const {
 	return VC && VC == Connection;
 }
 
+void xTcpServiceClientConnectionHandle::PostData(const void * DataPtr, size_t DataSize) const {
+	Connection->PostData(DataPtr, DataSize);
+}
+
 void xTcpServiceClientConnectionHandle::PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const {
 	ubyte Buffer[MaxPacketSize];
 	auto  PSize = WriteMessage(Buffer, CmdId, RequestId, Message);

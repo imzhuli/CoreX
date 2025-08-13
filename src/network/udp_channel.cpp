@@ -11,11 +11,11 @@ static auto Init = xInstantRun([] {
 });
 
 void xUdpChannel::PostRequestKeepAlive(const xNetAddress & DestiationAddress) {
-	PostData(KeepAliveRequestBuffer, PacketHeaderSize, DestiationAddress);
+	PostData(DestiationAddress, KeepAliveRequestBuffer, PacketHeaderSize);
 }
 
 void xUdpChannel::PostKeepAlive(const xNetAddress & DestiationAddress) {
-	PostData(KeepAliveBuffer, PacketHeaderSize, DestiationAddress);
+	PostData(DestiationAddress, KeepAliveBuffer, PacketHeaderSize);
 }
 
 X_END

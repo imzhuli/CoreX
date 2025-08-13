@@ -17,7 +17,6 @@ class xTcpServiceClientConnection;
 class xTcpServiceClientConnectionHandle;
 
 class xTcpServiceClientConnectionNode : public xListNode {
-private:
 	// flags
 	static constexpr const uint64_t BEING_KILLED = (uint64_t)0x01;
 
@@ -29,21 +28,21 @@ private:
 	X_INLINE void SetFlag_Killed() { SetFlag(BEING_KILLED); }
 	X_INLINE bool HasFlag_Killed() const { return GetFlag(BEING_KILLED); }
 
-private:
 	friend class xTcpService;
 	uint64_t Flags       = 0;
 	uint64_t TimestampMS = 0;
 };
 using xTcpServiceClientConnectionList = xList<xTcpServiceClientConnectionNode>;
 
-class xTcpServiceClientConnection final
-	: private xTcpConnection
-	, private xTcpServiceClientConnectionNode {
-public:
+struct xTcpServiceClientConnectionUserContext {
 	xVariable UserContext   = {};
 	xVariable UserContextEx = {};
+};
 
-private:
+class xTcpServiceClientConnection final
+	: public xTcpServiceClientConnectionUserContext
+	, private xTcpConnection
+	, private xTcpServiceClientConnectionNode {
 	friend class xTcpService;
 	friend class xTcpServiceClientConnectionHandle;
 	xIndexId ConnectionId = {};
@@ -55,8 +54,10 @@ public:
 	X_API_MEMBER uint64_t    GetConnectionId() const { return ConnectionId; }
 	X_API_MEMBER xNetAddress GetLocalAddress() const { return Connection->GetLocalAddress(); }
 	X_API_MEMBER xNetAddress GetRemoteAddress() const { return Connection->GetRemoteAddress(); }
+	X_API_MEMBER void        PostData(const void * DataPtr, size_t DataSize) const;
 	X_API_MEMBER void        PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const;
 	X_API_MEMBER void        Kill() const;
+	X_API_MEMBER auto        operator->() const { return (xTcpServiceClientConnectionUserContext *)Connection; }
 
 private:
 	friend class xTcpService;
