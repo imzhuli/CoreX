@@ -30,13 +30,11 @@ private:
 };
 
 class xUdpService final
-	: xUdpChannel
-	, xUdpChannel::iListener {
+	: private xUdpChannel
+	, private xUdpChannel::iListener {
 public:
-	using xUdpChannel::Init;
-	//
+	bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress) { return xUdpChannel::Init(IoContextPtr, BindAddress, this, true); }
 	using xUdpChannel::Clean;
-	//
 	using xUdpChannel::PostData;
 	X_API_MEMBER void PostMessage(const xNetAddress & RemoteAddress, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 

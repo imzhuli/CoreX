@@ -72,9 +72,9 @@ private:
 };
 
 class xTcpService final
-	: xTcpServer::iListener
-	, xTcpConnection::iListener
-	, xAbstract {
+	: private xTcpServer::iListener
+	, private xTcpConnection::iListener
+	, private xAbstract {
 public:
 	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress, size_t MaxConnectionId, bool ReuseAddress = true);
 	X_API_MEMBER void Tick(uint64_t UpdatedNowMS);
