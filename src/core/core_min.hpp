@@ -156,11 +156,11 @@ X_STATIC_INLINE constexpr auto UnsignedDiff(const T1 & Value, const T0 & FromVal
 template <typename T>
 X_STATIC_INLINE constexpr bool IsDefaultValue(const T & Target) { return Target == T{}; }
 
-template <typename...T>
+template <typename... T>
 X_STATIC_INLINE void Ignore(T...) {}
 template <typename tRet, tRet value, typename... tArgs>
 X_STATIC_INLINE tRet IgnoreWith(tArgs...) { return value; }
-template <typename...T>
+template <typename... T>
 X_STATIC_INLINE void Touch(const T&...) {}
 
 template <typename T>
