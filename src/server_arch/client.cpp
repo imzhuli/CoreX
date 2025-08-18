@@ -8,7 +8,7 @@ X_BEGIN
 
 static constexpr const uint64_t MaxKeepAliveTimeoutMS     = 90'000;
 static constexpr const uint64_t IdleTimeoutMS             = 30'000 + MaxKeepAliveTimeoutMS;
-static constexpr const int64_t  ReconnectTimeoutMS        = 15'000;
+static constexpr const int64_t  ReconnectTimeoutMS        = 3'000;
 static constexpr const int64_t  RequestKeepAliveTimeoutMS = 10'000;
 
 bool xClient::Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress, const xNetAddress & BindAddress) {
