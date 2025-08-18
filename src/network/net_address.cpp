@@ -29,14 +29,18 @@ std::strong_ordering operator<=>(const xNetAddress & lhs, const xNetAddress & rh
 	Fatal("Invalid address type");
 }
 
-xNetAddress xNetAddress::Parse(const char * IpStr, uint16_t Port) {
+static xNetAddress InternalParse4(const char * IpStr, uint16_t Port) {
 	auto Result = xNetAddress();
 	auto parse4 = inet_pton(AF_INET, IpStr, Result.SA4);
 	if (1 == parse4) {
 		Result.Type = xNetAddress::IPV4;
 		Result.Port = Port;
-		return Result;
 	}
+	return Result;
+}
+
+static xNetAddress InternalParse6(const char * IpStr, uint16_t Port) {
+	auto Result = xNetAddress();
 	auto parse6 = inet_pton(AF_INET6, IpStr, Result.SA6);
 	if (1 == parse6) {
 		Result.Type = xNetAddress::IPV6;
@@ -46,54 +50,46 @@ xNetAddress xNetAddress::Parse(const char * IpStr, uint16_t Port) {
 	return Result;
 }
 
-xNetAddress xNetAddress::Parse(const std::string & AddressStr) {
-	if (AddressStr.empty() || AddressStr.length() >= 64) {
+xNetAddress xNetAddress::Parse(const std::string_view & AddressStr) {
+	if (AddressStr.empty() || AddressStr.length() >= 48) {
 		return {};
 	}
+
+	char     IpBuffer[48] = {};
+	uint16_t Port         = 0;
+
+	if (AddressStr.front() == '[') {
+		if (AddressStr.back() == ']') {  // ipv6 w/o port
+			memcpy(IpBuffer, AddressStr.data() + 1, AddressStr.size() - 2);
+			return InternalParse6(IpBuffer, 0);
+		}
+		auto PortIndex = AddressStr.find_last_of(':');
+		if (PortIndex == AddressStr.npos || AddressStr[PortIndex - 1] != ']') {  // invalid ipv6
+			return {};
+		}
+		auto TestPort = MakeUnsigned(atoll(AddressStr.data() + PortIndex + 1));
+		if (TestPort > 65535) {
+			return {};
+		}
+		Port = (uint16_t)TestPort;
+		memcpy(IpBuffer, AddressStr.data() + 1, PortIndex - 2);
+		return InternalParse6(IpBuffer, Port);
+	}
+
+	// try ipv4 now:
 	auto PortIndex = AddressStr.find_last_of(':');
-	if (PortIndex == AddressStr.npos) {  // no port, test ipv4 then ipv6
-		return Parse(AddressStr.c_str(), 0);
+	if (PortIndex == AddressStr.npos) {  // no port
+		memcpy(IpBuffer, AddressStr.data(), AddressStr.size());
+		return InternalParse4(IpBuffer, 0);
 	}
+	memcpy(IpBuffer, AddressStr.data(), PortIndex);
 
-	if (AddressStr[0] == '[') {  // ipv6 with port
-		if (AddressStr[PortIndex - 1] == ']') {
-			char IpBuffer[64];
-			auto IpLength = PortIndex - 2;
-			memcpy(IpBuffer, AddressStr.c_str() + 1, IpLength);
-			IpBuffer[IpLength] = '\0';
-
-			auto Result = xNetAddress();
-			if (1 == inet_pton(AF_INET6, IpBuffer, Result.SA6)) {
-				Result.Type = xNetAddress::IPV6;
-				Result.Port = (uint16_t)atoll(AddressStr.c_str() + PortIndex + 1);
-				return Result;
-			}
-			return {};
-		}
-		return {};  // invalid address
+	auto TestPort = MakeUnsigned(atoll(AddressStr.data() + PortIndex + 1));
+	if (TestPort > 65535) {
+		return {};
 	}
-	for (size_t i = 1; i < 4; ++i) {
-		if (AddressStr[i] == '.') {  // ipv4 with port
-			char IpBuffer[64];
-			memcpy(IpBuffer, AddressStr.c_str(), PortIndex);
-			IpBuffer[PortIndex] = '\0';
-
-			auto Result = xNetAddress();
-			if (1 == inet_pton(AF_INET, IpBuffer, Result.SA4)) {
-				Result.Type = xNetAddress::IPV4;
-				Result.Port = (uint16_t)atoll(AddressStr.c_str() + PortIndex + 1);
-				return Result;
-			}
-			return {};
-		}
-	}
-	// ipv6 w/o port
-	auto Result = xNetAddress();
-	if (1 == inet_pton(AF_INET6, AddressStr.c_str(), Result.SA6)) {
-		Result.Type = xNetAddress::IPV6;
-		return Result;
-	}
-	return {};
+	Port = (uint16_t)TestPort;
+	return InternalParse4(IpBuffer, Port);
 }
 
 xNetAddress xNetAddress::Parse(const sockaddr * SockAddrPtr) {

@@ -21,7 +21,7 @@ struct xHelloWorldClient : public xTcpConnection::iListener {
 static xIoContext        IoCtx;
 static xTcpConnection    Conn;
 static xHelloWorldClient Client;
-static xNetAddress       ServerAddress = xNetAddress::Parse("192.168.5.112", 3399);
+static xNetAddress       ServerAddress = xNetAddress::Parse("192.168.5.112:3399");
 
 int main(int argc, char ** argv) {
 	auto IR = xResourceGuard(IoCtx);

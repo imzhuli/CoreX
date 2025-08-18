@@ -41,7 +41,7 @@ struct xEchoService : xService {
 
 static xIoContext   IoCtx;
 static xEchoService EchoService;
-static xNetAddress  ServerAddress = xNetAddress::Parse("0.0.0.0", 10000);
+static xNetAddress  ServerAddress = xNetAddress::Parse("0.0.0.0:10000");
 
 int main(int argc, char ** argv) {
 
