@@ -50,14 +50,15 @@ class xTcpServiceClientConnection final
 
 class xTcpServiceClientConnectionHandle {
 public:
-	X_API_MEMBER bool        IsValid() const;
-	X_API_MEMBER uint64_t    GetConnectionId() const { return ConnectionId; }
-	X_API_MEMBER xNetAddress GetLocalAddress() const { return Connection->GetLocalAddress(); }
-	X_API_MEMBER xNetAddress GetRemoteAddress() const { return Connection->GetRemoteAddress(); }
-	X_API_MEMBER void        PostData(const void * DataPtr, size_t DataSize) const;
-	X_API_MEMBER void        PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const;
-	X_API_MEMBER void        Kill() const;
-	X_API_MEMBER auto        operator->() const { return (xTcpServiceClientConnectionUserContext *)Connection; }
+	X_API_MEMBER bool          IsValid() const;
+	X_API_MEMBER xTcpService * GetOwner() const { return Owner; }
+	X_API_MEMBER uint64_t      GetConnectionId() const { return ConnectionId; }
+	X_API_MEMBER xNetAddress   GetLocalAddress() const { return Connection->GetLocalAddress(); }
+	X_API_MEMBER xNetAddress   GetRemoteAddress() const { return Connection->GetRemoteAddress(); }
+	X_API_MEMBER void          PostData(const void * DataPtr, size_t DataSize) const;
+	X_API_MEMBER void          PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const;
+	X_API_MEMBER void          Kill() const;
+	X_API_MEMBER auto          operator->() const { return (xTcpServiceClientConnectionUserContext *)Connection; }
 
 private:
 	friend class xTcpService;
