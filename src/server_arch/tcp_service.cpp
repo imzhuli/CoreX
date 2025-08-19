@@ -77,7 +77,7 @@ void xTcpService::CleanupKilledConnections() {
 }
 
 void xTcpService::CleanupConnection(xTcpServiceClientConnection & Connection) {
-	OnCleanupClientConnection({ this, &Connection });
+	OnClientCleanup({ this, &Connection });
 	ConnectionIdPool.Release(Connection.ConnectionId);
 	Connection.Clean();
 	delete &Connection;

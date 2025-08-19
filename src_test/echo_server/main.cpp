@@ -1,22 +1,26 @@
 #include <iostream>
-#include <network/io_context.hpp>
-#include <server_arch/service.hpp>
+#include <server_arch/tcp_service.hpp>
 #include <server_arch/udp_service.hpp>
 
 using namespace std;
 using namespace xel;
 
-struct xEchoService : xService {
-	void OnClientConnected(xServiceClientConnection & Connection) override {
-		cout << "OnClientConnected" << endl;
-		//
-	}
-	bool OnClientPacket(xServiceClientConnection & Connection, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize) override {
-		auto Ret = xService::OnClientPacket(Connection, CommandId, RequestId, PayloadPtr, PayloadSize);
-		X_RUNTIME_ASSERT(Ret);
+static xIoContext  IoCtx;
+static xTicker     Ticker;
+static xNetAddress ServerAddress = xNetAddress::Parse("0.0.0.0:10000");
+static xTcpService TcpService;
 
+int main(int argc, char ** argv) {
+
+	auto IR = xResourceGuard(IoCtx);
+	if (!IR) {
+		cerr << "Invalid IR" << endl;
+		return -1;
+	}
+
+	TcpService.OnClientPacket = [](const xTcpServiceClientConnectionHandle & Handle, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr,
+								   size_t PayloadSize) {
 		ubyte Buffer[MaxPacketSize];
-		assert(xPacketHeader::Size + PayloadSize <= sizeof(Buffer));
 
 		auto SW = xStreamWriter(Buffer);
 		SW.Offset(PacketHeaderSize);
@@ -30,37 +34,14 @@ struct xEchoService : xService {
 		RespHeader.PacketSize = RSize;
 		RespHeader.Serialize(Buffer);
 
-		PostData(Connection, Buffer, RSize);
-		return Ret;
-	}
-	void OnClientClose(xServiceClientConnection & Connection) override {
-		cout << "OnClientDisconnected" << endl;
-		//
-	}
-};
-
-static xIoContext   IoCtx;
-static xEchoService EchoService;
-static xNetAddress  ServerAddress = xNetAddress::Parse("0.0.0.0:10000");
-
-int main(int argc, char ** argv) {
-
-	xUdpService UdpService;
-
-	auto IR = xResourceGuard(IoCtx);
-	if (!IR) {
-		cerr << "Invalid IR" << endl;
-		return -1;
-	}
-	auto SR = xResourceGuard(EchoService, &IoCtx, ServerAddress, true);
-	if (!SR) {
-		cerr << "Invalid SR" << endl;
-		return -1;
-	}
+		Handle.PostData(Buffer, RSize);
+		return true;
+	};
 
 	while (true) {
+		Ticker.Update();
 		IoCtx.LoopOnce();
-		EchoService.Tick();
+		TcpService.Tick(Ticker());
 	}
 
 	return 0;
