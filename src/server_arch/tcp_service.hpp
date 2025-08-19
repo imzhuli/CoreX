@@ -85,13 +85,11 @@ public:
 	using xOnClientConnected = std::function<void(const xTcpServiceClientConnectionHandle &)>;
 	using xOnClientKeepAlive = std::function<void(const xTcpServiceClientConnectionHandle &)>;
 	using xOnClientClose     = std::function<void(const xTcpServiceClientConnectionHandle &)>;
-	using xOnClientCleanup   = std::function<void(const xTcpServiceClientConnectionHandle &)>;
 	using xOnClientPacket    = std::function<bool(xTcpServiceClientConnectionHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t)>;
 
 	xOnClientConnected OnClientConnected = Ignore<const xTcpServiceClientConnectionHandle &>;
 	xOnClientKeepAlive OnClientKeepAlive = Ignore<const xTcpServiceClientConnectionHandle &>;
 	xOnClientClose     OnClientClose     = Ignore<const xTcpServiceClientConnectionHandle &>;
-	xOnClientCleanup   OnClientCleanup   = Ignore<const xTcpServiceClientConnectionHandle &>;
 	xOnClientPacket    OnClientPacket    = [](xTcpServiceClientConnectionHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t) -> bool { return true; };
 
 public:
