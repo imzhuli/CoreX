@@ -89,6 +89,7 @@ public:
 	xOnClientConnected OnClientConnected = NOOP<const xTcpServiceClientConnectionHandle &>;
 	xOnClientKeepAlive OnClientKeepAlive = NOOP<const xTcpServiceClientConnectionHandle &>;
 	xOnClientClose     OnClientClose     = NOOP<const xTcpServiceClientConnectionHandle &>;
+	xOnClientClose     OnClientClean     = NOOP<const xTcpServiceClientConnectionHandle &>;
 	xOnClientPacket    OnClientPacket    = NOOP<true, const xTcpServiceClientConnectionHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t>;
 
 public:

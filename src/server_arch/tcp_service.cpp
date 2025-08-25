@@ -77,7 +77,7 @@ void xTcpService::CleanupKilledConnections() {
 }
 
 void xTcpService::CleanupConnection(xTcpServiceClientConnection & Connection) {
-	OnClientClose({ this, &Connection });
+	OnClientClean({ this, &Connection });
 	ConnectionIdPool.Release(Connection.ConnectionId);
 	Connection.Clean();
 	delete &Connection;
@@ -126,6 +126,7 @@ void xTcpService::OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHa
 
 void xTcpService::OnPeerClose(xTcpConnection * TcpConnectionPtr) {
 	auto & Connection = Cast(*TcpConnectionPtr);
+	OnClientClose({ this, &Connection });
 	DeferKillConnection(Connection);
 }
 
