@@ -47,8 +47,6 @@ inline namespace numeric {
 	using size_t  = ::std::size_t;
 	using ssize_t = typename ::std::make_signed<size_t>::type;
 
-	using function_holder_t = void(*)();	
-
 	static constexpr const size_t InvalidDataSize = static_cast<size_t>(-1);
 
 }  // namespace numeric
@@ -70,7 +68,6 @@ union xVariable {
 	double                     D;
 	void *                     P;
 	const void *               CP;
-	function_holder_t          FH;
 
 	int8_t                     I8;
 	int16_t                    I16;
@@ -87,16 +84,6 @@ union xVariable {
 };
 static_assert(sizeof(xVariable) == 8);
 static_assert(std::is_trivially_copyable_v<xVariable>);
-
-template <typename T> // Function to Holder
-X_INLINE std::enable_if_t<std::is_function_v<T>, function_holder_t> F2H(const T & F) {
-	return reinterpret_cast<function_holder_t>(F);
-}
-
-template <typename T> // function pointer to holder
-X_INLINE std::enable_if_t<std::is_pointer_v<T> && std::is_function_v<std::remove_pointer_t<T>>, function_holder_t> F2H(const T & FP) {
-	return reinterpret_cast<function_holder_t>(FP);
-}
 
 struct xPass final { public: void operator()() const {} };
 struct xVBase { protected: constexpr xVBase() = default; virtual ~xVBase() = default; };
@@ -157,11 +144,12 @@ template <typename T>
 X_STATIC_INLINE constexpr bool IsDefaultValue(const T & Target) { return Target == T{}; }
 
 template <typename...xArgs>
-X_STATIC_INLINE void Ignore(xArgs...) {}
+X_STATIC_INLINE void NOOP(xArgs...) {}
 template <auto Ret, typename...xArgs>
-X_STATIC_INLINE auto Ignore(xArgs...) { return Ret; }
-template <typename... T>
-X_STATIC_INLINE void Touch(const T&...) {}
+X_STATIC_INLINE auto NOOP(xArgs...) { return Ret; }
+
+X_STATIC_INLINE void Ignore(auto &&...) {}
+X_STATIC_INLINE void Touch(const auto &...) {}
 
 template <typename T>
 X_STATIC_INLINE void Construct(T & ExpiringTarget) { new (AddressOf(ExpiringTarget)) T; }

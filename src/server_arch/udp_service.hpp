@@ -39,7 +39,7 @@ public:
 	X_API_MEMBER void PostMessage(const xNetAddress & RemoteAddress, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 
 	using xOnPacketCallback            = std::function<void(const xUdpServiceChannelHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t)>;
-	xOnPacketCallback OnPacketCallback = Ignore<const xUdpServiceChannelHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t>;
+	xOnPacketCallback OnPacketCallback = NOOP<const xUdpServiceChannelHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t>;
 
 private:
 	X_PRIVATE_MEMBER void OnData(xUdpChannel * ChannelPtr, ubyte * DataPtr, size_t DataSize, const xNetAddress & RemoteAddress) override;
