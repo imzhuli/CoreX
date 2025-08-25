@@ -85,12 +85,12 @@ public:
 	using xOnClientConnected = std::function<void(const xTcpServiceClientConnectionHandle &)>;
 	using xOnClientKeepAlive = std::function<void(const xTcpServiceClientConnectionHandle &)>;
 	using xOnClientClose     = std::function<void(const xTcpServiceClientConnectionHandle &)>;
-	using xOnClientPacket    = std::function<bool(xTcpServiceClientConnectionHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t)>;
+	using xOnClientPacket    = std::function<bool(const xTcpServiceClientConnectionHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t)>;
 
 	xOnClientConnected OnClientConnected = Ignore<const xTcpServiceClientConnectionHandle &>;
 	xOnClientKeepAlive OnClientKeepAlive = Ignore<const xTcpServiceClientConnectionHandle &>;
 	xOnClientClose     OnClientClose     = Ignore<const xTcpServiceClientConnectionHandle &>;
-	xOnClientPacket    OnClientPacket    = [](xTcpServiceClientConnectionHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t) -> bool { return true; };
+	xOnClientPacket    OnClientPacket    = [](const xTcpServiceClientConnectionHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t) -> bool { return true; };
 
 public:
 	X_API_MEMBER void SetMaxWriteBuffer(size_t Size);
