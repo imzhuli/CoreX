@@ -90,7 +90,7 @@ public:
 	xOnClientConnected OnClientConnected = Ignore<const xTcpServiceClientConnectionHandle &>;
 	xOnClientKeepAlive OnClientKeepAlive = Ignore<const xTcpServiceClientConnectionHandle &>;
 	xOnClientClose     OnClientClose     = Ignore<const xTcpServiceClientConnectionHandle &>;
-	xOnClientPacket    OnClientPacket    = [](const xTcpServiceClientConnectionHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t) -> bool { return true; };
+	xOnClientPacket    OnClientPacket    = Ignore<true, const xTcpServiceClientConnectionHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t>;
 
 public:
 	X_API_MEMBER void SetMaxWriteBuffer(size_t Size);
