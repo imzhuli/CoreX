@@ -5,7 +5,6 @@
 #include "../core/list.hpp"
 #include "../network/tcp_connection.hpp"
 #include "../network/tcp_server.hpp"
-#include "../network/udp_channel.hpp"
 #include "./message.hpp"
 
 #include <functional>
