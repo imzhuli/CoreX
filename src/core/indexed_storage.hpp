@@ -214,7 +214,8 @@ public:
 		return { (static_cast<uint64_t>(Rand) << 32) + Index };
 	}
 
-	X_INLINE xIndexId Acquire(const tValue & Value) {
+	template <typename... tArgs>
+	X_INLINE xIndexId AcquireValue(tArgs &&... Args) {
 		uint32_t Index;
 		xNode *  NodePtr;
 		if (_NextFreeIdIndex == xIndexId::NoFreeIndex) {
@@ -230,31 +231,7 @@ public:
 		Rand         &= xIndexId::KeyMask;
 		NodePtr->Key  = Rand;
 		try {
-			NodePtr->ValueHolder.CreateValue(Value);
-		} catch (...) {
-			NodePtr->NextFreeIdIndex = Steal(_NextFreeIdIndex, Index);
-			throw;
-		}
-		return { (static_cast<uint64_t>(Rand) << 32) + Index };
-	}
-
-	X_INLINE xIndexId Acquire(tValue && Value) {
-		uint32_t Index;
-		xNode *  NodePtr;
-		if (_NextFreeIdIndex == xIndexId::NoFreeIndex) {
-			if (_InitedId >= _IdPoolSize) {
-				return {};
-			}
-			NodePtr = &_IdPoolPtr[Index = _InitedId++];
-		} else {
-			NodePtr = &_IdPoolPtr[Index = Steal(_NextFreeIdIndex, _IdPoolPtr[_NextFreeIdIndex].NextFreeIdIndex)];
-		}
-		uint32_t Rand = RandomKey ? _Random32() : (_Counter += CounterStep);
-		Rand         |= xIndexId::KeyInUseBitmask;
-		Rand         &= xIndexId::KeyMask;
-		NodePtr->Key  = Rand;
-		try {
-			NodePtr->ValueHolder.CreateValue(std::move(Value));
+			NodePtr->ValueHolder.CreateValue(std::forward<tArgs>(Args)...);
 		} catch (...) {
 			NodePtr->NextFreeIdIndex = Steal(_NextFreeIdIndex, Index);
 			throw;
