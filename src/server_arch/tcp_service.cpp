@@ -107,7 +107,7 @@ void xTcpService::OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHa
 	auto Cleaner = xScopeGuard([=] { Connection->Clean(); });
 	Connection->SetMaxWriteBufferSize(MaxWriteBufferLimitForEachConnection);
 
-	auto ConnectionId = ConnectionIdPool.AcquireValue(Connection);
+	auto ConnectionId = ConnectionIdPool.Acquire(Connection);
 	if (!ConnectionId) {
 		return;
 	}
