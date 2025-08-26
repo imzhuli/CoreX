@@ -214,6 +214,9 @@ public:
 		return { (static_cast<uint64_t>(Rand) << 32) + Index };
 	}
 
+	X_INLINE xIndexId Acquire(const tValue & V) { return AcquireValue(V); }
+	X_INLINE xIndexId Acquire(tValue && V) { return AcquireValue(std::move(V)); }
+
 	template <typename... tArgs>
 	X_INLINE xIndexId AcquireValue(tArgs &&... Args) {
 		uint32_t Index;
