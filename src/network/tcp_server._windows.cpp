@@ -51,7 +51,7 @@ bool xTcpServer::Init(xIoContext * IoContextPtr, const xNetAddress & BindAddress
 	IBP->Cleaner                = &PAIPDeleter;
 
 	// Create listening socket
-	PAIP->AF     = BindAddress.IsV4() ? AF_INET : AF_INET6;  // address family
+	PAIP->AF     = BindAddress.Is4() ? AF_INET : AF_INET6;  // address family
 	NativeSocket = WSASocket(PAIP->AF, SOCK_STREAM, IPPROTO_IP, NULL, 0, WSA_FLAG_OVERLAPPED);
 	if (NativeSocket == InvalidSocket) {
 		return false;

@@ -35,7 +35,7 @@ public:
 	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress, const xNetAddress & BindAddress, iListener * ListenerPtr);
 	X_API_MEMBER bool Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress, iListener * ListenerPtr) {
 		assert(TargetAddress);
-		return Init(IoContextPtr, TargetAddress, TargetAddress.IsV4() ? xNetAddress::Make4() : xNetAddress::Make6(), ListenerPtr);
+		return Init(IoContextPtr, TargetAddress, TargetAddress.Is4() ? xNetAddress::Make4() : xNetAddress::Make6(), ListenerPtr);
 	}
 	X_API_MEMBER void Clean();
 

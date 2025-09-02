@@ -142,7 +142,7 @@ private:
 			_RemainSize -= 1;
 			return;
 		}
-		if (Addr.IsV4()) {
+		if (Addr.Is4()) {
 			auto RequiredSize = decltype(_RemainSize)(7);
 			if (_RemainSize < RequiredSize) {
 				SetError();
@@ -154,7 +154,7 @@ private:
 			_RemainSize -= RequiredSize;
 			return;
 		}
-		if (Addr.IsV6()) {
+		if (Addr.Is6()) {
 			auto RequiredSize = decltype(_RemainSize)(19);
 			if (_RemainSize < RequiredSize) {
 				SetError();

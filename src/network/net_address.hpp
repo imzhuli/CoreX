@@ -23,8 +23,8 @@ struct xNetAddress final {
 	static_assert(sizeof(SA6) <= sizeof(__HOLDER__));
 
 	// methods:
-	X_INLINE bool     IsV4() const { return Type == IPV4; }
-	X_INLINE bool     IsV6() const { return Type == IPV6; }
+	X_INLINE bool     Is4() const { return Type == IPV4; }
+	X_INLINE bool     Is6() const { return Type == IPV6; }
 	X_INLINE explicit operator bool() const { return Type != UNSPEC; }
 
 	X_INLINE int AddressFamily() const {
@@ -45,7 +45,7 @@ struct xNetAddress final {
 	X_INLINE xNetAddress Decay() const { return { .Type = this->Type }; }
 
 	X_INLINE void Dump(sockaddr_in * Addr4Ptr) const {
-		assert(IsV4());
+		assert(Is4());
 		memset(Addr4Ptr, 0, sizeof(*Addr4Ptr));
 		auto & Addr4     = *Addr4Ptr;
 		Addr4.sin_family = AF_INET;
@@ -54,7 +54,7 @@ struct xNetAddress final {
 	}
 
 	X_INLINE void Dump(sockaddr_in6 * Addr6Ptr) const {
-		assert(IsV6());
+		assert(Is6());
 		memset(Addr6Ptr, 0, sizeof(*Addr6Ptr));
 		auto & Addr6      = *Addr6Ptr;
 		Addr6.sin6_family = AF_INET6;
@@ -63,11 +63,11 @@ struct xNetAddress final {
 	}
 
 	X_INLINE size_t Dump(sockaddr_storage * AddrStoragePtr) const {
-		if (IsV4()) {
+		if (Is4()) {
 			Dump((sockaddr_in *)AddrStoragePtr);
 			return sizeof(sockaddr_in);
 		}
-		if (IsV6()) {
+		if (Is6()) {
 			Dump((sockaddr_in6 *)AddrStoragePtr);
 			return sizeof(sockaddr_in6);
 		}
