@@ -9,6 +9,11 @@ static constexpr const size_t   DefaultMinConnectionId = 1024;
 // xTcpServiceClientConnectionHandle
 //////////////////////////
 
+xTcpServiceClientConnectionHandle::xTcpServiceClientConnectionHandle(xTcpService * Owner, xIndexId ConnectionId)
+	: Owner(Owner), Connection(Owner->GetConnection(ConnectionId)), ConnectionId(ConnectionId) {
+	Pass();
+}
+
 bool xTcpServiceClientConnectionHandle::IsValid() const {
 	auto VC = Owner->GetConnection(ConnectionId);
 	return VC && VC == Connection;

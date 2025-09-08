@@ -59,6 +59,9 @@ public:
 	X_API_MEMBER void          Kill() const;
 	X_API_MEMBER auto          operator->() const { return (xTcpServiceClientConnectionUserContext *)Connection; }
 
+public:
+	xTcpServiceClientConnectionHandle(xTcpService * Owner, xIndexId ConnectionId);
+
 private:
 	friend class xTcpService;
 	xTcpServiceClientConnectionHandle(xTcpService * Owner, xTcpServiceClientConnection * Connection)
