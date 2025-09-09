@@ -1,7 +1,7 @@
 
 #pragma once
-#include "../core/core_noop.hpp"
 #include "../core/core_time.hpp"
+#include "../core/functional.hpp"
 #include "../core/indexed_storage.hpp"
 #include "../core/list.hpp"
 #include "../network/tcp_connection.hpp"
