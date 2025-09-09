@@ -15,7 +15,6 @@
 #include <type_traits>
 #include <utility>
 
-
 #define X_BEGIN namespace xel {
 #define X_END }
 #define X_COMMON_BEGIN namespace xel { inline namespace common {
@@ -142,11 +141,6 @@ X_STATIC_INLINE constexpr auto UnsignedDiff(const T1 & Value, const T0 & FromVal
 
 template <typename T>
 X_STATIC_INLINE constexpr bool IsDefaultValue(const T & Target) { return Target == T{}; }
-
-template <typename...xArgs>
-X_STATIC_INLINE void NOOP(xArgs...) {}
-template <auto Ret, typename...xArgs>
-X_STATIC_INLINE auto NOOP(xArgs...) { return Ret; }
 
 X_STATIC_INLINE void Ignore(auto &&...) {}
 X_STATIC_INLINE void Touch(const auto &...) {}

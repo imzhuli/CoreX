@@ -1,13 +1,12 @@
 
 #pragma once
+#include "../core/core_noop.hpp"
 #include "../core/core_time.hpp"
 #include "../core/indexed_storage.hpp"
 #include "../core/list.hpp"
 #include "../network/tcp_connection.hpp"
 #include "../network/tcp_server.hpp"
 #include "./message.hpp"
-
-#include <functional>
 
 X_BEGIN
 
@@ -89,11 +88,11 @@ public:
 	using xOnClientClose     = std::function<void(const xTcpServiceClientConnectionHandle &)>;
 	using xOnClientPacket    = std::function<bool(const xTcpServiceClientConnectionHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t)>;
 
-	xOnClientConnected OnClientConnected = NOOP<const xTcpServiceClientConnectionHandle &>;
-	xOnClientKeepAlive OnClientKeepAlive = NOOP<const xTcpServiceClientConnectionHandle &>;
-	xOnClientClose     OnClientClose     = NOOP<const xTcpServiceClientConnectionHandle &>;
-	xOnClientClose     OnClientClean     = NOOP<const xTcpServiceClientConnectionHandle &>;
-	xOnClientPacket    OnClientPacket    = NOOP<true, const xTcpServiceClientConnectionHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t>;
+	xOnClientConnected OnClientConnected = Noop<>;
+	xOnClientKeepAlive OnClientKeepAlive = Noop<>;
+	xOnClientClose     OnClientClose     = Noop<>;
+	xOnClientClose     OnClientClean     = Noop<>;
+	xOnClientPacket    OnClientPacket    = Noop<true>;
 
 public:
 	X_API_MEMBER void SetMaxWriteBuffer(size_t Size);

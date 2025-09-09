@@ -1,13 +1,12 @@
 
 #pragma once
+#include "../core/core_noop.hpp"
 #include "../core/indexed_storage.hpp"
 #include "../core/list.hpp"
 #include "../network/tcp_connection.hpp"
 #include "../network/tcp_server.hpp"
 #include "../network/udp_channel.hpp"
 #include "./message.hpp"
-
-#include <functional>
 
 X_BEGIN
 
@@ -39,7 +38,7 @@ public:
 	X_API_MEMBER void PostMessage(const xNetAddress & RemoteAddress, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 
 	using xOnPacketCallback            = std::function<void(const xUdpServiceChannelHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t)>;
-	xOnPacketCallback OnPacketCallback = NOOP<const xUdpServiceChannelHandle &, xPacketCommandId, xPacketRequestId, ubyte *, size_t>;
+	xOnPacketCallback OnPacketCallback = Noop<>;
 
 private:
 	X_PRIVATE_MEMBER void OnData(xUdpChannel * ChannelPtr, ubyte * DataPtr, size_t DataSize, const xNetAddress & RemoteAddress) override;
