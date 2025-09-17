@@ -1,5 +1,6 @@
 #include <core/core_min.hpp>
 #include <core/core_stream.hpp>
+#include <core/functional.hpp>
 #include <core/indexed_storage.hpp>
 #include <core/string.hpp>
 #include <iostream>
@@ -8,6 +9,12 @@
 
 using namespace xel;
 using namespace std;
+
+class xTest {
+public:
+	void foo() const { cout << "const foo" << endl; }
+	void foo() { cout << "foo" << endl; }
+};
 
 int main(int argc, char ** argv) {
 
@@ -24,6 +31,13 @@ int main(int argc, char ** argv) {
 	cout << A4.ToString() << endl;
 	cout << A5.ToString() << endl;
 	cout << A6.ToString() << endl;
+
+	xTest test;
+
+	auto F = Delegate(&xTest::foo, &test);
+	F();
+	auto FC = Delegate(&xTest::foo, (const xTest *)&test);
+	FC();
 
 	return 0;
 }

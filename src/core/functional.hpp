@@ -41,4 +41,14 @@ namespace __detail__ {
 template <auto... V>
 constexpr const auto Noop = __detail__::xNoop<V...>();
 
+template <typename R, typename Class, typename... tArgs>
+auto Delegate(R (Class::*F)(tArgs...) const, const Class * P) {
+	return [F, P](tArgs... args) { return (P->*F)(args...); };
+}
+
+template <typename R, typename Class, typename... tArgs>
+auto Delegate(R (Class::*F)(tArgs...), Class * P) {
+	return [F, P](tArgs... args) { return (P->*F)(args...); };
+}
+
 X_END
