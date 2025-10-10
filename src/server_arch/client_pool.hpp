@@ -69,7 +69,7 @@ public:
 
 	using xOnTick            = std::function<void(uint64_t NowMS)>;
 	using xOnServerConnected = std::function<void(xClientConnection & CC)>;
-	using xOnServerClose     = std::function<void(const xClientConnection & CC)>;
+	using xOnServerClose     = std::function<void(xClientConnection & CC)>;
 	using xOnServerPacket    = std::function<bool(xClientConnection & CC, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize)>;
 
 	xOnTick            OnTick            = Noop<>;
