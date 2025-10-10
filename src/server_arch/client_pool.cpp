@@ -9,6 +9,24 @@ static constexpr const uint64_t MaxConnectTimeoutMS          = 5'000;
 static constexpr const uint64_t MaxKeepAliveTimeoutMS        = 5'000;
 static constexpr const uint64_t AutoReconnectTimeoutMS       = 3'000;
 
+// client connection:
+
+bool xClientConnection::PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
+	if (!IsOpen()) {
+		return false;
+	}
+
+	ubyte Buffer[MaxPacketSize];
+	auto  PSize = WriteMessage(Buffer, CmdId, RequestId, Message);
+	if (!PSize) {
+		return false;
+	}
+	PostData(Buffer, PSize);
+	return true;
+}
+
+// client pool
+
 bool xClientPool::Init(xIoContext * ICP, size_t MaxConnectionCount) {
 	this->ICP = ICP;
 	return ConnectionPool.Init(MaxConnectionCount);
@@ -36,10 +54,7 @@ void xClientPool::Tick(uint64_t NowMS) {
 	ReleaseConnections();
 	DoRequestKeepAlive();
 	DoAutoReconnect();
-	OnTick(Ticker());
-}
-
-void xClientPool::OnTick(uint64_t NowMS) {
+	OnTick(NowMS);
 }
 
 xIndexId xClientPool::AddServer(const xNetAddress & Address) {
@@ -52,6 +67,7 @@ xIndexId xClientPool::AddServer(const xNetAddress & Address) {
 	}
 	auto & Conn = ConnectionPool[CID];
 
+	Conn.Owner           = this;
 	Conn.ConnectionId    = CID;
 	Conn.InitTimestampMS = 0;
 	Conn.TargetAddress   = Address;
@@ -208,19 +224,6 @@ size_t xClientPool::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, s
 	return DataSize - RemainSize;
 }
 
-void xClientPool::OnServerConnected(xClientConnection & CC) {
-	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", CC.ConnectionId, CC.TargetAddress.ToString().c_str());
-}
-
-void xClientPool::OnServerClose(xClientConnection & CC) {
-	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", CC.ConnectionId, CC.TargetAddress.ToString().c_str());
-}
-
-bool xClientPool::OnServerPacket(xClientConnection & CC, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize) {
-	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s, CommandId=%" PRIx32 "", CC.ConnectionId, CC.TargetAddress.ToString().c_str(), CommandId);
-	return true;
-}
-
 bool xClientPool::PostData(const void * DataPtr, size_t DataSize) {
 	auto PC = static_cast<xClientConnection *>(EstablishedConnectionList.PopHead());
 	if (!PC) {
@@ -255,14 +258,7 @@ bool xClientPool::PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId
 		return false;
 	}
 	EstablishedConnectionList.AddTail(*PC);
-
-	ubyte Buffer[MaxPacketSize];
-	auto  PSize = WriteMessage(Buffer, CmdId, RequestId, Message);
-	if (!PSize) {
-		return false;
-	}
-	PC->PostData(Buffer, PSize);
-	return true;
+	return PostMessage(*PC, CmdId, RequestId, Message);
 }
 
 bool xClientPool::PostMessage(uint64_t ConnectionId, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
@@ -274,17 +270,7 @@ bool xClientPool::PostMessage(uint64_t ConnectionId, xPacketCommandId CmdId, xPa
 }
 
 bool xClientPool::PostMessage(xClientConnection & CC, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
-	if (!CC.IsOpen()) {
-		return false;
-	}
-
-	ubyte Buffer[MaxPacketSize];
-	auto  PSize = WriteMessage(Buffer, CmdId, RequestId, Message);
-	if (!PSize) {
-		return false;
-	}
-	CC.PostData(Buffer, PSize);
-	return true;
+	return CC.PostMessage(CmdId, RequestId, Message);
 }
 
 X_END

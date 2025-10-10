@@ -2,7 +2,6 @@
 #include "./core_min.hpp"
 
 #include <atomic>
-#include <functional>
 #include <memory>
 
 X_BEGIN

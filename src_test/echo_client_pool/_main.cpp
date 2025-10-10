@@ -14,22 +14,7 @@ struct xHello : public xBinaryMessage {
 	std::string HW = "hello world!";
 };
 
-struct xMyPool : public xClientPool {
-
-	void OnServerConnected(xClientConnection & CC) override {
-		xClientPool::OnServerConnected(CC);
-		auto HW = xHello();
-		auto PM = PostMessage(CC, 1, 2, HW);
-		X_RUNTIME_ASSERT(PM);
-	}
-
-	bool OnServerPacket(xClientConnection & CC, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize) override {
-		xClientPool::OnServerPacket(CC, CommandId, RequestId, PayloadPtr, PayloadSize);
-		X_DEBUG_PRINTF("?????????????????");
-		return true;
-	}
-};
-auto Pool = xMyPool();
+auto Pool = xClientPool();
 
 auto PoolGuard = xResourceGuard(Pool, &IC, 100);
 
@@ -39,6 +24,19 @@ uint64_t CID_Client;
 uint64_t CID_Release;
 
 void InitClientConn() {
+
+	Pool.OnServerConnected = [](xClientConnection & CC) {
+		X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", CC.GetConnectionId(), CC.GetTargetAddress().ToString().c_str());
+		auto HW = xHello();
+		auto PM = CC.PostMessage(1, 2, HW);
+		X_RUNTIME_ASSERT(PM);
+	};
+
+	Pool.OnServerPacket = [](xClientConnection & CC, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize) {
+		X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s, CommandId=%" PRIx32 "", CC.GetConnectionId(), CC.GetTargetAddress().ToString().c_str(), CommandId);
+		return true;
+	};
+
 	CID_Release = Pool.AddServer(TA_Client);
 	X_RUNTIME_ASSERT(CID_Release);
 }

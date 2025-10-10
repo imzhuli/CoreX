@@ -1,5 +1,6 @@
 #pragma once
 #include "../core/core_time.hpp"
+#include "../core/functional.hpp"
 #include "../core/indexed_storage.hpp"
 #include "../network/tcp_connection.hpp"
 #include "./message.hpp"
@@ -20,21 +21,26 @@ struct xClientConnectionTimeoutNode : xListNode {
 
 class xClientConnection
 	: public xTcpConnection
-	, public xCLientConnectionAvailableNode
-	, public xClientConnectionTimeoutNode {
+	, private xCLientConnectionAvailableNode
+	, private xClientConnectionTimeoutNode {
 	friend class xClientPool;
 
 public:
 	xVariable UserContext   = {};
 	xVariable UserContextEx = {};
 
+	X_INLINE xClientPool *       GetOwner() const { return Owner; }
 	X_INLINE xIndexId            GetConnectionId() const { return ConnectionId; }
 	X_INLINE const xNetAddress & GetTargetAddress() const { return TargetAddress; }
 
+	using xTcpConnection::PostData;
+	X_MEMBER bool PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
+
 private:
-	xIndexId    ConnectionId;
-	xNetAddress TargetAddress;
-	bool        ReleaseMark = false;
+	xClientPool * Owner;
+	xIndexId      ConnectionId;
+	xNetAddress   TargetAddress;
+	bool          ReleaseMark = false;
 };
 
 class xClientPool
@@ -61,11 +67,15 @@ public:
 	X_API_MEMBER uint64_t            GetTickTimeMS() const { return Ticker(); }
 	X_API_MEMBER xClientConnection * GetConnection(uint64_t ConnectionId);
 
-protected:
-	X_API_MEMBER virtual void OnTick(uint64_t NowMS);
-	X_API_MEMBER virtual void OnServerConnected(xClientConnection & CC);
-	X_API_MEMBER virtual void OnServerClose(xClientConnection & CC);
-	X_API_MEMBER virtual bool OnServerPacket(xClientConnection & CC, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize);
+	using xOnTick            = std::function<void(uint64_t NowMS)>;
+	using xOnServerConnected = std::function<void(xClientConnection & CC)>;
+	using xOnServerClose     = std::function<void(const xClientConnection & CC)>;
+	using xOnServerPacket    = std::function<bool(xClientConnection & CC, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize)>;
+
+	xOnTick            OnTick            = Noop<>;
+	xOnServerConnected OnServerConnected = Noop<>;
+	xOnServerClose     OnServerClose     = Noop<>;
+	xOnServerPacket    OnServerPacket    = Noop<true>;
 
 private:
 	X_PRIVATE_MEMBER void CheckTimeoutConnections();
