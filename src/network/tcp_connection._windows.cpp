@@ -130,6 +130,9 @@ void xTcpConnection::ResumeReading() {
 	}
 	ReadingState = eReadingState::READING;
 	AsyncAcquireInput();
+	if (IBP->ReadDataSize) {
+		this->ICP->DeferRead(*this);
+	}
 }
 
 void xTcpConnection::AsyncAcquireInput() {

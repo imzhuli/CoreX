@@ -97,6 +97,9 @@ void xTcpConnection::ResumeReading() {
 	}
 	ReadingState = eReadingState::READING;
 	this->ICP->Update(*this, true, true);
+	if (IBP->ReadDataSize) {
+		this->ICP->DeferRead(*this);
+	}
 }
 
 bool xTcpConnection::ReadData(xView<ubyte> & BufferView) {
