@@ -378,7 +378,7 @@ X_COMMON_END
 #endif
 
 #ifndef X_VAR
-#define X_VAR X_CONCAT_FORCE_EXPAND(__X_Variable__, __LINE__) 
+#define X_VAR auto X_CONCAT_FORCE_EXPAND(__X_Variable__, __LINE__) =
 #endif
 
 #ifndef X_COND_GUARD
