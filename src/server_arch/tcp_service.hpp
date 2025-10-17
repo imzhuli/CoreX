@@ -108,7 +108,7 @@ public:
 		TcpServiceConnectionTimeoutList.GrabTail(Connection);
 	}
 
-	X_INLINE xTcpServiceClientConnectionHandle GetConnectionHandle(uint64_t ConnectionId) { return { this, GetConnection(ConnectionId) }; }
+	X_INLINE xTcpServiceClientConnectionHandle GetConnectionHandle(uint64_t ConnectionId) { return { this, ConnectionId }; }
 
 private:
 	friend class xTcpServiceClientConnection;
