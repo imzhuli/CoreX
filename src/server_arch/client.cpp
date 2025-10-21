@@ -48,7 +48,6 @@ void xClient::OnTick(uint64_t NowMS) {
 }
 
 void xClient::OnServerConnected() {
-	// X_DEBUG_PRINTF("");
 }
 
 void xClient::OnPeerClose(xTcpConnection * TcpConnectionPtr) {
@@ -57,15 +56,12 @@ void xClient::OnPeerClose(xTcpConnection * TcpConnectionPtr) {
 }
 
 void xClient::OnServerClose() {
-	// X_DEBUG_PRINTF("");
 }
 
 void xClient::OnOpenServerConnection() {
-	// X_DEBUG_PRINTF("");
 }
 
 void xClient::OnCleanupServerConnection() {
-	// X_DEBUG_PRINTF("");
 }
 
 void xClient::Kill() {
@@ -78,7 +74,6 @@ void xClient::Kill() {
 void xClient::Tick(uint64_t NowMS) {
 	OnTick(this->NowMS = NowMS);
 	if (Steal(KillConnection)) {
-		// X_DEBUG_PRINTF("KillConnection");
 		assert(IsOpen());
 		OnCleanupServerConnection();
 		Connection.Clean();

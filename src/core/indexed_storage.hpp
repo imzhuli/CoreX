@@ -307,11 +307,9 @@ public:
 		auto NodePtr   = X_Entry(HolderPtr, const xNode, ValueHolder);
 		auto Index     = MakeUnsigned(NodePtr - _IdPoolPtr);
 		if (Index >= _InitedId) {
-			// X_DEBUG_PRINTF("overflow: Index=%zi, Inited=%zi", size_t(Index), size_t(_InitedId));
 			return 0;
 		}
 		if (!xIndexId::IsSafeKey(NodePtr->Key)) {
-			// X_DEBUG_PRINTF("invalid key: %" PRIx32 "", NodePtr->Key);
 			return 0;
 		}
 		return { (static_cast<uint64_t>(NodePtr->Key) << 32) + Index };
