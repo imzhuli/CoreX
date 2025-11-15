@@ -141,8 +141,8 @@ void xClientPool::CheckTimeoutConnections() {
 void xClientPool::KillAllConnections() {
 	while (auto PC = static_cast<xClientConnection *>(KillConnectionList.PopHead())) {
 		X_DEBUG_PRINTF(
-			"Killing ConnectionId=%" PRIx64 ", TargetAddress=%s, Open=%s, ReleaseMark=%s", PC->ConnectionId, PC->TargetAddress.ToString().c_str(), YN(PC->IsOpen()),
-			YN(PC->ReleaseMark)
+			"Killing ConnectionId=%" PRIx64 ", TargetAddress=%s, Open=%s, Connected=%s, ReleaseMark=%s", PC->ConnectionId, PC->TargetAddress.ToString().c_str(),
+			YN(PC->IsOpen()), YN(PC->IsConnected()), YN(PC->ReleaseMark)
 		);
 		if (PC->IsOpen()) {
 			if (PC->IsConnected()) {  // OnConnected is called, OnTargetClose may or maynot be called
@@ -189,8 +189,9 @@ void xClientPool::OnConnected(xTcpConnection * TcpConnectionPtr) {
 void xClientPool::OnPeerClose(xTcpConnection * TcpConnectionPtr) {
 	auto PC = static_cast<xClientConnection *>(TcpConnectionPtr);
 	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", PC->ConnectionId, PC->TargetAddress.ToString().c_str());
-
-	OnTargetClose(*PC);
+	if (PC->IsConnected()) {
+		OnTargetClose(*PC);
+	}
 	EstablishedConnectionList.Remove(*PC);
 	KillConnectionList.GrabTail(*PC);
 }
