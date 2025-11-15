@@ -68,14 +68,16 @@ public:
 	X_API_MEMBER xClientConnection * GetConnection(uint64_t ConnectionId);
 
 	using xOnTick            = std::function<void(uint64_t NowMS)>;
-	using xOnServerConnected = std::function<void(xClientConnection & CC)>;
-	using xOnServerClose     = std::function<void(xClientConnection & CC)>;
-	using xOnServerPacket    = std::function<bool(xClientConnection & CC, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize)>;
+	using xOnTargetConnected = std::function<void(xClientConnection & CC)>;
+	using xOnTargetClose     = std::function<void(xClientConnection & CC)>;
+	using xOnTargetClean     = std::function<void(xClientConnection & CC)>;
+	using xOnTargetPacket    = std::function<bool(xClientConnection & CC, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize)>;
 
 	xOnTick            OnTick            = Noop<>;
-	xOnServerConnected OnServerConnected = Noop<>;
-	xOnServerClose     OnServerClose     = Noop<>;
-	xOnServerPacket    OnServerPacket    = Noop<true>;
+	xOnTargetConnected OnTargetConnected = Noop<>;
+	xOnTargetClose     OnTargetClose     = Noop<>;
+	xOnTargetClean     OnTargetClean     = Noop<>;
+	xOnTargetPacket    OnTargetPacket    = Noop<true>;
 
 private:
 	X_PRIVATE_MEMBER void CheckTimeoutConnections();

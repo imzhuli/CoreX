@@ -145,6 +145,9 @@ void xClientPool::KillAllConnections() {
 			YN(PC->ReleaseMark)
 		);
 		if (PC->IsOpen()) {
+			if (PC->IsConnected()) {  // OnConnected is called, OnTargetClose may or maynot be called
+				OnTargetClean(*PC);
+			}
 			PC->Clean();
 		}
 
@@ -180,14 +183,14 @@ void xClientPool::OnConnected(xTcpConnection * TcpConnectionPtr) {
 	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", PC->ConnectionId, PC->TargetAddress.ToString().c_str());
 	DoKeepAlive(PC);
 	EstablishedConnectionList.AddTail(*PC);
-	OnServerConnected(*PC);
+	OnTargetConnected(*PC);
 }
 
 void xClientPool::OnPeerClose(xTcpConnection * TcpConnectionPtr) {
 	auto PC = static_cast<xClientConnection *>(TcpConnectionPtr);
 	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", PC->ConnectionId, PC->TargetAddress.ToString().c_str());
 
-	OnServerClose(*PC);
+	OnTargetClose(*PC);
 	EstablishedConnectionList.Remove(*PC);
 	KillConnectionList.GrabTail(*PC);
 }
@@ -214,7 +217,7 @@ size_t xClientPool::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, s
 		} else {
 			auto PayloadPtr  = xPacket::GetPayloadPtr(DataPtr);
 			auto PayloadSize = Header.GetPayloadSize();
-			if (!OnServerPacket(*PC, Header.CommandId, Header.RequestId, PayloadPtr, PayloadSize)) { /* packet error */
+			if (!OnTargetPacket(*PC, Header.CommandId, Header.RequestId, PayloadPtr, PayloadSize)) { /* packet error */
 				return InvalidDataSize;
 			}
 		}
