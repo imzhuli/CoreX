@@ -33,7 +33,7 @@ public:
 	X_INLINE xIndexId            GetConnectionId() const { return ConnectionId; }
 	X_INLINE const xNetAddress & GetTargetAddress() const { return TargetAddress; }
 
-	using xTcpConnection::PostData;
+	X_MEMBER bool PostData(const void * DataPtr, size_t DataSize);
 	X_MEMBER bool PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 
 private:

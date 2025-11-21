@@ -11,8 +11,16 @@ static constexpr const uint64_t AutoReconnectTimeoutMS       = 3'000;
 
 // client connection:
 
+X_MEMBER bool xClientConnection::PostData(const void * DataPtr, size_t DataSize) {
+	if (IsConnected()) {
+		return false;
+	}
+	xTcpConnection::PostData(DataPtr, DataSize);
+	return true;
+}
+
 bool xClientConnection::PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
-	if (!IsOpen()) {
+	if (!IsConnected()) {
 		return false;
 	}
 
@@ -21,7 +29,7 @@ bool xClientConnection::PostMessage(xPacketCommandId CmdId, xPacketRequestId Req
 	if (!PSize) {
 		return false;
 	}
-	PostData(Buffer, PSize);
+	xTcpConnection::PostData(Buffer, PSize);
 	return true;
 }
 
@@ -249,9 +257,6 @@ bool xClientPool::PostData(uint64_t ConnectionId, const void * DataPtr, size_t D
 }
 
 bool xClientPool::PostData(xClientConnection & CC, const void * DataPtr, size_t DataSize) {
-	if (!CC.IsOpen()) {
-		return false;
-	}
 	CC.PostData(DataPtr, DataSize);
 	return true;
 }

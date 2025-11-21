@@ -165,14 +165,14 @@ void xClient::SetMaxWriteBuffer(size_t Size) {
 }
 
 void xClient::PostRequestKeepAlive() {
-	if (!IsOpen() || KillConnection) {
+	if (!Connection.IsConnected() || KillConnection) {
 		return;
 	}
 	Connection.PostRequestKeepAlive();
 }
 
 void xClient::PostData(const void * DataPtr, size_t DataSize) {
-	if (!IsOpen() || KillConnection) {
+	if (!Connection.IsConnected() || KillConnection) {
 		return;
 	}
 	Connection.PostData(DataPtr, DataSize);
