@@ -1,3 +1,5 @@
+CompileFlags:
+  CompilationDatabase: ./_corex_build/
+
 Diagnostics:
   UnusedIncludes: None
-  

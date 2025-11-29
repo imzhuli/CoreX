@@ -1,3 +1,6 @@
+# stupid osx
+.DS_Store
+
 # Prerequisites
 *.d
 
@@ -48,7 +51,7 @@
 /test_assets
 __pycache__
 .vscode
-.DS_Store
+.cache
 *.swp
 *.log
 logs
