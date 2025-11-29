@@ -44,7 +44,6 @@ endfunction()
 
 build_app(cpp)
 build_app(object_id_manager)
-build_app(timer_wheel)
 
 
 if (NOT ${SERVER_SIDE_LIB_ONLY})
