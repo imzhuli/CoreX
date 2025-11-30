@@ -3,3 +3,8 @@ CompileFlags:
 
 Diagnostics:
   UnusedIncludes: None
+
+InlayHints:
+  Enabled: No
+  ParameterNames: Yes
+  DeducedTypes: Yes

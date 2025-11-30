@@ -48,29 +48,59 @@ xBaseLogger::~xBaseLogger() {
 	assert(!_LogFile);
 }
 
-bool xBaseLogger::Init(const char * PathPtr, bool AutoStdout) {
-	if (PathPtr) {
-		_LogFilename = PathPtr;
-	} else {
-		return (AutoStdout ? (_LogFile = stdout) : (_LogFile = nullptr));
+bool xBaseLogger::Init(const char * PathPtr) {
+	if (!PathPtr) {
+		return false;
+	};
+	if (!EnsureDirectoryExists(_LogFilename = PathPtr)) {
+		return false;
 	}
-	EnsureDirectoryExists(_LogFilename);
-	_LogFile = fopen(_LogFilename.string().c_str(), "at");
-	return _LogFile != nullptr;
+	return _LogFile = fopen(_LogFilename.string().c_str(), "at");
 }
 
 void xBaseLogger::Clean() {
-	if (_LogFile != stdout) {
-		fclose(Steal(_LogFile));
-	} else {
-		_LogFile = nullptr;
-	}
+	fclose(Steal(_LogFile));
+	Reset(_LogFilename);
 	SetLogLevel(eLogLevel::Debug);
 }
 
 void xBaseLogger::Log(eLogLevel ll, const char * fmt, ...) {
-	if (ll < _LogLevel || !_LogFile) {
+	if (ll < _LogLevel) {
 		return;
+	}
+
+	std::tm     brokenTime;
+	std::time_t now = std::time(nullptr);
+	XelLocalTime(&now, &brokenTime);
+
+	std::hash<std::thread::id> hasher;
+
+	va_list vaList;
+	va_start(vaList, fmt);
+
+	do {  // synchronized block
+		auto guard = std::lock_guard{ _SyncMutex };
+		fprintf(
+			_LogFile, "%c<%016zx>%02d%02d%02d:%02d%02d%02d ", gcHint[static_cast<size_t>(ll)], hasher(std::this_thread::get_id()), brokenTime.tm_year + 1900 - 2000,
+			brokenTime.tm_mon + 1, brokenTime.tm_mday, brokenTime.tm_hour, brokenTime.tm_min, brokenTime.tm_sec
+		);
+		vfprintf(_LogFile, fmt, vaList);
+		fputc('\n', _LogFile);
+	} while (false);
+	fflush(_LogFile);
+
+	va_end(vaList);
+	return;
+}
+
+void xStdLogger::Log(eLogLevel ll, const char * fmt, ...) {
+	if (ll < _LogLevel) {
+		return;
+	}
+
+	auto _LogFile = stdout;
+	if (ll == eLogLevel::Error || ll == eLogLevel::Fatal) {
+		_LogFile = stderr;
 	}
 
 	std::tm     brokenTime;

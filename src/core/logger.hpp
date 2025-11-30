@@ -71,31 +71,27 @@ public:
 	X_API_MEMBER xBaseLogger();
 	X_API_MEMBER ~xBaseLogger();
 
-	X_API_MEMBER bool Init(const char * PathPtr = nullptr, bool AutoStdout = true);
+	X_API_MEMBER bool Init(const char * PathPtr = nullptr);
 	X_API_MEMBER void Clean();
-
-	X_INLINE bool IsStdout() const { return _LogFile == stdout; }
 
 	X_API_MEMBER void SetLogLevel(eLogLevel ll) override { _LogLevel = ll; }
 	X_API_MEMBER void Log(eLogLevel ll, const char * fmt, ...) override;
-
-	X_API_MEMBER FILE * Lock() {
-		_SyncMutex.lock();
-		if (!_LogFile) {
-			_SyncMutex.unlock();
-		}
-		return _LogFile;
-	}
-	X_API_MEMBER void Unlock(FILE *&& ExpiringFilePtr) {
-		assert(ExpiringFilePtr == _LogFile);
-		_SyncMutex.unlock();
-	}
 
 private:
 	std::filesystem::path  _LogFilename;
 	std::mutex             _SyncMutex;
 	std::atomic<eLogLevel> _LogLevel{ eLogLevel::Debug };
 	FILE *                 _LogFile = nullptr;
+};
+
+class xStdLogger final : public xLogger {
+public:
+	X_API_MEMBER void SetLogLevel(eLogLevel ll) override { _LogLevel = ll; }
+	X_API_MEMBER void Log(eLogLevel ll, const char * fmt, ...) override;
+
+private:
+	std::mutex             _SyncMutex;
+	std::atomic<eLogLevel> _LogLevel{ eLogLevel::Debug };
 };
 
 class xMemoryLogger final : public xLogger {
