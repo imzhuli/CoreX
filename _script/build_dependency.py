@@ -29,7 +29,7 @@ for opt, arg in opts:
     if opt == "-s":
         server_side_lib_only = "ON"
         print("server-side lib only")
-    if opt == '-r':
+    if opt == "-r":
         xsetup.Release()
     pass
 xsetup.Output()
@@ -63,12 +63,15 @@ if not blibcurl.build():
 if not bws.build():
     exit
 
+
 def check_installed_lib_and_rename(old_file_name, new_file_name):
-    lib_path ="./_3rd_installed/lib/"
+    lib_path = "./_3rd_installed/lib/"
     old_file_name = lib_path + old_file_name
     new_file_name = lib_path + new_file_name
     if os.path.exists(old_file_name):
         os.rename(old_file_name, new_file_name)
+        os.remove(old_file_name)
+
 
 # post build:
 check_installed_lib_and_rename("libcurl-d.a", "libcurl.a")
