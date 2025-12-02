@@ -54,7 +54,7 @@ void xUdpChannel::PostData(const xNetAddress & Address, const void * DataPtr, si
 	if (SendResult == -1) {
 		auto Error = errno;
 		X_DEBUG_PRINTF("Udp send error: code=%i, description=%s", Error, strerror(Error));
-		Touch(Error);
+		Pass(Error);
 	}
 }
 

@@ -22,13 +22,13 @@ auto IgnoreTT(T...) {
 int main(int, char **) {
 
 	auto x = X();
-	Touch(x);
+	Pass(x);
 
 	int i = 0;
 	IgnoreTT(i);
 
 	xPF PF = IgnoreTT;
-	Touch(PF);
+	Pass(PF);
 
 	cout << IgnoreTT<true>() << endl;
 

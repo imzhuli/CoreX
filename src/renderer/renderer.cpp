@@ -39,7 +39,7 @@ bool xRenderer::Init(VkSurfaceKHR Surface_) {
 	if (!select_result.has_value()) {
 		auto Error = (vkb::PhysicalDeviceError)select_result.error().value();
 		X_DEBUG_PRINTF("error: %s", vkb::to_string(Error));
-		Touch(Error);
+		Pass(Error);
 		return false;
 	}
 	auto ChosenGPU     = select_result.value();

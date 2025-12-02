@@ -13,7 +13,7 @@ int main(int argc, char ** argv) {
 	for (uint64_t i = 0; i < 4400; ++i) {
 		auto NewId = OIM.Acquire();
 		// cout << "NewId: " << NewId << endl;
-		Touch(NewId);
+		Pass(NewId);
 	}
 
 	// for (uint64_t i = 1; i <= 4096; ++i) {
@@ -30,7 +30,7 @@ int main(int argc, char ** argv) {
 
 	for (uint64_t i = 0; i < 5000; ++i) {
 		auto NewId = OIM.Acquire();
-		Touch(NewId);
+		Pass(NewId);
 		if (NewId) {
 			cout << "--> NewId: " << NewId << endl;
 		}

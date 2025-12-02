@@ -13,7 +13,7 @@ X_BEGIN
 void xIoContext::Interrupt() {
 	struct kevent event;
 	EV_SET(&event, 0, EVFILT_USER, 0, NOTE_TRIGGER, 0, NULL);
-	kevent(Poller, &event, 1, NULL, 0, NULL);
+	Ignore(kevent(Poller, &event, 1, NULL, 0, NULL));
 }
 
 bool xIoContext::CreatePoller() {

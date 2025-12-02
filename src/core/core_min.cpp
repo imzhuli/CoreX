@@ -16,6 +16,10 @@ X_COMMON_BEGIN
 
 void Breakpoint() {}
 
+void QuickExit() {
+	QuickExit(EXIT_FAILURE);
+}
+
 void QuickExit(int ExitCode) {
 	Breakpoint();
 #ifdef X_SYSTEM_DARWIN

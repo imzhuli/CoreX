@@ -82,7 +82,7 @@ bool xTcpConnection::Init(xIoContext * IoContextPtr, const xNetAddress & TargetA
 				auto  LoadError = WSAIoctl(NativeSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), &ConnectEx, sizeof(ConnectEx), &dwBytes, NULL, NULL);
 				if (LoadError) {
 					auto ErrorCode = WSAGetLastError();
-					Touch(ErrorCode);
+					Pass(ErrorCode);
 					X_DEBUG_PRINTF("ErrorCode: %u\n", ErrorCode);
 					return false;
 				}

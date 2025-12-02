@@ -77,7 +77,7 @@ void xUdpChannel::PostData(const xNetAddress & Address, const void * DataPtr, si
 	auto             SendResult  = sendto(NativeSocket, (const char *)DataPtr, DataSize, 0, (const sockaddr *)&AddrStorage, (socklen_t)AddrLen);
 	if (SendResult == -1) {
 		auto Error = errno;
-		Touch(Error);
+		Pass(Error);
 		X_DEBUG_PRINTF("Udp send error: code=%i, description=%s", Error, strerror(Error));
 	}
 }

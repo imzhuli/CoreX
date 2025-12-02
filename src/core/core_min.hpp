@@ -116,7 +116,8 @@ X_STATIC_INLINE void ZeroFill(T* P, size_t L) { static_assert(!std::is_const_v<T
 template <typename T>
 X_STATIC_INLINE std::enable_if_t<std::is_array_v<T>> ZeroFill(T &Array) { ZeroFill(Array, Length(Array)); }
 
-[[noreturn]] X_API void QuickExit(int ExitCode = EXIT_FAILURE);
+[[noreturn]] X_API void QuickExit();
+[[noreturn]] X_API void QuickExit(int ExitCode);
 [[noreturn]] X_API void QuickExit(const char * PErrorMessage, int ExitCode = EXIT_FAILURE);
 [[noreturn]] X_STATIC_INLINE void Error(const char * message) { QuickExit(message);}
 [[noreturn]] X_STATIC_INLINE void Fatal(const char * message) { QuickExit(message); }
@@ -125,7 +126,7 @@ X_STATIC_INLINE std::enable_if_t<std::is_array_v<T>> ZeroFill(T &Array) { ZeroFi
 [[noreturn]] X_STATIC_INLINE void Unreachable() { QuickExit("Unreachable code is reached"); }
 
 X_API void Breakpoint();
-X_STATIC_INLINE void Pass() { }
+X_STATIC_INLINE void Pass(const auto &...) {}
 X_STATIC_INLINE void RuntimeAssert(bool cond/* reason */, const char * hint_on_failure = "RuntimeAssertionFailure") { if (!cond) { Fatal(hint_on_failure); } }
 
 template <typename T>
@@ -141,9 +142,6 @@ X_STATIC_INLINE constexpr auto UnsignedDiff(const T1 & Value, const T0 & FromVal
 
 template <typename T>
 X_STATIC_INLINE constexpr bool IsDefaultValue(const T & Target) { return Target == T{}; }
-
-X_STATIC_INLINE void Ignore(auto &&...) {}
-X_STATIC_INLINE void Touch(const auto &...) {}
 
 template <typename T>
 X_STATIC_INLINE void Construct(T & ExpiringTarget) { new (AddressOf(ExpiringTarget)) T; }
