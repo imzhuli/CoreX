@@ -50,7 +50,7 @@ private:
 	X_MEMBER bool PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 
 private:
-	xIndexId ConnectionId = {};
+	uint64_t ConnectionId = {};
 };
 
 class xTcpServiceClientConnectionHandle final {
@@ -66,7 +66,7 @@ public:
 	X_INLINE auto          operator->() const { return (xTcpServiceClientConnectionUserContext *)Connection; }
 
 public:
-	X_API_MEMBER xTcpServiceClientConnectionHandle(xTcpService * Owner, xIndexId ConnectionId);
+	X_API_MEMBER xTcpServiceClientConnectionHandle(xTcpService * Owner, uint64_t ConnectionId);
 
 private:
 	friend class xTcpService;
@@ -77,7 +77,7 @@ private:
 
 	xTcpService * const                 Owner        = nullptr;  // MUST be valid
 	xTcpServiceClientConnection * const Connection   = nullptr;  // valid in callbacks,
-	xIndexId const                      ConnectionId = 0;        // always checked by owner, use this for safety
+	uint64_t const                      ConnectionId = 0;        // always checked by owner, use this for safety
 };
 
 class xTcpService final

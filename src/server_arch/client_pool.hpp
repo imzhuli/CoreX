@@ -35,7 +35,7 @@ class xClientPoolConnection
 
 private:
 	X_INLINE xClientPool *       GetOwner() const { return Owner; }
-	X_INLINE xIndexId            GetConnectionId() const { return ConnectionId; }
+	X_INLINE uint64_t            GetConnectionId() const { return ConnectionId; }
 	X_INLINE const xNetAddress & GetTargetAddress() const { return TargetAddress; }
 
 	X_MEMBER bool PostData(const void * DataPtr, size_t DataSize);
@@ -43,7 +43,7 @@ private:
 
 private:
 	xClientPool * Owner;
-	xIndexId      ConnectionId;
+	uint64_t      ConnectionId;
 	xNetAddress   TargetAddress;
 	bool          ReleaseMark = false;
 };
@@ -52,14 +52,14 @@ class xClientPoolConnectionHandle final {
 public:
 	X_API_MEMBER bool      IsValid() const;
 	X_INLINE xClientPool * GetOwner() const { return Owner; }
-	X_INLINE xIndexId      GetConnectionId() const { return ConnectionId; }
+	X_INLINE uint64_t      GetConnectionId() const { return ConnectionId; }
 	X_INLINE xNetAddress   GetTargetAddress() const { return Connection->GetTargetAddress(); }
 	X_INLINE bool          PostData(const void * DataPtr, size_t DataSize) const { return Connection->PostData(DataPtr, DataSize); }
 	X_INLINE bool          PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const { return Connection->PostMessage(CmdId, RequestId, Message); }
 	X_INLINE auto          operator->() const { return (xClientPoolConnectionUserContext *)Connection; }
 
 public:
-	X_API_MEMBER xClientPoolConnectionHandle(xClientPool * Owner, xIndexId ConnectionId);
+	X_API_MEMBER xClientPoolConnectionHandle(xClientPool * Owner, uint64_t ConnectionId);
 
 private:
 	friend class xClientPool;
@@ -71,7 +71,7 @@ private:
 private:
 	xClientPool * const           Owner        = nullptr;  // MUST be valid
 	xClientPoolConnection * const Connection   = nullptr;  // valid in callbacks,
-	xIndexId const                ConnectionId = 0;        // always checked by owner, use this for safety
+	uint64_t const                ConnectionId = 0;        // always checked by owner, use this for safety
 };
 
 class xClientPool
@@ -84,8 +84,8 @@ public:
 	X_API_MEMBER void Tick();
 	X_API_MEMBER void Tick(uint64_t NowMS);
 
-	X_API_MEMBER xIndexId AddServer(const xNetAddress & Address);
-	X_API_MEMBER void     RemoveServer(xIndexId ConnectionId);
+	X_API_MEMBER uint64_t AddServer(const xNetAddress & Address);
+	X_API_MEMBER void     RemoveServer(uint64_t ConnectionId);
 
 	X_API_MEMBER bool PostData(const void * DataPtr, size_t DataSize);
 	X_API_MEMBER bool PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);

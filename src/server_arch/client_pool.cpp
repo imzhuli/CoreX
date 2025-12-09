@@ -35,7 +35,7 @@ bool xClientPoolConnection::PostMessage(xPacketCommandId CmdId, xPacketRequestId
 
 // client connection handle
 
-xClientPoolConnectionHandle::xClientPoolConnectionHandle(xClientPool * Owner, xIndexId ConnectionId)
+xClientPoolConnectionHandle::xClientPoolConnectionHandle(xClientPool * Owner, uint64_t ConnectionId)
 	: Owner(Owner), Connection(Owner->GetConnection(ConnectionId)), ConnectionId(ConnectionId) {
 	Pass();
 }
@@ -76,7 +76,7 @@ void xClientPool::Tick(uint64_t NowMS) {
 	OnTick(NowMS);
 }
 
-xIndexId xClientPool::AddServer(const xNetAddress & Address) {
+uint64_t xClientPool::AddServer(const xNetAddress & Address) {
 	if (!Address) {
 		return 0;
 	}
@@ -98,7 +98,7 @@ xClientPoolConnection * xClientPool::GetConnection(uint64_t ConnectionId) {
 	return ConnectionPool.CheckAndGet(ConnectionId);
 }
 
-void xClientPool::RemoveServer(xIndexId ConnectionId) {
+void xClientPool::RemoveServer(uint64_t ConnectionId) {
 	auto CCP = ConnectionPool.CheckAndGet(ConnectionId);
 	if (!CCP) {
 		return;

@@ -34,7 +34,7 @@ bool xTcpServiceClientConnection::PostMessage(xPacketCommandId CmdId, xPacketReq
 // xTcpServiceClientConnectionHandle
 //////////////////////////
 
-xTcpServiceClientConnectionHandle::xTcpServiceClientConnectionHandle(xTcpService * Owner, xIndexId ConnectionId)
+xTcpServiceClientConnectionHandle::xTcpServiceClientConnectionHandle(xTcpService * Owner, uint64_t ConnectionId)
 	: Owner(Owner), Connection(Owner->GetConnection(ConnectionId)), ConnectionId(ConnectionId) {
 	Pass();
 }
