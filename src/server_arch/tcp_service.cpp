@@ -6,6 +6,31 @@ static constexpr const uint64_t KeepAliveTimeoutMS     = 105'000;
 static constexpr const size_t   DefaultMinConnectionId = 1024;
 
 //////////////////////////
+// xTcpServiceClientConnection
+//////////////////////////
+
+bool xTcpServiceClientConnection::PostData(const void * DataPtr, size_t DataSize) {
+	if (!IsConnected()) {
+		return false;
+	}
+	xTcpConnection::PostData(DataPtr, DataSize);
+	return true;
+}
+
+bool xTcpServiceClientConnection::PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
+	if (!IsConnected()) {
+		return false;
+	}
+	ubyte Buffer[MaxPacketSize];
+	auto  PSize = WriteMessage(Buffer, CmdId, RequestId, Message);
+	if (!PSize) {
+		return false;
+	}
+	xTcpConnection::PostData(Buffer, PSize);
+	return true;
+}
+
+//////////////////////////
 // xTcpServiceClientConnectionHandle
 //////////////////////////
 
@@ -17,19 +42,6 @@ xTcpServiceClientConnectionHandle::xTcpServiceClientConnectionHandle(xTcpService
 bool xTcpServiceClientConnectionHandle::IsValid() const {
 	auto VC = Owner->GetConnection(ConnectionId);
 	return VC && VC == Connection;
-}
-
-void xTcpServiceClientConnectionHandle::PostData(const void * DataPtr, size_t DataSize) const {
-	Connection->PostData(DataPtr, DataSize);
-}
-
-void xTcpServiceClientConnectionHandle::PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const {
-	ubyte Buffer[MaxPacketSize];
-	auto  PSize = WriteMessage(Buffer, CmdId, RequestId, Message);
-	if (!PSize) {
-		return;
-	}
-	Connection->PostData(Buffer, PSize);
 }
 
 void xTcpServiceClientConnectionHandle::Kill() const {

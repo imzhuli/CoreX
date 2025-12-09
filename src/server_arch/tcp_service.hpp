@@ -41,25 +41,32 @@ class xTcpServiceClientConnection final
 	: public xTcpServiceClientConnectionUserContext
 	, private xTcpConnection
 	, private xTcpServiceClientConnectionNode {
+
+private:
 	friend class xTcpService;
 	friend class xTcpServiceClientConnectionHandle;
+
+	X_MEMBER bool PostData(const void * DataPtr, size_t DataSize);
+	X_MEMBER bool PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
+
+private:
 	xIndexId ConnectionId = {};
 };
 
-class xTcpServiceClientConnectionHandle {
+class xTcpServiceClientConnectionHandle final {
 public:
-	X_API_MEMBER bool          IsValid() const;
-	X_API_MEMBER xTcpService * GetOwner() const { return Owner; }
-	X_API_MEMBER uint64_t      GetConnectionId() const { return ConnectionId; }
-	X_API_MEMBER xNetAddress   GetLocalAddress() const { return Connection->GetLocalAddress(); }
-	X_API_MEMBER xNetAddress   GetRemoteAddress() const { return Connection->GetRemoteAddress(); }
-	X_API_MEMBER void          PostData(const void * DataPtr, size_t DataSize) const;
-	X_API_MEMBER void          PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const;
-	X_API_MEMBER void          Kill() const;
-	X_API_MEMBER auto          operator->() const { return (xTcpServiceClientConnectionUserContext *)Connection; }
+	X_API_MEMBER bool      IsValid() const;
+	X_INLINE xTcpService * GetOwner() const { return Owner; }
+	X_INLINE uint64_t      GetConnectionId() const { return ConnectionId; }
+	X_INLINE xNetAddress   GetLocalAddress() const { return Connection->GetLocalAddress(); }
+	X_INLINE xNetAddress   GetRemoteAddress() const { return Connection->GetRemoteAddress(); }
+	X_INLINE bool          PostData(const void * DataPtr, size_t DataSize) const { return Connection->PostData(DataPtr, DataSize); }
+	X_INLINE bool          PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const { return Connection->PostMessage(CmdId, RequestId, Message); }
+	X_INLINE void          Kill() const;
+	X_INLINE auto          operator->() const { return (xTcpServiceClientConnectionUserContext *)Connection; }
 
 public:
-	xTcpServiceClientConnectionHandle(xTcpService * Owner, xIndexId ConnectionId);
+	X_API_MEMBER xTcpServiceClientConnectionHandle(xTcpService * Owner, xIndexId ConnectionId);
 
 private:
 	friend class xTcpService;

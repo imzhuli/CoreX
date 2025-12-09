@@ -7,11 +7,12 @@
 
 X_BEGIN
 
-class xClientConnection;
 class xClientPool;
+class xClientPoolConnection;
+class xClientPoolConnectionHandle;
 
-struct xCLientConnectionAvailableNode : xListNode {};
-struct xClientConnectionTimeoutNode : xListNode {
+struct xClientPoolConnectionAvailableNode : xListNode {};
+struct xClientPoolConnectionTimeoutNode : xListNode {
 	union {
 		uint64_t InitTimestampMS;
 		uint64_t LastRequestKeepAliveTimestampMS;
@@ -19,16 +20,20 @@ struct xClientConnectionTimeoutNode : xListNode {
 	};
 };
 
-class xClientConnection
-	: public xTcpConnection
-	, private xCLientConnectionAvailableNode
-	, private xClientConnectionTimeoutNode {
-	friend class xClientPool;
-
-public:
+struct xClientPoolConnectionUserContext {
 	xVariable UserContext   = {};
 	xVariable UserContextEx = {};
+};
 
+class xClientPoolConnection
+	: public xClientPoolConnectionUserContext
+	, private xTcpConnection
+	, private xClientPoolConnectionAvailableNode
+	, private xClientPoolConnectionTimeoutNode {
+	friend class xClientPoolConnectionHandle;
+	friend class xClientPool;
+
+private:
 	X_INLINE xClientPool *       GetOwner() const { return Owner; }
 	X_INLINE xIndexId            GetConnectionId() const { return ConnectionId; }
 	X_INLINE const xNetAddress & GetTargetAddress() const { return TargetAddress; }
@@ -41,6 +46,32 @@ private:
 	xIndexId      ConnectionId;
 	xNetAddress   TargetAddress;
 	bool          ReleaseMark = false;
+};
+
+class xClientPoolConnectionHandle final {
+public:
+	X_API_MEMBER bool      IsValid() const;
+	X_INLINE xClientPool * GetOwner() const { return Owner; }
+	X_INLINE xIndexId      GetConnectionId() const { return ConnectionId; }
+	X_INLINE xNetAddress   GetTargetAddress() const { return Connection->GetTargetAddress(); }
+	X_INLINE bool          PostData(const void * DataPtr, size_t DataSize) const { return Connection->PostData(DataPtr, DataSize); }
+	X_INLINE bool          PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const { return Connection->PostMessage(CmdId, RequestId, Message); }
+	X_INLINE auto          operator->() const { return (xClientPoolConnectionUserContext *)Connection; }
+
+public:
+	X_API_MEMBER xClientPoolConnectionHandle(xClientPool * Owner, xIndexId ConnectionId);
+
+private:
+	friend class xClientPool;
+	xClientPoolConnectionHandle(xClientPool * Owner, xClientPoolConnection * Connection)
+		: Owner(Owner), Connection(Connection), ConnectionId(Connection->ConnectionId) {
+		Pass();
+	}
+
+private:
+	xClientPool * const           Owner        = nullptr;  // MUST be valid
+	xClientPoolConnection * const Connection   = nullptr;  // valid in callbacks,
+	xIndexId const                ConnectionId = 0;        // always checked by owner, use this for safety
 };
 
 class xClientPool
@@ -58,20 +89,18 @@ public:
 
 	X_API_MEMBER bool PostData(const void * DataPtr, size_t DataSize);
 	X_API_MEMBER bool PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize);
-	X_API_MEMBER bool PostData(xClientConnection & PC, const void * DataPtr, size_t DataSize);
 	X_API_MEMBER bool PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 	X_API_MEMBER bool PostMessage(uint64_t ConnectionId, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
-	X_API_MEMBER bool PostMessage(xClientConnection & PC, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 	X_API_MEMBER void KillAllConnections();
 
-	X_API_MEMBER uint64_t            GetTickTimeMS() const { return Ticker(); }
-	X_API_MEMBER xClientConnection * GetConnection(uint64_t ConnectionId);
+	X_INLINE uint64_t                    GetTickTimeMS() const { return Ticker(); }
+	X_INLINE xClientPoolConnectionHandle GetConnectionHandle(uint64_t ConnectionId) { return { this, ConnectionId }; }
 
 	using xOnTick            = std::function<void(uint64_t NowMS)>;
-	using xOnTargetConnected = std::function<void(xClientConnection & CC)>;
-	using xOnTargetClose     = std::function<void(xClientConnection & CC)>;
-	using xOnTargetClean     = std::function<void(xClientConnection & CC)>;
-	using xOnTargetPacket    = std::function<bool(xClientConnection & CC, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize)>;
+	using xOnTargetConnected = std::function<void(const xClientPoolConnectionHandle & CC)>;
+	using xOnTargetClose     = std::function<void(const xClientPoolConnectionHandle & CC)>;
+	using xOnTargetClean     = std::function<void(const xClientPoolConnectionHandle & CC)>;
+	using xOnTargetPacket    = std::function<bool(const xClientPoolConnectionHandle & CC, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize)>;
 
 	xOnTick            OnTick            = Noop<>;
 	xOnTargetConnected OnTargetConnected = Noop<>;
@@ -80,28 +109,34 @@ public:
 	xOnTargetPacket    OnTargetPacket    = Noop<true>;
 
 private:
+	friend class xClientPoolConnection;
+	friend class xClientPoolConnectionHandle;
+
+	X_API_MEMBER xClientPoolConnection * GetConnection(uint64_t ConnectionId);
+
+private:
 	X_PRIVATE_MEMBER void CheckTimeoutConnections();
 	X_PRIVATE_MEMBER void ReleaseConnections();
 	X_PRIVATE_MEMBER void DoRequestKeepAlive();
 	X_PRIVATE_MEMBER void DoAutoReconnect();
-	X_PRIVATE_MEMBER void DoKeepAlive(xClientConnection * PC);
+	X_PRIVATE_MEMBER void DoKeepAlive(xClientPoolConnection * PC);
 
 	X_PRIVATE_MEMBER void   OnConnected(xTcpConnection * TcpConnectionPtr) override;
 	X_PRIVATE_MEMBER void   OnPeerClose(xTcpConnection * TcpConnectionPtr) override;
 	X_PRIVATE_MEMBER size_t OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_t DataSize) override;
 
 private:
-	xIoContext *                       ICP = nullptr;
-	xIndexedStorage<xClientConnection> ConnectionPool;
-	xTicker                            Ticker;
+	xIoContext *                           ICP = nullptr;
+	xIndexedStorage<xClientPoolConnection> ConnectionPool;
+	xTicker                                Ticker;
 
-	xList<xCLientConnectionAvailableNode> EstablishedConnectionList;
-	xList<xClientConnectionTimeoutNode>   ReleaseConnectionList;
-	xList<xClientConnectionTimeoutNode>   KillConnectionList;
-	xList<xClientConnectionTimeoutNode>   AutoConnectionList;
-	xList<xClientConnectionTimeoutNode>   WaitForConnectionEstablishmentQueue;
-	xList<xClientConnectionTimeoutNode>   RequestKeepAliveQueue;
-	xList<xClientConnectionTimeoutNode>   WaitForKeepAliveQueue;
+	xList<xClientPoolConnectionAvailableNode> EstablishedConnectionList;
+	xList<xClientPoolConnectionTimeoutNode>   ReleaseConnectionList;
+	xList<xClientPoolConnectionTimeoutNode>   KillConnectionList;
+	xList<xClientPoolConnectionTimeoutNode>   AutoConnectionList;
+	xList<xClientPoolConnectionTimeoutNode>   WaitForConnectionEstablishmentQueue;
+	xList<xClientPoolConnectionTimeoutNode>   RequestKeepAliveQueue;
+	xList<xClientPoolConnectionTimeoutNode>   WaitForKeepAliveQueue;
 };
 
 X_END
