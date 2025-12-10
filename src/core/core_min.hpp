@@ -46,7 +46,7 @@ inline namespace numeric {
 	using size_t  = ::std::size_t;
 	using ssize_t = typename ::std::make_signed<size_t>::type;
 
-	static constexpr const size_t InvalidDataSize = static_cast<size_t>(-1);
+	constexpr const size_t InvalidDataSize = static_cast<size_t>(-1);
 
 }  // namespace numeric
 
@@ -90,7 +90,7 @@ struct xAbstract { protected: constexpr xAbstract() = default; virtual ~xAbstrac
 struct xNonCopyable { protected: constexpr xNonCopyable() = default; ~xNonCopyable() = default; xNonCopyable(xNonCopyable &&) = delete; };
 struct xNonCatchable final { private: constexpr xNonCatchable() = default; ~xNonCatchable() = default; };
 
-constexpr struct xNone final {} None;
+constexpr struct xNone final {} None{};
 constexpr struct xNoInit final {} NoInit{};
 constexpr struct xZeroInit final {} ZeroInit{};
 constexpr struct xDefaultInit final {} DefaultInit{};
@@ -232,7 +232,11 @@ private:
 
 public:
 	X_INLINE xValueGuard(T & Ref) : _Ref(Ref) { _OldValue = _Ref; }
-	X_INLINE xValueGuard(xValueGuard && Other) : _Ref(Other._Ref), _OldValue(std::move(Other._OldValue)), _DismissExit(Steal(Other._DismissExit, true)) { }
+	
+	X_INLINE xValueGuard(xValueGuard & Other) = delete ;
+	X_INLINE xValueGuard(xValueGuard && Other) = delete ;
+	X_INLINE xValueGuard(const xValueGuard & Other) = delete ;
+
 	X_INLINE ~xValueGuard() { if (_DismissExit) { return; } _Ref = _OldValue; }
 
 	template<typename U>
