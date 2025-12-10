@@ -56,13 +56,13 @@ private:
 class xTcpServiceClientConnectionHandle final {
 public:
 	X_API_MEMBER bool      IsValid() const;
+	X_API_MEMBER void      Kill() const;
 	X_INLINE xTcpService * GetOwner() const { return Owner; }
 	X_INLINE uint64_t      GetConnectionId() const { return ConnectionId; }
 	X_INLINE xNetAddress   GetLocalAddress() const { return Connection->GetLocalAddress(); }
 	X_INLINE xNetAddress   GetRemoteAddress() const { return Connection->GetRemoteAddress(); }
 	X_INLINE bool          PostData(const void * DataPtr, size_t DataSize) const { return Connection->PostData(DataPtr, DataSize); }
 	X_INLINE bool          PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const { return Connection->PostMessage(CmdId, RequestId, Message); }
-	X_INLINE void          Kill() const;
 	X_INLINE auto          operator->() const { return (xTcpServiceClientConnectionUserContext *)Connection; }
 
 public:
