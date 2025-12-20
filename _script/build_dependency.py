@@ -69,8 +69,7 @@ def check_installed_lib_and_rename(old_file_name, new_file_name):
     old_file_name = lib_path + old_file_name
     new_file_name = lib_path + new_file_name
     if os.path.exists(old_file_name):
-        os.rename(old_file_name, new_file_name)
-        os.remove(old_file_name)
+        os.replace(old_file_name, new_file_name)
 
 
 # post build:
