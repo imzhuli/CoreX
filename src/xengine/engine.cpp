@@ -20,19 +20,13 @@ using namespace std::chrono_literals;
 
 X_BEGIN
 
-static xBaseLogger EngineLogger;
-xLogger *          XELogger = &EngineLogger;
+static xStdLogger EngineLogger;
+xLogger *         XELogger = &EngineLogger;
 
 static xRunState           EngineRunState;
 static xThreadSynchronizer FrameSynchronizer;
 
 bool InitXEngine() {
-	if (!EngineLogger.Init()) {
-		cerr << "Failed to init logger" << endl;
-		return false;
-	}
-	auto LogCleaner = xScopeCleaner(EngineLogger);
-
 	if (!InitWSI()) {
 		cerr << "Failed to init wsi" << endl;
 		return false;
@@ -51,7 +45,6 @@ bool InitXEngine() {
 	}
 	auto CurlCleaner = xScopeGuard([] { curl_global_cleanup(); });
 
-	LogCleaner.Dismiss();
 	WSICleaner.Dismiss();
 	VkCleaner.Dismiss();
 	CurlCleaner.Dismiss();
@@ -62,7 +55,6 @@ void CleanXEngine() {
 	curl_global_cleanup();
 	CleanVulkan();
 	CleanWSI();
-	EngineLogger.Clean();
 	return;
 }
 

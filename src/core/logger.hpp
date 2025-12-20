@@ -71,7 +71,7 @@ public:
 	X_API_MEMBER xBaseLogger();
 	X_API_MEMBER ~xBaseLogger();
 
-	X_API_MEMBER bool Init(const char * PathPtr = nullptr);
+	X_API_MEMBER bool Init(const char * PathPtr);
 	X_API_MEMBER void Clean();
 
 	X_API_MEMBER void SetLogLevel(eLogLevel ll) override { _LogLevel = ll; }
