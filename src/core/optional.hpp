@@ -37,6 +37,13 @@ public:
 		return &(*_Holder);
 	}
 
+	X_INLINE void Reset() { Steal(_Valid) ? _Holder.Destroy() : Pass(); }
+	template <typename... tArgs>
+	X_INLINE void ResetValue(tArgs &&... Args) {
+		Steal(_Valid, true) ? _Holder.Destroy() : Pass();
+		_Holder.CreateValue(std::forward<tArgs>(Args)...);
+	}
+
 	X_INLINE xValueType *       Get() { return _Valid ? &(*_Holder) : nullptr; }
 	X_INLINE const xValueType * Get() const { return _Valid ? &(*_Holder) : nullptr; }
 	X_INLINE const xValueType & Or(const xValueType & DefaultValue) const { return _Valid ? *_Holder : DefaultValue; }

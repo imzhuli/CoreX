@@ -103,10 +103,6 @@ template <typename T> // eXpiring object to Reference to object
 template <typename T> // eXpiring object to Pointer to object
 [[nodiscard]] X_STATIC_INLINE std::remove_reference_t<T> * XP(T && ref) { return &ref; }
 
-template <typename T>
-[[nodiscard]] X_STATIC_INLINE constexpr std::conditional_t<std::is_const_v<T>, const void *, void *> AddressOf(T & obj) {
-	return &reinterpret_cast<std::conditional_t<std::is_const_v<T>, const unsigned char, unsigned char> &>(obj);
-}
 template <typename T, size_t L>
 [[nodiscard]] X_STATIC_INLINE constexpr size_t Length(const T (&)[L]) { return L; }
 template <typename... Args>
@@ -144,15 +140,6 @@ template <typename T>
 X_STATIC_INLINE constexpr bool IsDefaultValue(const T & Target) { return Target == T{}; }
 
 template <typename T>
-X_STATIC_INLINE void Construct(T & ExpiringTarget) { new (AddressOf(ExpiringTarget)) T; }
-template <typename T, typename... tArgs>
-X_STATIC_INLINE void ConstructValue(T & ExpiringTarget, tArgs &&... Args) { new (AddressOf(ExpiringTarget)) T(std::forward<tArgs>(Args)...); }
-template <typename T, typename... tArgs>
-X_STATIC_INLINE void ConstructValueWithList(T & ExpiringTarget, tArgs &&... Args) { new (AddressOf(ExpiringTarget)) T{ std::forward<tArgs>(Args)... }; }
-template <typename T>
-X_STATIC_INLINE void Destruct(T & ExpiringTarget) { ExpiringTarget.~T(); }
-
-template <typename T>
 X_STATIC_INLINE T * ConstructAt(void * P) { new (P) T; return static_cast<T *>(P); }
 template <typename T, typename... tArgs>
 X_STATIC_INLINE T * ConstructAtWith(void * P, tArgs &&... Args) { new (P) T(std::forward<tArgs>(Args)...); return static_cast<T *>(P); }
@@ -180,17 +167,9 @@ template <typename T>
 X_STATIC_INLINE void NoThrowDestructAt(void * P) noexcept { static_cast<T*>(P)->~T(); }
 
 template <typename T>
-X_STATIC_INLINE void Renew(T & ExpiringTarget) { ExpiringTarget.~T(); Construct(ExpiringTarget); }
-template <typename T, typename... tArgs>
-X_STATIC_INLINE void RenewValue(T & ExpiringTarget, tArgs &&... Args) { ExpiringTarget.~T(); ConstructValue(ExpiringTarget, std::forward<tArgs>(Args)...); }
-template <typename T, typename... tArgs>
-X_STATIC_INLINE void RenewValueWithList(T & ExpiringTarget, tArgs &&... Args) { ExpiringTarget.~T(); ConstructValueWithList(ExpiringTarget, std::forward<tArgs>(Args)...); }
-
-
-template <typename T>
-X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget) { RenewValue(ExpiringTarget); }
+X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget) { ExpiringTarget = std::remove_cv_t<T>{}; }
 template <typename T, typename TValue>
-X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget, TValue && value) { RenewValue(ExpiringTarget, std::forward<TValue>(value)); }
+X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget, TValue && value) { ExpiringTarget = std::forward<TValue>(value); }
 
 template <typename T>
 [[nodiscard]] X_STATIC_INLINE T Steal(T & ExpiringTarget) { T ret = std::move(ExpiringTarget); Reset(ExpiringTarget); return ret; }

@@ -59,7 +59,7 @@ public:
 		static_assert(Alignment >= alignof(T));
 		static_assert(sizeof(_PlaceHolder) >= sizeof(T));
 		static_assert(offsetof(xDummy, _PlaceHolder) == 0);
-		return X_Entry(AddressOf(*RealObjectPtr), xDummy, _PlaceHolder);
+		return X_Entry(std::addressof(*RealObjectPtr), xDummy, _PlaceHolder);
 	}
 
 	template <typename T>
@@ -67,7 +67,7 @@ public:
 		static_assert(Alignment >= alignof(T));
 		static_assert(sizeof(_PlaceHolder) >= sizeof(T));
 		static_assert(offsetof(xDummy, _PlaceHolder) == 0);
-		return *X_Entry(AddressOf(RealObject), xDummy, _PlaceHolder);
+		return *X_Entry(std::addressof(RealObject), xDummy, _PlaceHolder);
 	}
 
 private:

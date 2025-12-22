@@ -12,12 +12,12 @@ class xConfigLoader : xNonCopyable {
 
 public:
 	xConfigLoader() = default;
-	xConfigLoader(const char * filename) { RenewValue(ReaderOpt, filename); }
+	xConfigLoader(const char * filename) { ReaderOpt.ResetValue(filename); }
 	xConfigLoader(const std::string & filename)
 		: xConfigLoader(filename.c_str()) {}
 
-	X_INLINE void Reload(const char * filename) { RenewValue(ReaderOpt, filename); }
-	X_INLINE void Reload(const std::string & filename) { RenewValue(ReaderOpt, filename.c_str()); }
+	X_INLINE void Reload(const char * filename) { ReaderOpt.ResetValue(filename); }
+	X_INLINE void Reload(const std::string & filename) { ReaderOpt.ResetValue(filename.c_str()); }
 	X_INLINE      operator bool() const { return ReaderOpt && *ReaderOpt; }
 
 	void Require(std::string & Dst, const char * Key);
