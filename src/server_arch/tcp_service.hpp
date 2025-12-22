@@ -66,18 +66,19 @@ public:
 	X_INLINE auto          operator->() const { return (xTcpServiceClientConnectionUserContext *)Connection; }
 
 public:
-	X_API_MEMBER xTcpServiceClientConnectionHandle(xTcpService * Owner, uint64_t ConnectionId);
+	X_INLINE xTcpServiceClientConnectionHandle() = default;
 
 private:
 	friend class xTcpService;
-	xTcpServiceClientConnectionHandle(xTcpService * Owner, xTcpServiceClientConnection * Connection)
-		: Owner(Owner), Connection(Connection), ConnectionId(Connection->ConnectionId) {
+	X_INLINE xTcpServiceClientConnectionHandle(xTcpService * Owner, xTcpServiceClientConnection * Connection)
+		: Owner(Owner), Connection(Connection), ConnectionId(Connection -> ConnectionId) {
 		Pass();
 	}
+	X_API_MEMBER xTcpServiceClientConnectionHandle(xTcpService * Owner, uint64_t ConnectionId);
 
-	xTcpService * const                 Owner        = nullptr;  // MUST be valid
-	xTcpServiceClientConnection * const Connection   = nullptr;  // valid in callbacks,
-	uint64_t const                      ConnectionId = 0;        // always checked by owner, use this for safety
+	xTcpService *                 Owner        = nullptr;  //
+	xTcpServiceClientConnection * Connection   = nullptr;  // valid in callbacks,
+	uint64_t                      ConnectionId = 0;        // always checked by owner, use this for safety
 };
 
 class xTcpService final

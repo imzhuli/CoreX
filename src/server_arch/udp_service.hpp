@@ -15,6 +15,9 @@ class xUdpServiceChannelHandle;
 
 class xUdpServiceChannelHandle final {
 public:
+	X_INLINE xUdpServiceChannelHandle() = default;
+
+	X_API_MEMBER bool        IsValid() const;
 	X_API_MEMBER xNetAddress GetRemoteAddress() const { return RemoteAddress; }
 	X_API_MEMBER void        PostData(const void * DataPtr, size_t DataSize) const;
 	X_API_MEMBER void        PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) const;
@@ -24,8 +27,8 @@ private:
 	xUdpServiceChannelHandle(xUdpService * Service, const xNetAddress & RemoteAddress)
 		: Service(Service), RemoteAddress(RemoteAddress) {  //
 	}
-	xUdpService * const Service;
-	xNetAddress const   RemoteAddress;
+	xUdpService * Service       = nullptr;
+	xNetAddress   RemoteAddress = {};
 };
 
 class xUdpService final

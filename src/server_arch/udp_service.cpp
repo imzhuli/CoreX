@@ -4,6 +4,10 @@
 
 X_BEGIN
 
+bool xUdpServiceChannelHandle::IsValid() const {
+	return Service && RemoteAddress;
+}
+
 void xUdpServiceChannelHandle::PostData(const void * DataPtr, size_t DataSize) const {
 	return Service->PostData(RemoteAddress, DataPtr, DataSize);
 }

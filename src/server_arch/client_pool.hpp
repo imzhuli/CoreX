@@ -59,19 +59,20 @@ public:
 	X_INLINE auto          operator->() const { return (xClientPoolConnectionUserContext *)Connection; }
 
 public:
-	X_API_MEMBER xClientPoolConnectionHandle(xClientPool * Owner, uint64_t ConnectionId);
+	X_INLINE xClientPoolConnectionHandle() = default;
 
 private:
 	friend class xClientPool;
-	xClientPoolConnectionHandle(xClientPool * Owner, xClientPoolConnection * Connection)
-		: Owner(Owner), Connection(Connection), ConnectionId(Connection->ConnectionId) {
+	X_INLINE xClientPoolConnectionHandle(xClientPool * Owner, xClientPoolConnection * Connection)
+		: Owner(Owner), Connection(Connection), ConnectionId(Connection -> ConnectionId) {
 		Pass();
 	}
+	X_API_MEMBER xClientPoolConnectionHandle(xClientPool * Owner, uint64_t ConnectionId);
 
 private:
-	xClientPool * const           Owner        = nullptr;  // MUST be valid
-	xClientPoolConnection * const Connection   = nullptr;  // valid in callbacks,
-	uint64_t const                ConnectionId = 0;        // always checked by owner, use this for safety
+	xClientPool *           Owner        = nullptr;  // MUST be valid
+	xClientPoolConnection * Connection   = nullptr;  // valid in callbacks,
+	uint64_t                ConnectionId = 0;        // always checked by owner, use this for safety
 };
 
 class xClientPool

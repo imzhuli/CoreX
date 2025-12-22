@@ -41,7 +41,7 @@ xClientPoolConnectionHandle::xClientPoolConnectionHandle(xClientPool * Owner, ui
 }
 
 bool xClientPoolConnectionHandle::IsValid() const {
-	return Connection == Owner->GetConnection(ConnectionId);
+	return Owner && (Connection == Owner->GetConnection(ConnectionId));
 }
 
 // client pool

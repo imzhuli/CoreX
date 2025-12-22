@@ -32,12 +32,10 @@ class xIndexedStorage;
  * */
 class xIndexId final {
 public:
-	X_INLINE xIndexId() = default;
+	X_INLINE constexpr xIndexId() = default;
 	X_INLINE constexpr xIndexId(uint64_t Value)
-		: _Value(Value){};
-
-	X_INLINE constexpr          operator uint64_t() const { return _Value; }
-	X_INLINE constexpr uint64_t operator()() const { return _Value; }
+		: _Value(Value) {}
+	X_INLINE constexpr operator uint64_t() const { return _Value; }
 
 	X_INLINE uint32_t GetIndex() const { return static_cast<uint32_t>(_Value); }
 	X_INLINE uint32_t GetKey() const { return static_cast<uint32_t>(_Value >> 32); }

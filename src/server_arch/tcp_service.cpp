@@ -40,6 +40,9 @@ xTcpServiceClientConnectionHandle::xTcpServiceClientConnectionHandle(xTcpService
 }
 
 bool xTcpServiceClientConnectionHandle::IsValid() const {
+	if (!Owner) {
+		return false;
+	}
 	auto VC = Owner->GetConnection(ConnectionId);
 	return VC && VC == Connection;
 }
