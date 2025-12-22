@@ -294,7 +294,7 @@ public:
 	X_INLINE const tValue & operator[](const xIndexId & Id) const { return *IdPool[Id.GetIndex()].ValueHolder; }
 
 	X_INLINE xIndexId GetObjectId(const tValue * Reference) {
-		auto HolderPtr = xHolder<tValue>::O2H(Reference);
+		auto HolderPtr = xHolder<tValue>::GetHolder(Reference);
 		auto NodePtr   = X_Entry(HolderPtr, const xNode, ValueHolder);
 		auto Index     = MakeUnsigned(NodePtr - IdPool);
 		if (Index >= _InitedId) {

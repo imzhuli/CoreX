@@ -1,23 +1,29 @@
-#include <core/core_min.hpp>
-#include <core/core_stream.hpp>
 #include <core/core_value_util.hpp>
-#include <core/functional.hpp>
-#include <core/indexed_storage.hpp>
-#include <core/string.hpp>
 #include <iostream>
-#include <network/net_address.hpp>
-#include <object/object.hpp>
+#include <vector>
 
 using namespace xel;
 using namespace std;
 
 int main(int argc, char ** argv) {
 
-	auto H = xHolder<std::vector<int>>();
-	H.CreateValueWithList(3);
+	auto H = xAutoHolder<std::vector<int>>();
+	cout << H->size() << endl;
 
-	auto & V = *H;
-	RuntimeAssert(1 == V.size());
+	auto H1 = xAutoHolder<std::vector<int>>(3);
+	cout << H1->size() << endl;
+
+	auto H2 = xAutoHolder<std::vector<int>>{ 1, 2, 3, 4, 5 };
+	cout << H2->size() << endl;
+
+	H2.Reset();
+	cout << H2->size() << endl;
+
+	H2.ResetValue(123);
+	cout << H2->size() << endl;
+
+	H2.ResetValueWithList(1, 2);
+	cout << H2->size() << endl;
 
 	return 0;
 }
