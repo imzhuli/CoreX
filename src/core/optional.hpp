@@ -14,10 +14,17 @@ public:
 	X_INLINE ~xOptional() { Steal(_Valid) ? _Holder.Destroy() : Pass(); }
 
 	template <typename... tArgs>
-	xOptional(tArgs... Args) {
+	X_INLINE xOptional(tArgs... Args) {
 		_Holder.CreateValue(std::forward<tArgs>(Args)...);
 		_Valid = true;
 	}
+
+	template <typename U>
+	X_INLINE xOptional(std::initializer_list<U> Init) {
+		_Holder.CreateValueWithList(Init);
+		_Valid = true;
+	}
+
 	X_INLINE operator bool() const { return _Valid; }
 
 	X_INLINE xValueType & operator*() {
@@ -40,8 +47,15 @@ public:
 	X_INLINE void Reset() { Steal(_Valid) ? _Holder.Destroy() : Pass(); }
 	template <typename... tArgs>
 	X_INLINE void ResetValue(tArgs &&... Args) {
-		Steal(_Valid, true) ? _Holder.Destroy() : Pass();
+		Steal(_Valid) ? _Holder.Destroy() : Pass();
 		_Holder.CreateValue(std::forward<tArgs>(Args)...);
+		_Valid = true;
+	}
+	template <typename... tArgs>
+	X_INLINE void ResetValueWithList(tArgs &&... Args) {
+		Steal(_Valid) ? _Holder.Destroy() : Pass();
+		_Holder.CreateValueWithList(std::forward<tArgs>(Args)...);
+		_Valid = true;
 	}
 
 	X_INLINE xValueType *       Get() { return _Valid ? &(*_Holder) : nullptr; }
