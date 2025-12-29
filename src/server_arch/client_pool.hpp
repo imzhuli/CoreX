@@ -97,13 +97,11 @@ public:
 	X_INLINE uint64_t                    GetTickTimeMS() const { return Ticker(); }
 	X_INLINE xClientPoolConnectionHandle GetConnectionHandle(uint64_t ConnectionId) { return { this, ConnectionId }; }
 
-	using xOnTick            = std::function<void(uint64_t NowMS)>;
 	using xOnTargetConnected = std::function<void(const xClientPoolConnectionHandle & CC)>;
 	using xOnTargetClose     = std::function<void(const xClientPoolConnectionHandle & CC)>;
 	using xOnTargetClean     = std::function<void(const xClientPoolConnectionHandle & CC)>;
 	using xOnTargetPacket    = std::function<bool(const xClientPoolConnectionHandle & CC, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize)>;
 
-	xOnTick            OnTick            = Noop<>;
 	xOnTargetConnected OnTargetConnected = Noop<>;
 	xOnTargetClose     OnTargetClose     = Noop<>;
 	xOnTargetClean     OnTargetClean     = Noop<>;

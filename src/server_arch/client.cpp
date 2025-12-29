@@ -56,6 +56,7 @@ void xClient::Kill() {
 }
 
 void xClient::Tick(uint64_t NowMS) {
+	this->NowMS = NowMS;
 	if (Steal(KillConnection)) {
 		assert(IsOpen());
 		Connection.Clean();

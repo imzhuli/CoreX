@@ -73,7 +73,6 @@ void xClientPool::Tick(uint64_t NowMS) {
 	ReleaseConnections();
 	DoRequestKeepAlive();
 	DoAutoReconnect();
-	OnTick(NowMS);
 }
 
 uint64_t xClientPool::AddServer(const xNetAddress & Address) {
