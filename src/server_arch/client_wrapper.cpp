@@ -50,19 +50,4 @@ void xClientWrapper::PostMessage(xPacketCommandId CmdId, xPacketRequestId Reques
 	xClient::PostMessage(CmdId, RequestId, Message);
 }
 
-void xClientWrapper::OnServerConnected() {
-	assert(HasInstance);
-	OnConnected();
-}
-
-void xClientWrapper::OnServerClose() {
-	assert(HasInstance);
-	OnDisconnected();
-}
-
-bool xClientWrapper::OnServerPacket(xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize) {
-	assert(HasInstance);
-	return OnPacket(CommandId, RequestId, PayloadPtr, PayloadSize);
-}
-
 X_END

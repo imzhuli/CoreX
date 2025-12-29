@@ -24,7 +24,6 @@ bool xClient::Init(xIoContext * IoContextPtr, const xNetAddress & TargetAddress,
 
 void xClient::Clean() {
 	if (IsOpen()) {
-		OnCleanupServerConnection();
 		Connection.Clean();
 	}
 
@@ -44,24 +43,9 @@ void xClient::OnConnected(xTcpConnection * TcpConnectionPtr) {
 	OnServerConnected();
 }
 
-void xClient::OnTick(uint64_t NowMS) {
-}
-
-void xClient::OnServerConnected() {
-}
-
 void xClient::OnPeerClose(xTcpConnection * TcpConnectionPtr) {
-	OnServerClose();
+	OnServerDisconnected();
 	KillConnection = true;
-}
-
-void xClient::OnServerClose() {
-}
-
-void xClient::OnOpenServerConnection() {
-}
-
-void xClient::OnCleanupServerConnection() {
 }
 
 void xClient::Kill() {
@@ -72,10 +56,8 @@ void xClient::Kill() {
 }
 
 void xClient::Tick(uint64_t NowMS) {
-	OnTick(this->NowMS = NowMS);
 	if (Steal(KillConnection)) {
 		assert(IsOpen());
-		OnCleanupServerConnection();
 		Connection.Clean();
 		LastKeepAliveTimestampMS        = 0;
 		LastRequestKeepAliveTimestampMS = 0;
@@ -111,7 +93,6 @@ void xClient::Tick(uint64_t NowMS) {
 		Connection.SetMaxWriteBufferSize(MaxWriteBufferLimitForEachConnection);
 		LastKeepAliveTimestampMS        = NowMS;
 		LastRequestKeepAliveTimestampMS = NowMS;
-		OnOpenServerConnection();
 	}
 }
 
@@ -141,11 +122,6 @@ size_t xClient::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_
 		RemainSize -= PacketSize;
 	}
 	return DataSize - RemainSize;
-}
-
-bool xClient::OnServerPacket(xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize) {
-	X_DEBUG_PRINTF("CommandId: %" PRIu32 ", RequestId:%" PRIx64 ": \n%s", CommandId, RequestId, HexShow(PayloadPtr, PayloadSize).c_str());
-	return true;
 }
 
 void xClient::DisableKeepAliveOnTick() {

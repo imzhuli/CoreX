@@ -1,4 +1,5 @@
 #pragma once
+#include "../core/functional.hpp"
 #include "../network/tcp_connection.hpp"
 #include "./message.hpp"
 
@@ -26,15 +27,16 @@ public:
 	X_API_MEMBER void PostRequestKeepAlive();
 	X_API_MEMBER void Kill();
 
-protected:
-	X_API_MEMBER virtual void OnTick(uint64_t NowMS);
-	X_API_MEMBER virtual void OnServerConnected();
-	X_API_MEMBER virtual void OnServerClose();
-	X_API_MEMBER virtual bool OnServerPacket(xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize);
-	X_API_MEMBER virtual void OnOpenServerConnection();
-	X_API_MEMBER virtual void OnCleanupServerConnection();
+public:
+	using xOnServerConnected    = std::function<void()>;
+	using xOnServerDisconnected = std::function<void()>;
+	using xOnServerPacket       = std::function<bool(xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize)>;
 
-private:
+	xOnServerConnected    OnServerConnected    = Noop<>;
+	xOnServerDisconnected OnServerDisconnected = Noop<>;
+	xOnServerPacket       OnServerPacket       = Noop<true>;
+
+private:  // tcp connection listener
 	X_PRIVATE_MEMBER void   OnConnected(xTcpConnection * TcpConnectionPtr) override;
 	X_PRIVATE_MEMBER void   OnPeerClose(xTcpConnection * TcpConnectionPtr) override;
 	X_PRIVATE_MEMBER size_t OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_t DataSize) override;

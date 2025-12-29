@@ -15,18 +15,9 @@ public:
 	X_API_MEMBER void Tick(uint64_t NowMS);
 	X_API_MEMBER void Kill();
 
-	using xOnConnected    = std::function<void()>;
-	using xOnDisconnected = std::function<void()>;
-	using xOnPacket       = std::function<bool(xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize)>;
-
-	xOnConnected    OnConnected    = Noop<>;
-	xOnDisconnected OnDisconnected = Noop<>;
-	xOnPacket       OnPacket       = Noop<true>;
-
-private:
-	X_API_MEMBER void OnServerConnected() override;
-	X_API_MEMBER void OnServerClose() override;
-	X_API_MEMBER bool OnServerPacket(xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * PayloadPtr, size_t PayloadSize) override;
+	using xClient::OnServerConnected;
+	using xClient::OnServerDisconnected;
+	using xClient::OnServerPacket;
 
 private:
 	bool         HasInstance = false;
