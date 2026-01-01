@@ -167,7 +167,7 @@ template <typename T>
 X_STATIC_INLINE void NoThrowDestructAt(void * P) noexcept { static_cast<T*>(P)->~T(); }
 
 template <typename T>
-X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget) { ExpiringTarget = std::remove_cv_t<T>{}; }
+X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget) { auto Zero = std::remove_cv_t<T>{}; std::swap(ExpiringTarget, Zero); }
 template <typename T, typename TValue>
 X_STATIC_INLINE constexpr void Reset(T & ExpiringTarget, TValue && value) { ExpiringTarget = std::forward<TValue>(value); }
 

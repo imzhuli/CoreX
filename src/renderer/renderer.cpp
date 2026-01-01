@@ -169,8 +169,8 @@ void xRenderer::DestroySwapchain() {
 	DestroyFrameBuffers();
 	DestroyDefaultRenderPass();
 	Swapchain.destroy_image_views(SwapchainImageViews);
-	Renew(SwapchainImageViews);
-	Renew(SwapchainImages);
+	Reset(SwapchainImageViews);
+	Reset(SwapchainImages);
 	vkb::destroy_swapchain(Steal(Swapchain));
 	Reset(SwapchainImageFormat);
 
@@ -329,7 +329,7 @@ void xRenderer::DestroyFrameBuffers() {
 	for (auto FrameBuffer : FrameBuffers) {
 		vkDestroyFramebuffer(Device, FrameBuffer, nullptr);
 	}
-	Renew(FrameBuffers);
+	Reset(FrameBuffers);
 }
 
 bool xRenderer::RecreateSwapchain() {
