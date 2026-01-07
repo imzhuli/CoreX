@@ -71,6 +71,11 @@ def check_installed_lib_and_rename(old_file_name, new_file_name):
     if os.path.exists(old_file_name):
         os.replace(old_file_name, new_file_name)
 
+def check_installed_bin_and_remove(filename):
+    bin_path = "./_3rd_installed/bin/"
+    file_name = bin_path + filename
+    if os.path.exists(file_name):
+        os.remove(file_name)
 
 # post build:
 check_installed_lib_and_rename("libcurl-d.a", "libcurl.a")
@@ -80,6 +85,9 @@ check_installed_lib_and_rename("libcurl-d.lib", "curl.lib")
 check_installed_lib_and_rename("freetyped.lib", "freetype.lib")
 check_installed_lib_and_rename("websockets_static.lib", "websockets.lib")
 check_installed_lib_and_rename("zlibstaticd.lib", "z.lib")
+
+#
+check_installed_bin_and_remove("curl-config")
 
 # remove temp dir
 # cwd = os.getcwd()
