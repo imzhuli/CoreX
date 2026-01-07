@@ -254,7 +254,7 @@ public:
 
 	X_INLINE xIndexId GetObjectId(const tValue * Reference) {
 		auto HolderPtr = xHolder<tValue>::GetHolder(Reference);
-		auto NodePtr   = X_Entry(HolderPtr, const xNode, ValueHolder);
+		auto NodePtr   = X_Entry(HolderPtr, xNode, ValueHolder);
 		auto Index     = MakeUnsigned(NodePtr - _IdPoolPtr);
 		if (Index >= _InitedId) {
 			return 0;
