@@ -120,7 +120,7 @@ bool xDesktopWindow::Init(const xWindowSettings & Settings) {
 	glfwSetCursorPosCallback(win, &window_cursor_position_callback);
 	glfwSetWindowCloseCallback(win, &window_close_callback);
 
-	if (!CreateRenderSurface()) {
+	if (!CreateRenderer()) {
 		return false;
 	}
 
@@ -128,25 +128,16 @@ bool xDesktopWindow::Init(const xWindowSettings & Settings) {
 	return true;
 }
 
-bool xDesktopWindow::CreateRenderSurface() {
+bool xDesktopWindow::CreateRenderer() {
 	auto SurfaceHandle = (VkSurfaceKHR)VK_NULL_HANDLE;
 	auto SurfaceResult = glfwCreateWindowSurface(VulkanInstance, NativeHandle.Value, nullptr, &SurfaceHandle);
 	if (SurfaceResult != VK_SUCCESS) {
 		return false;
 	}
-	auto SurfaceHandleGuard = xScopeGuard([&] { vkDestroySurfaceKHR(VulkanInstance, Steal(SurfaceHandle), nullptr); });
 	if (!xRenderer::Spawn(std::move(SurfaceHandle))) {
 		return false;
 	}
-	SurfaceHandleGuard.Dismiss();
-
-	NativeSurfaceHandle = SurfaceHandle;
 	return true;
-}
-
-void xDesktopWindow::DestroyRenderSurface() {
-	assert(NativeSurfaceHandle != VK_NULL_HANDLE);
-	vkDestroySurfaceKHR(VulkanInstance, Steal(NativeSurfaceHandle, VK_NULL_HANDLE), nullptr);
 }
 
 void xDesktopWindow::OnCreated() {
@@ -162,7 +153,6 @@ void xDesktopWindow::OnCreated() {
 void xDesktopWindow::Close() {
 	assert(NativeHandle.Value);
 	xWindowUpdateList::Remove(*this);
-	DestroyRenderSurface();
 	glfwDestroyWindow(Steal(NativeHandle.Value));
 	OnClosed();
 }

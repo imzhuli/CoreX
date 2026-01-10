@@ -12,7 +12,7 @@ class xRenderer
 	: xRendererListNode
 	, xAbstract {
 private:
-	X_API_MEMBER virtual bool Init(VkSurfaceKHR Surface);
+	X_API_MEMBER virtual bool Init(VkSurfaceKHR && Surface);
 	X_API_MEMBER virtual void Clean();
 	X_API_MEMBER virtual void Render();
 
@@ -39,6 +39,11 @@ public:
 	X_PRIVATE_STATIC_MEMBER void CleanAll();
 
 private:
+	X_PRIVATE_STATIC_MEMBER void DeferDestroyRenderer(xRenderer * R);
+	X_PRIVATE_STATIC_MEMBER void DestroyDyingRenderers();
+
+private:
+	VkSurfaceKHR NativeSurfaceHandle;
 };
 
 X_END

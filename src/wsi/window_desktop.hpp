@@ -36,12 +36,10 @@ public:
 
 	//
 protected:
-	X_PRIVATE_MEMBER bool CreateRenderSurface();
-	X_PRIVATE_MEMBER void DestroyRenderSurface();
+	X_PRIVATE_MEMBER bool CreateRenderer();
 
 protected:
-	xNativeWindowHandle NativeHandle        = {};
-	VkSurfaceKHR        NativeSurfaceHandle = VK_NULL_HANDLE;
+	xNativeWindowHandle NativeHandle = {};
 
 private:
 	// shadow params

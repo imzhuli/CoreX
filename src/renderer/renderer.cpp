@@ -14,12 +14,13 @@ static auto NewRendererList    = xRendererList();
 static auto UpdateRendererList = xRendererList();
 static auto DeleteRendererList = xRendererList();
 
-bool xRenderer::Init(VkSurfaceKHR Surface_) {
-
+bool xRenderer::Init(VkSurfaceKHR && Surface) {
+	NativeSurfaceHandle = Steal(Surface, VK_NULL_HANDLE);
 	return true;
 }
 
 void xRenderer::Clean() {
+	vkDestroySurfaceKHR(VulkanInstance, Steal(NativeSurfaceHandle, VK_NULL_HANDLE), nullptr);
 	return;
 }
 
@@ -67,13 +68,39 @@ void xRenderer::Render() {
 }
 
 bool xRenderer::Spawn(VkSurfaceKHR && Surface) {
+	auto R = new xRenderer();
+	if (!R->Init(std::move(Surface))) {
+		delete R;
+		return false;
+	}
+	NewRendererList.AddTail(*R);
 	return true;
 }
 
 void xRenderer::UpdateAll() {
+	// Process new renderers
+
+	// update renderers:
+
+	// destroy dying renderers
+	DestroyDyingRenderers();
 }
 
 void xRenderer::CleanAll() {
+	DeleteRendererList.GrabListTail(NewRendererList);
+	DeleteRendererList.GrabListTail(UpdateRendererList);
+	DestroyDyingRenderers();
+}
+
+void xRenderer::DeferDestroyRenderer(xRenderer * R) {
+	DeleteRendererList.GrabTail(*R);
+}
+
+void xRenderer::DestroyDyingRenderers() {
+	while (auto P = static_cast<xRenderer *>(DeleteRendererList.PopHead())) {
+		P->Clean();
+		delete P;
+	}
 }
 
 X_END
