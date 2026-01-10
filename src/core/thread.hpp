@@ -114,7 +114,7 @@ public:
 	X_INLINE void Synchronize() {
 		Synchronize([] {});
 	}
-	X_INLINE void SynchronizeOnce(auto && OnLockedCallback) {
+	X_INLINE void ProtectedCall(auto && OnLockedCallback) {
 		auto lock = std::unique_lock(_Mutex);
 		std::forward<decltype(OnLockedCallback)>(OnLockedCallback)();
 	}

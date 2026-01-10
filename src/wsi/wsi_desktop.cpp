@@ -1,12 +1,12 @@
 #include "./wsi_desktop.hpp"
 
+#include "./window_desktop.hpp"
+
 #include <mutex>
 
 #ifdef X_SYSTEM_DESKTOP
 
 X_BEGIN
-
-X_PRIVATE void CleanupDyingWindows();
 
 static bool       Inited = false;
 static std::mutex InitMutex;
@@ -22,6 +22,14 @@ bool InitWSI() {
 	X_DEBUG_PRINTF("GLFW vulkan support: %s", YN(glfwVulkanSupported()));
 	Inited = true;
 	return true;
+}
+
+void WSILoopOnce(uint_fast32_t TimeoutMS) {
+	UpdateWindows(TimeoutMS);
+}
+
+void WSILoopClean() {
+	CleanupDyingWindows();
 }
 
 void CleanWSI() {

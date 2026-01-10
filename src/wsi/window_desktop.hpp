@@ -47,5 +47,8 @@ private:
 	bool FullScreen_ = false;
 };
 
+X_PRIVATE void UpdateWindows(uint64_t TimeoutMS);
+X_PRIVATE void CleanupDyingWindows();
+
 X_END
 #endif

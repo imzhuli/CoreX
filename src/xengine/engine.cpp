@@ -26,7 +26,8 @@ xLogger *         XELogger = &EngineLogger;
 static xRunState EngineRunState;
 
 namespace {
-	struct xTS : xNonCopyable {
+	static xThreadSynchronizer FrameSynchronizer = {};
+	static struct xTS : xNonCopyable {
 		xTS() {
 			FrameSynchronizer.Acquire();
 		}
@@ -37,11 +38,10 @@ namespace {
 		void Sync() {
 			FrameSynchronizer.Synchronize();
 		}
-
-		static xThreadSynchronizer FrameSynchronizer;
-	};
-
-	xThreadSynchronizer xTS::FrameSynchronizer = {};
+		void Sync(auto && CB) {
+			FrameSynchronizer.Synchronize(std::forward<decltype(CB)>(CB));
+		}
+	} TS;
 }  // namespace
 
 static bool InitXEngine() {
@@ -97,6 +97,7 @@ static void MainLoop() {
 	while (EngineRunState) {
 		// no need to call synchronizer here
 		WSILoopOnce();
+		FrameSynchronizer.ProtectedCall(WSILoopClean);
 	}
 }
 
