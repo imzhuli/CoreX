@@ -39,29 +39,6 @@ public:
 	X_PRIVATE_STATIC_MEMBER void CleanAll();
 
 private:
-	VkSurfaceKHR Surface = {};
-	vkb::Device  Device  = {};
-
-	bool                       SwapchainDirty       = true;
-	vkb::Swapchain             Swapchain            = {};
-	VkFormat                   SwapchainImageFormat = {};
-	std::vector<VkImage>       SwapchainImages      = {};
-	std::vector<VkImageView>   SwapchainImageViews  = {};
-	VkExtent2D                 SwapchainExtent      = {};
-	std::vector<VkFramebuffer> FrameBuffers         = {};
-
-	VkQueue         GraphicsQueue       = {};
-	uint32_t        GraphicsQueueFamily = {};
-	VkCommandPool   CommandPool         = {};
-	VkCommandBuffer MainCommandBuffer   = {};
-
-	VkRenderPass RenderPass = {};
-
-	VkSemaphore PresentSemaphore;
-	VkSemaphore RenderSemaphore;
-	VkFence     RenderFence;
-
-	size_t FrameNumber = {};
 };
 
 X_END

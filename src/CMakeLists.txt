@@ -75,7 +75,6 @@ if (NOT ${SERVER_SIDE_LIB_ONLY})
 	# add 3rd lib files
 	aux_source_directory(./3rd/stb_image         X_3RD_SRC)
 	aux_source_directory(./3rd/tiny_obj_loader   X_3RD_SRC)
-	aux_source_directory(./3rd/vk_bootstrap      X_3RD_SRC)
 	aux_source_directory(./3rd/vk_mem_alloc      X_3RD_SRC)
 endif()
 

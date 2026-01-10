@@ -139,7 +139,14 @@ bool xDesktopWindow::CreateRenderSurface() {
 		return false;
 	}
 	SurfaceHandleGuard.Dismiss();
+
+	NativeSurfaceHandle = SurfaceHandle;
 	return true;
+}
+
+void xDesktopWindow::DestroyRenderSurface() {
+	assert(NativeSurfaceHandle != VK_NULL_HANDLE);
+	vkDestroySurfaceKHR(VulkanInstance, Steal(NativeSurfaceHandle, VK_NULL_HANDLE), nullptr);
 }
 
 void xDesktopWindow::OnCreated() {
@@ -155,6 +162,7 @@ void xDesktopWindow::OnCreated() {
 void xDesktopWindow::Close() {
 	assert(NativeHandle.Value);
 	xWindowUpdateList::Remove(*this);
+	DestroyRenderSurface();
 	glfwDestroyWindow(Steal(NativeHandle.Value));
 	OnClosed();
 }

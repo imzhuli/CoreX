@@ -9,11 +9,13 @@ static xWindowSettings WindowSettings = {
 };
 
 int main(int, char **) {
-	RunXEngine({ [] { WindowPtr = CreateWindow(WindowSettings); },
-				 [] {
-					 if (WindowPtr) {
-						 DestroyWindow(Steal(WindowPtr));
-					 }
-				 } });
+	auto InitOptions    = XEngineInitOptions();
+	InitOptions.OnStart = [] { WindowPtr = CreateWindow(WindowSettings); };
+	InitOptions.OnStop  = [] {
+        if (WindowPtr) {
+            DestroyWindow(Steal(WindowPtr));
+        }
+	};
+	RunXEngine(InitOptions);
 	return 0;
 }

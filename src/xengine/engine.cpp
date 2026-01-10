@@ -24,54 +24,63 @@ static xStdLogger EngineLogger;
 xLogger *         XELogger = &EngineLogger;
 
 static xRunState           EngineRunState;
-static xThreadSynchronizer FrameSynchronizer;
 
-bool InitXEngine() {
+namespace {
+	struct xTS : xNonCopyable {
+		xTS() {
+			FrameSynchronizer.Acquire();
+		}
+		~xTS() {
+			FrameSynchronizer.Release();
+		}
+
+		void Sync() { 
+			FrameSynchronizer.Synchronize();
+		}
+
+		static xThreadSynchronizer FrameSynchronizer;
+	};
+
+	xThreadSynchronizer xTS::FrameSynchronizer = {};
+}
+
+static bool InitXEngine() {
 	if (!InitWSI()) {
 		cerr << "Failed to init wsi" << endl;
 		return false;
 	}
-	auto WSICleaner = xScopeGuard([] { CleanWSI(); });
+	auto WSICleaner = xScopeGuard(CleanWSI);
 
 	if (!InitVulkan()) {
 		cerr << "Failed to init vulkan" << endl;
 		return false;
 	}
-	auto VkCleaner = xScopeGuard([] { CleanVulkan(); });
-
-	if (curl_global_init(CURL_GLOBAL_ALL)) {
-		cerr << "Failed to init curl" << endl;
-		return false;
-	}
-	auto CurlCleaner = xScopeGuard([] { curl_global_cleanup(); });
+	auto VkCleaner = xScopeGuard(CleanVulkan);
 
 	WSICleaner.Dismiss();
 	VkCleaner.Dismiss();
-	CurlCleaner.Dismiss();
 	return true;
 }
 
-void CleanXEngine() {
-	curl_global_cleanup();
+static void CleanXEngine() {
 	CleanVulkan();
 	CleanWSI();
 	return;
 }
 
-void FrameLimitThreadFunction() {
+static void FrameLimitThreadFunction() {
 	xTimer Timer;
-	FrameSynchronizer.Acquire();
+	auto TS = xTS();
 	while (EngineRunState) {
 		std::this_thread::sleep_for(1ms);
-		FrameSynchronizer.Synchronize();
+		TS.Sync();
 	}
-	FrameSynchronizer.Release();
 }
 
-void RenderThreadFunction() {
+static void RenderThreadFunction() {
 	size_t FrameCounter = 0;
 	xTimer Timer;
-	FrameSynchronizer.Acquire();
+	auto TS = xTS();
 	while (EngineRunState) {
 		++FrameCounter;
 		if (Timer.TestAndTag(std::chrono::seconds(1))) {
@@ -79,20 +88,19 @@ void RenderThreadFunction() {
 			FrameCounter = 0;
 		}
 		xRenderer::UpdateAll();
-		FrameSynchronizer.Synchronize();
+		TS.Sync();
 	}
-	FrameSynchronizer.Release();
 	xRenderer::CleanAll();
 }
 
-void MainLoop() {
+static void MainLoop() {
 	while (EngineRunState) {
 		// no need to call synchronizer here
 		WSILoopOnce();
 	}
 }
 
-void RunXEngine(XEngineScopeCallback Callbacks) {
+void RunXEngine(const XEngineInitOptions & InitOptions) {
 	if (!EngineRunState.Start()) {
 		cerr << "RunXEngine failed: multiple engine instance" << endl;
 		return;
@@ -104,9 +112,10 @@ void RunXEngine(XEngineScopeCallback Callbacks) {
 		return;
 	}
 
-	if (Callbacks.OnStart) {
-		Callbacks.OnStart();
-	}
+	auto OnStart = InitOptions.OnStart;
+	auto OnStop = InitOptions.OnStop;
+
+	OnStart();
 
 	auto RenderThread     = std::thread(RenderThreadFunction);
 	auto FrameLimitThread = std::thread(FrameLimitThreadFunction);
@@ -114,9 +123,8 @@ void RunXEngine(XEngineScopeCallback Callbacks) {
 	FrameLimitThread.join();
 	RenderThread.join();
 
-	if (Callbacks.OnStop) {
-		Callbacks.OnStop();
-	}
+	OnStop();
+
 	CleanXEngine();
 }
 
