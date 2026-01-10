@@ -81,9 +81,43 @@ private:
 	Context      _Coutnexts[2];
 
 public:
-	X_API_MEMBER void Acquire();
-	X_API_MEMBER void Release();
-	X_API_MEMBER void Synchronize();
+	X_INLINE void Acquire() {
+		auto lock = std::unique_lock(_Mutex);
+		++_TotalSize;
+	}
+	X_INLINE void Release() {
+		auto   lock    = std::unique_lock(_Mutex);
+		auto & context = _Coutnexts[_ActiveContext];
+		if (--_TotalSize == context.xWaitingCount && _TotalSize != 0) {
+			do {
+				context.xWaitingCount = 0;
+				std::swap(_ActiveContext, _OtherContext);
+			} while (false);
+			context.xCondtion.notify_all();
+		}
+	}
+	X_INLINE void Synchronize(auto && OnLockedCallback) {
+		auto lock = std::unique_lock(_Mutex);
+		std::forward<decltype(OnLockedCallback)>(OnLockedCallback)();
+
+		auto & context = _Coutnexts[_ActiveContext];
+		if (++context.xWaitingCount == _TotalSize) {
+			do {
+				context.xWaitingCount = 0;
+				std::swap(_ActiveContext, _OtherContext);
+			} while (false);
+			context.xCondtion.notify_all();
+		} else {
+			context.xCondtion.wait(lock, [&context] { return context.xWaitingCount == 0; });
+		}
+	}
+	X_INLINE void Synchronize() {
+		Synchronize([] {});
+	}
+	X_INLINE void SynchronizeOnce(auto && OnLockedCallback) {
+		auto lock = std::unique_lock(_Mutex);
+		std::forward<decltype(OnLockedCallback)>(OnLockedCallback)();
+	}
 };
 
 namespace __detail__ {

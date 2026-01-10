@@ -13,7 +13,7 @@ int main(int, char **) {
 	InitOptions.OnStart = [] { WindowPtr = CreateWindow(WindowSettings); };
 	InitOptions.OnStop  = [] {
         if (WindowPtr) {
-            DestroyWindow(Steal(WindowPtr));
+            DeferDestroyWindow(Steal(WindowPtr));
         }
 	};
 	RunXEngine(InitOptions);

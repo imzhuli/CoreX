@@ -23,7 +23,7 @@ X_BEGIN
 static xStdLogger EngineLogger;
 xLogger *         XELogger = &EngineLogger;
 
-static xRunState           EngineRunState;
+static xRunState EngineRunState;
 
 namespace {
 	struct xTS : xNonCopyable {
@@ -34,7 +34,7 @@ namespace {
 			FrameSynchronizer.Release();
 		}
 
-		void Sync() { 
+		void Sync() {
 			FrameSynchronizer.Synchronize();
 		}
 
@@ -42,7 +42,7 @@ namespace {
 	};
 
 	xThreadSynchronizer xTS::FrameSynchronizer = {};
-}
+}  // namespace
 
 static bool InitXEngine() {
 	if (!InitWSI()) {
@@ -70,7 +70,7 @@ static void CleanXEngine() {
 
 static void FrameLimitThreadFunction() {
 	xTimer Timer;
-	auto TS = xTS();
+	auto   TS = xTS();
 	while (EngineRunState) {
 		std::this_thread::sleep_for(1ms);
 		TS.Sync();
@@ -80,7 +80,7 @@ static void FrameLimitThreadFunction() {
 static void RenderThreadFunction() {
 	size_t FrameCounter = 0;
 	xTimer Timer;
-	auto TS = xTS();
+	auto   TS = xTS();
 	while (EngineRunState) {
 		++FrameCounter;
 		if (Timer.TestAndTag(std::chrono::seconds(1))) {
@@ -113,7 +113,7 @@ void RunXEngine(const XEngineInitOptions & InitOptions) {
 	}
 
 	auto OnStart = InitOptions.OnStart;
-	auto OnStop = InitOptions.OnStop;
+	auto OnStop  = InitOptions.OnStop;
 
 	OnStart();
 

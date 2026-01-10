@@ -6,7 +6,9 @@
 
 X_BEGIN
 
-static bool		  Inited = false;
+X_PRIVATE void CleanupDyingWindows();
+
+static bool       Inited = false;
 static std::mutex InitMutex;
 
 bool InitWSI() {
@@ -23,6 +25,7 @@ bool InitWSI() {
 }
 
 void CleanWSI() {
+	CleanupDyingWindows();
 	auto InitGuard = std::lock_guard(InitMutex);
 	glfwTerminate();
 	Inited = false;

@@ -11,6 +11,7 @@ struct xNativeWindowHandle {
 
 class xDesktopWindow
 	: public iWindow
+	, public xWindowLifeCycleListNode
 	, public xWindowUpdateListNode {
 public:
 	X_PRIVATE_MEMBER bool Init(const xWindowSettings & Settings) override;

@@ -75,12 +75,17 @@ public:
 
 struct xWindowUpdateListNode : xListNode {};
 using xWindowUpdateList = xList<xWindowUpdateListNode>;
+struct xWindowLifeCycleListNode : xListNode {
+	bool Active = true;
+};
+using xWindowActiveList  = xList<xWindowLifeCycleListNode>;
+using xWindowDestroyList = xList<xWindowLifeCycleListNode>;
 
 X_API bool InitWSI();
 X_API void CleanWSI();
 
 X_API iWindow * CreateWindow(const xWindowSettings & Settings = {});
-X_API void      DestroyWindow(iWindow * WindowPtr);
+X_API void      DeferDestroyWindow(iWindow * WindowPtr);
 X_API void      WSILoopOnce(uint_fast32_t TimeoutMS = 1);
 X_API bool      WSIHasOpenWindow();
 

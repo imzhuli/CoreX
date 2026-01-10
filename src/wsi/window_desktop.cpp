@@ -9,7 +9,9 @@
 #ifdef X_SYSTEM_DESKTOP
 X_BEGIN
 
-static xWindowUpdateList WindowUpdateList;
+static xWindowActiveList  WindowActiveList;
+static xWindowDestroyList WindowDestroyList;
+static xWindowUpdateList  WindowUpdateList;
 
 bool WSIHasOpenWindow() {
 	return !WindowUpdateList.IsEmpty();
@@ -65,15 +67,24 @@ iWindow * CreateWindow(const xWindowSettings & Settings) {
 	return WindowPtr;
 }
 
-void DestroyWindow(iWindow * WindowPtr) {
-	WindowPtr->Clean();
-	delete WindowPtr;
+void DeferDestroyWindow(iWindow * I) {
+	auto W = static_cast<xDesktopWindow *>(I);
+	if (Steal(W->Active)) {
+		WindowDestroyList.GrabTail(*W);
+	}
+}
+
+void CleanupDyingWindows() {
+	while (auto P = static_cast<xDesktopWindow *>(WindowDestroyList.PopHead())) {
+		P->Clean();
+		delete P;
+	}
 }
 
 bool xDesktopWindow::Init(const xWindowSettings & Settings) {
 	glfwDefaultWindowHints();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
+	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 	glfwWindowHint(GLFW_RESIZABLE, Settings.Resizable ? GLFW_TRUE : GLFW_FALSE);
 	glfwWindowHint(GLFW_DECORATED, !Settings.Borderless ? GLFW_TRUE : GLFW_FALSE);
 #ifdef TARGET_OS_MAC
@@ -119,6 +130,7 @@ bool xDesktopWindow::Init(const xWindowSettings & Settings) {
 	glfwSetKeyCallback(win, &window_key_callback);
 	glfwSetCursorPosCallback(win, &window_cursor_position_callback);
 	glfwSetWindowCloseCallback(win, &window_close_callback);
+	Settings.Hidden ? Pass() : glfwShowWindow(win);
 
 	if (!CreateRenderer()) {
 		return false;
