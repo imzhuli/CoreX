@@ -3,19 +3,19 @@
 
 using namespace xel;
 
-static iWindow *       WindowPtr      = nullptr;
-static xWindowSettings WindowSettings = {
+iWindow *       WindowPtr      = nullptr;
+xWindowSettings WindowSettings = {
 	// .WindowMode = eWindowMode::FullScreen,
 };
 
 int main(int, char **) {
-	auto InitOptions    = XEngineInitOptions();
-	InitOptions.OnStart = [] { WindowPtr = CreateWindow(WindowSettings); };
-	InitOptions.OnStop  = [] {
-        if (WindowPtr) {
-            DeferDestroyWindow(Steal(WindowPtr));
-        }
-	};
+	auto InitOptions    = xEngineInitOptions();
+	InitOptions.OnStart = [] { /* StopXEngine(); */ };
+	// InitOptions.OnStop  = [] {
+	//     if (WindowPtr) {
+	//         DeferDestroyWindow(Steal(WindowPtr));
+	//     }
+	// };
 	RunXEngine(InitOptions);
 	return 0;
 }

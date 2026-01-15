@@ -10,7 +10,7 @@ X_BEGIN
 
 X_PRIVATE VkInstance VulkanInstance;
 
-X_PRIVATE bool InitVulkan(const char * ApplicationName = "XEngineApplication");
+X_PRIVATE bool InitVulkan(const char * ApplicationName = "XEApplication");
 X_PRIVATE void CleanVulkan();
 X_INLINE void  VkRuntimeAssert(VkResult Result) {
     X_RUNTIME_ASSERT(VK_SUCCESS == Result);

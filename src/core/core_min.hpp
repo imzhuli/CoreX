@@ -331,6 +331,8 @@ public:
 private:
 	enum eState { NO_INSTANCE, RUNNING, STOPPING, };
 	std::atomic<eState> _RunState = NO_INSTANCE;
+
+    static_assert(decltype(_RunState)::is_always_lock_free);
 };
 
 namespace __common_detail__ {
@@ -352,10 +354,14 @@ X_COMMON_END
 #define X_CONCAT(a, b)              a##b
 #define X_CONCAT_FORCE_EXPAND(a, b) X_CONCAT(a, b)
 
-#ifndef X_GUARD
-#define X_GUARD(...)                                                                        \
-    auto X_CONCAT_FORCE_EXPAND(__X_Guard__, __LINE__) = ::xel::xResourceGuard(__VA_ARGS__); \
-    ::xel::RuntimeAssert(X_CONCAT_FORCE_EXPAND(__X_Guard__, __LINE__))
+#ifndef X_SCOPE_GUARD
+#define X_SCOPE_GUARD(...) auto X_CONCAT_FORCE_EXPAND(__X_ScopeGuard__, __LINE__) = ::xel::xScopeGuard(__VA_ARGS__)
+#endif
+
+#ifndef X_RESOURCE_GUARD
+#define X_RESOURCE_GUARD(...)                                                                       \
+    auto X_CONCAT_FORCE_EXPAND(__X_ResourceGuard__, __LINE__) = ::xel::xResourceGuard(__VA_ARGS__); \
+    ::xel::RuntimeAssert(X_CONCAT_FORCE_EXPAND(__X_ResourceGuard__, __LINE__))
 #endif
 
 #ifndef X_VAR
@@ -363,10 +369,10 @@ X_COMMON_END
 #endif
 
 #ifndef X_COND_GUARD
-#define X_COND_GUARD(cond, ...)                                                                                                                     \
-    auto X_CONCAT_FORCE_EXPAND(__X_Cond__, __LINE__)  = (bool)(cond);                                                                               \
-    auto X_CONCAT_FORCE_EXPAND(__X_Guard__, __LINE__) = ::xel::xConditionalResourceGuard(X_CONCAT_FORCE_EXPAND(__X_Cond__, __LINE__), __VA_ARGS__); \
-    ::xel::RuntimeAssert(!X_CONCAT_FORCE_EXPAND(__X_Cond__, __LINE__) || X_CONCAT_FORCE_EXPAND(__X_Guard__, __LINE__))
+#define X_COND_GUARD(cond, ...)                                                                                                                             \
+    auto X_CONCAT_FORCE_EXPAND(__X_Cond__, __LINE__)  = (bool)(cond);                                                                                       \
+    auto X_CONCAT_FORCE_EXPAND(__X_ResourceGuard__, __LINE__) = ::xel::xConditionalResourceGuard(X_CONCAT_FORCE_EXPAND(__X_Cond__, __LINE__), __VA_ARGS__); \
+    ::xel::RuntimeAssert(!X_CONCAT_FORCE_EXPAND(__X_Cond__, __LINE__) || X_CONCAT_FORCE_EXPAND(__X_ResourceGuard__, __LINE__))
 #endif
 
 #define X_PDEBUG(fmt, ...) ::xel::DebugPrintf(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)

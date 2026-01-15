@@ -28,12 +28,18 @@ void WSILoopOnce(uint_fast32_t TimeoutMS) {
 	UpdateWindows(TimeoutMS);
 }
 
+bool WSIHasDeferredCommands() {
+	return false;
+}
+
+void WSIProcessedCommandQueue() {
+}
+
 void WSILoopClean() {
 	CleanupDyingWindows();
 }
 
 void CleanWSI() {
-	CleanupDyingWindows();
 	auto InitGuard = std::lock_guard(InitMutex);
 	glfwTerminate();
 	Inited = false;

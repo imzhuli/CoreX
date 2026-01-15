@@ -43,14 +43,8 @@ public:
 		_LockVariable.store(false, std::memory_order_release);
 	}
 
-	template <typename tFuncObj, typename... tArgs>
-	auto SynchronizedCall(tFuncObj && Func, tArgs &&... Args) const {
-		auto Guard = xScopeGuard([this] { Lock(); }, [this] { Unlock(); });
-		return std::forward<tFuncObj>(Func)(std::forward<tArgs>(Args)...);
-	}
-
 private:
-	mutable std::atomic<bool> _LockVariable = { 0 };
+	mutable std::atomic_bool _LockVariable = {};
 };
 
 class xSpinlockGuard final : xNonCopyable {
@@ -132,12 +126,6 @@ namespace __detail__ {
 		X_INLINE void Reset() {
 			auto Lock = std::lock_guard(_Mutex);
 			_Ready    = false;
-		}
-
-		template <typename tFuncObj, typename... tArgs>
-		auto SynchronizedCall(tFuncObj && Func, tArgs &&... Args) {
-			auto Guard = std::lock_guard(_Mutex);
-			return std::forward<tFuncObj>(Func)(std::forward<tArgs>(Args)...);
 		}
 
 		template <typename tFuncPre, typename tFuncPost>
@@ -292,13 +280,14 @@ public:
 
 class xThreadChecker final {
 public:
-	X_INLINE void Init() {
+	X_INLINE bool Init() {
 		_ThreadId = std::this_thread::get_id();
+		return true;
 	}
 	X_INLINE void Clean() {
 		_ThreadId = {};
 	}
-	X_INLINE void Check() {
+	X_INLINE void Assert() {
 		if (std::this_thread::get_id() != _ThreadId) {
 			X_PFATAL("thread id don't match!");
 		}

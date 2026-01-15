@@ -1,42 +1,29 @@
 #include "./vk.hpp"
 
+#include "../3rd/vk_bootstrap/VkBootstrap.h"
 #include "../wsi/wsi_desktop.hpp"
 #include "../xengine/engine.hpp"
 #include "./vk_debug.hpp"
+#include "vulkan/vulkan_core.h"
 
 #include <sstream>
 
 X_BEGIN
 
-VkInstance VulkanInstance = {};
+vkb::Instance VkbInstance    = {};
+VkInstance    VulkanInstance = {};
 
 namespace {
-	VkApplicationInfo               VulkanAppInfo                  = {};
-	std::vector<const char *>       VulkanExpectedExtensions       = {};
-	bool                            VulkanEnableValidationLayers   = {};
-	const std::vector<const char *> VulkanExpectedValidationLayers = {
-		"VK_LAYER_KHRONOS_validation",
-	};
-	VkInstanceCreateInfo VulkanCreateInfo = {};
+	std::vector<const char *> VulkanExpectedExtensions     = {};
+	bool                      VulkanEnableValidationLayers = {};
 
 }  // namespace
 
 static void ResetVulkanOptions() {
-	Reset(VulkanAppInfo);
 	Reset(VulkanExpectedExtensions);
-	Reset(VulkanCreateInfo);
 #ifndef NDEBUG
 	VulkanEnableValidationLayers = true;
 #endif
-}
-
-static void InitVulkanAppInfo(const char * ApplicationName) {
-	VulkanAppInfo.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;  // Vulkan结构体必须指定类型
-	VulkanAppInfo.pApplicationName   = ApplicationName;
-	VulkanAppInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);  // 版本号封装
-	VulkanAppInfo.pEngineName        = "XEngine";
-	VulkanAppInfo.engineVersion      = VK_MAKE_VERSION(1, 0, 0);
-	VulkanAppInfo.apiVersion         = VK_API_VERSION_1_2;  // 明确使用Vulkan 1.2
 }
 
 static bool InitGlfwVulkanExtensions() {
@@ -56,88 +43,57 @@ static bool InitGlfwVulkanExtensions() {
 #endif
 }
 
-static void DebugOutputExpectedExtensions() {
-#ifndef NDEBUG
-	auto OS = std::stringstream();
-	for (auto & S : VulkanExpectedExtensions) {
-		OS << "\t" << S << std::endl;
-	}
-	XELogger->D("ExpectedVulkanExtensions: \n%s", OS.str().c_str());
-#endif
-}
-
-static bool InitValidationLayerSupport() {
-	if (!VulkanEnableValidationLayers) {
-		return true;
-	}
-
-	uint32_t LayerCount = 0;
-	vkEnumerateInstanceLayerProperties(&LayerCount, nullptr);
-
-	std::vector<VkLayerProperties> AvailableLayers(LayerCount);
-	vkEnumerateInstanceLayerProperties(&LayerCount, AvailableLayers.data());
-
-	for (auto & LayerName : VulkanExpectedValidationLayers) {
-		bool LayerFound = false;
-		for (const auto & LayerProps : AvailableLayers) {
-			if (strcmp(LayerName, LayerProps.layerName) == 0) {
-				LayerFound = true;
-				break;
-			}
-		}
-		if (!LayerFound) {
-			XELogger->E("Validation layer not found: %s", LayerName);
-			return false;
-		}
-	}
-	return true;
-}
-
-static void DebugOutputExpectedValidationLayers() {
-#ifndef NDEBUG
-	auto OS = std::stringstream();
-	for (auto & S : VulkanExpectedValidationLayers) {
-		OS << "\t" << S << std::endl;
-	}
-	XELogger->D("VulkanExpectedValidationLayers: \n%s", OS.str().c_str());
-#endif
-}
-
-static void InitVulkanCreateInfo() {
-	VulkanCreateInfo.sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	VulkanCreateInfo.pApplicationInfo        = &VulkanAppInfo;
-	VulkanCreateInfo.enabledExtensionCount   = (uint32_t)VulkanExpectedExtensions.size();
-	VulkanCreateInfo.ppEnabledExtensionNames = VulkanExpectedExtensions.data();
-	if (VulkanEnableValidationLayers) {
-		VulkanCreateInfo.enabledLayerCount   = static_cast<uint32_t>(VulkanExpectedValidationLayers.size());
-		VulkanCreateInfo.ppEnabledLayerNames = VulkanExpectedValidationLayers.data();
-	}
-}
-
 bool InitVulkan(const char * ApplicationName) {
+
 	ResetVulkanOptions();
-	InitVulkanAppInfo(ApplicationName);
 	if (!InitGlfwVulkanExtensions()) {
 		return false;
 	}
-	DebugOutputExpectedExtensions();
-	if (!InitValidationLayerSupport()) {
-		return false;
-	}
-	DebugOutputExpectedValidationLayers();
-	InitVulkanCreateInfo();
 
-	VkResult Result = vkCreateInstance(&VulkanCreateInfo, nullptr, &VulkanInstance);
-	if (Result != VK_SUCCESS) {
-		XELogger->E("Failed to create VkInstance: error=%s", ToString(Result).c_str());
+	vkb::InstanceBuilder Builder;
+	Builder.set_app_name(ApplicationName);
+	Builder.set_engine_name("XEngine");
+	Builder.require_api_version(VK_API_VERSION_1_2);
+	Builder.enable_validation_layers(VulkanEnableValidationLayers);
+	Builder.set_headless(true);
+	// instance_builder.use_default_debug_messenger();
+	// instance_builder.request_validation_layers();
+	// instance_builder.enable_extensions(VulkanExpectedExtensions);
+	auto instance_ret = Builder.build();
+	if (!instance_ret) {
 		return false;
 	}
+
+	VkbInstance    = *instance_ret;
+	VulkanInstance = instance_ret->instance;
+
+	// uint32_t ext_count = 0;
+	// vkEnumerateInstanceExtensionProperties(nullptr, &ext_count, nullptr);
+	// std::vector<VkExtensionProperties> extensions(ext_count);
+	// vkEnumerateInstanceExtensionProperties(nullptr, &ext_count, extensions.data());
+
+	// std::cout << "\n=== 已启用的 Instance Extensions ===" << std::endl;
+	// for (const auto & ext : extensions) {
+	// 	std::cout << " - " << ext.extensionName << " (版本: " << ext.specVersion << ")" << std::endl;
+	// }
+
+	// // 3. 查看已启用的 Instance Layers
+	// uint32_t layer_count = 0;
+	// vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
+	// std::vector<VkLayerProperties> layers(layer_count);
+	// vkEnumerateInstanceLayerProperties(&layer_count, layers.data());
+
+	// std::cout << "\n=== 已启用的 Instance Layers ===" << std::endl;
+	// for (const auto & layer : layers) {
+	// 	std::cout << " - " << layer.layerName << " (版本: " << layer.specVersion << ")" << std::endl;
+	// }
 
 	return true;
 }
 
 void CleanVulkan() {
-	vkDestroyInstance(Steal(VulkanInstance), nullptr);
+	Reset(VulkanInstance, VK_NULL_HANDLE);
+	vkb::destroy_instance(Steal(VkbInstance));
 	ResetVulkanOptions();
 }
 

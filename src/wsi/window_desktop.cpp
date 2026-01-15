@@ -237,23 +237,9 @@ void xDesktopWindow::OnClosed() {
 
 void UpdateWindows(uint64_t TimeoutMS) {
 	glfwWaitEventsTimeout(TimeoutMS / 1000.);
-	WindowUpdateList.ForEach([](xWindowUpdateListNode & N) {
-		auto & Window = static_cast<xDesktopWindow &>(N);
-		Window.Update();
-	});
-	if (WindowActiveList.IsEmpty()) {
-		StopXEngine();
-	}
-	if (!WindowDestroyList.IsEmpty()) {
-		CleanupDyingWindows();
-	}
 }
 
 void CleanupDyingWindows() {
-	while (auto P = static_cast<xDesktopWindow *>(WindowDestroyList.PopHead())) {
-		P->Clean();
-		delete P;
-	}
 }
 
 X_END

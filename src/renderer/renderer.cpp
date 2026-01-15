@@ -9,7 +9,6 @@
 
 X_BEGIN
 
-static auto RendererListLock   = xSpinlock();
 static auto NewRendererList    = xRendererList();
 static auto UpdateRendererList = xRendererList();
 static auto DeleteRendererList = xRendererList();

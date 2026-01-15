@@ -2,9 +2,10 @@
 
 #include "../core/core_time.hpp"
 #include "../core/thread.hpp"
-#include "../renderer/renderer.hpp"
 #include "../vk/vk.hpp"
 #include "../wsi/wsi.hpp"
+#include "./engine_main_ui_thread.hpp"
+#include "./engine_render_thread.hpp"
 
 #include <curl/curl.h>
 
@@ -21,28 +22,11 @@ using namespace std::chrono_literals;
 X_BEGIN
 
 static xStdLogger EngineLogger;
-xLogger *         XELogger = &EngineLogger;
 
-static xRunState EngineRunState;
-
-namespace {
-	static xThreadSynchronizer FrameSynchronizer = {};
-	static struct xTS : xNonCopyable {
-		xTS() {
-			FrameSynchronizer.Acquire();
-		}
-		~xTS() {
-			FrameSynchronizer.Release();
-		}
-
-		void Sync() {
-			FrameSynchronizer.Synchronize();
-		}
-		void Sync(auto && CB) {
-			FrameSynchronizer.Synchronize(std::forward<decltype(CB)>(CB));
-		}
-	} TS;
-}  // namespace
+xLogger *           XELogger = &EngineLogger;
+xRunState           XERunState;
+xThreadChecker      XEMainThreadChecker;
+xThreadSynchronizer XECleanupSynchronizer;
 
 static bool InitXEngine() {
 	if (!InitWSI()) {
@@ -68,69 +52,44 @@ static void CleanXEngine() {
 	return;
 }
 
-static void FrameLimitThreadFunction() {
-	xTimer Timer;
-	auto   TS = xTS();
-	while (EngineRunState) {
-		std::this_thread::sleep_for(1ms);
-		TS.Sync();
-	}
+void AssertMainThread() {
+	XEMainThreadChecker.Assert();
 }
 
-static void RenderThreadFunction() {
-	size_t FrameCounter = 0;
-	xTimer Timer;
-	auto   TS = xTS();
-	while (EngineRunState) {
-		++FrameCounter;
-		if (Timer.TestAndTag(std::chrono::seconds(1))) {
-			std::cout << "FPS: " << FrameCounter << endl;
-			FrameCounter = 0;
-		}
-		xRenderer::UpdateAll();
-		TS.Sync();
-	}
-	xRenderer::CleanAll();
-}
-
-static void MainLoop() {
-	while (EngineRunState) {
-		// no need to call synchronizer here
-		WSILoopOnce();
-		FrameSynchronizer.ProtectedCall(WSILoopClean);
-	}
-}
-
-void RunXEngine(const XEngineInitOptions & InitOptions) {
-	if (!EngineRunState.Start()) {
-		cerr << "RunXEngine failed: multiple engine instance" << endl;
+void RunXEngine(const xEngineInitOptions & InitOptions) {
+	if (!XERunState.Start()) {
+		X_PFATAL("RunXEngine failed: multiple engine instance");
 		return;
 	}
-	auto StateCleaner = xScopeGuard([] { EngineRunState.Finish(); });
+	X_SCOPE_GUARD([] { XERunState.Finish(); });
 
 	if (!InitXEngine()) {
-		cerr << "RunXEngine failed: init engine error" << endl;
+		X_PFATAL("RunXEngine failed: init engine error");
 		return;
 	}
+	X_SCOPE_GUARD(CleanXEngine);
 
-	auto OnStart = InitOptions.OnStart;
-	auto OnStop  = InitOptions.OnStop;
+	X_RESOURCE_GUARD(XEMainThreadChecker);
+	do {
+		auto OnStart = InitOptions.OnStart;
+		auto OnStop  = InitOptions.OnStop;
 
-	OnStart();
+		// don't reorder the following:
+		X_SCOPE_GUARD(InitRenderThread, CleanRenderThread);
+		X_SCOPE_GUARD(InitMainUIThread, CleanMainUIThread);
 
-	auto RenderThread     = std::thread(RenderThreadFunction);
-	auto FrameLimitThread = std::thread(FrameLimitThreadFunction);
-	MainLoop();
-	FrameLimitThread.join();
-	RenderThread.join();
+		auto RenderThread = std::thread(RenderThreadLoop);
 
-	OnStop();
+		OnStart();
+		MainUIThreadLoop();
+		OnStop();
 
-	CleanXEngine();
+		RenderThread.join();
+	} while (false);
 }
 
 void StopXEngine() {
-	EngineRunState.Stop();
+	XERunState.Stop();
 }
 
 X_END
