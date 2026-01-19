@@ -74,17 +74,10 @@ void RunXEngine(const xEngineInitOptions & InitOptions) {
 		auto OnStart = InitOptions.OnStart;
 		auto OnStop  = InitOptions.OnStop;
 
-		// don't reorder the following:
-		X_SCOPE_GUARD(InitRenderThread, CleanRenderThread);
 		X_SCOPE_GUARD(InitMainUIThread, CleanMainUIThread);
-
-		auto RenderThread = std::thread(RenderThreadLoop);
-
 		OnStart();
 		MainUIThreadLoop();
 		OnStop();
-
-		RenderThread.join();
 	} while (false);
 }
 

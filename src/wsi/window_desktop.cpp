@@ -9,6 +9,12 @@
 #ifdef X_SYSTEM_DESKTOP
 X_BEGIN
 
+void UpdateWindows(uint64_t TimeoutMS) {
+	return;
+}
+
+/*
+
 static xWindowActiveList  WindowActiveList;
 static xWindowDestroyList WindowDestroyList;
 static xWindowUpdateList  WindowUpdateList;
@@ -241,6 +247,7 @@ void UpdateWindows(uint64_t TimeoutMS) {
 
 void CleanupDyingWindows() {
 }
+*/
 
 X_END
 #endif

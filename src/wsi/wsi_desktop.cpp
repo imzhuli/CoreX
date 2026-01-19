@@ -35,10 +35,6 @@ bool WSIHasDeferredCommands() {
 void WSIProcessedCommandQueue() {
 }
 
-void WSILoopClean() {
-	CleanupDyingWindows();
-}
-
 void CleanWSI() {
 	auto InitGuard = std::lock_guard(InitMutex);
 	glfwTerminate();

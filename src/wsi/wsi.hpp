@@ -91,6 +91,5 @@ X_API void      DeferDestroyWindow(iWindow * WindowPtr);
 X_PRIVATE void WSILoopOnce(uint_fast32_t TimeoutMS = 1);
 X_PRIVATE bool WSIHasDeferredCommands();
 X_PRIVATE void WSIProcessedCommandQueue();
-X_PRIVATE void WSILoopClean();
 
 X_END

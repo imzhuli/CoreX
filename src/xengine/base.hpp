@@ -9,7 +9,6 @@ struct xHandle {
 };
 X_PRIVATE xLogger *           XELogger;  // First object inited only available after init is done.
 X_PRIVATE xRunState           XERunState;
-X_PRIVATE xThreadChecker      XEMainThreadChecker;
 X_PRIVATE xThreadSynchronizer XECleanupSynchronizer;
 
 X_END

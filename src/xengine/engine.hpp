@@ -13,14 +13,14 @@ struct xEngineInitOptions {
 X_API void RunXEngine(const xEngineInitOptions & InitOptions = {});
 X_API void StopXEngine();
 
-X_END
-
 #ifndef NDEBUG
 X_PRIVATE void AssertMainThread();
-#define XE_ASSERT_MAIN_THREAD() AssertMainThread()
+#define XE_ASSERT_MAIN_THREAD() ::xel::AssertMainThread()
 #define XE_DEBUG(fmt, ...)      ::xel::XELogger->D(__FILE__, __LINE__, __func__, "" fmt, ##__VA_ARGS__)
 
 #else
-#define XE_ASSERT_MAIN_THREAD()
+#define XE_ASSERT_MAIN_THREAD() ::xel::Pass()
 #define XE_DEBUG(...)
 #endif
+
+X_END

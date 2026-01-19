@@ -2,7 +2,7 @@
 
 #include "../core/core_time.hpp"
 #include "../core/thread.hpp"
-#include "base.hpp"
+#include "./engine.hpp"
 
 #include <atomic>
 #include <mutex>
@@ -12,6 +12,7 @@ X_BEGIN
 
 static std::mt19937_64 RandomEngine;
 static xThreadChecker  RenderThreadChecker;
+static xRunState       RenderThreadRunState;
 
 static std::atomic_bool NoRenderSessionRequestLock;
 static xAutoResetEvent  NoRenderSessionEnterEvent;
@@ -50,16 +51,22 @@ static void NoRenderSection() {
 }
 
 void InitRenderThread() {
-	XEMainThreadChecker.Assert();
+	XE_ASSERT_MAIN_THREAD();
+	RuntimeAssert(RenderThreadRunState.Start());
 }
 
 void CleanRenderThread() {
-	XEMainThreadChecker.Assert();
+	XE_ASSERT_MAIN_THREAD();
+	RenderThreadRunState.Finish();
+}
+
+void StopRenderThreadLoop() {
+	RenderThreadRunState.Stop();
 }
 
 void RenderThreadLoop() {
 	// loop
-	while (XERunState) {
+	while (RenderThreadRunState) {
 		// FreeRender options
 		X_DEBUG_PRINTF();
 		NoRenderSection();
