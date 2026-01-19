@@ -9,6 +9,10 @@
 #ifdef X_SYSTEM_DESKTOP
 X_BEGIN
 
+static xWindowStateList InitWindowList;
+static xWindowStateList ActiveWindowList;
+static xWindowStateList DyingWindowList;
+
 void UpdateWindows(uint64_t TimeoutMS) {
 	return;
 }

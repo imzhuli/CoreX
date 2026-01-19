@@ -5,7 +5,7 @@
 X_BEGIN
 
 struct xHandle {
-	xVariable Native;
+	xVariable Native = {};
 };
 X_PRIVATE xLogger *           XELogger;  // First object inited only available after init is done.
 X_PRIVATE xRunState           XERunState;

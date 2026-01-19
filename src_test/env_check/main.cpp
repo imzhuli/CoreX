@@ -3,7 +3,7 @@
 
 using namespace xel;
 
-iWindow *       WindowPtr      = nullptr;
+xHandle         WindowPtr      = {};
 xWindowSettings WindowSettings = {
 	// .WindowMode = eWindowMode::FullScreen,
 };

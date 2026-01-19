@@ -1,6 +1,7 @@
 #pragma once
 #include "../core/core_min.hpp"
 #include "../core/list.hpp"
+#include "../xengine/base.hpp"
 
 #include <compare>
 
@@ -55,38 +56,29 @@ struct xWindowSettings final {
 	} Size;
 };
 
-class iWindow : xAbstract {
-public:
-	virtual bool Init(const xWindowSettings & Settings) { return false; }
-	virtual void Clean() {}
-
-	virtual bool IsClosed() { return true; }
-	virtual bool IsFullScreen() { return false; }
-
-	virtual void SetCursorMode(eWindowCursorMode Mode) {}
-
-	// event processing
-	virtual void OnCreated() {}
-	virtual void OnRefresh() {}
-	virtual void OnResized(size_t Width, size_t Height) {}
-	virtual void OnCursorMove(double OffsetX, double OffsetY) {}
-	virtual void OnClosed() {}
+enum eWindowState : uint8_t {
+	WS_INIT   = 0,
+	WS_ACTIVE = 1,
+	WS_DYING  = 2,
 };
 
-struct xWindowUpdateListNode : xListNode {};
-using xWindowUpdateList = xList<xWindowUpdateListNode>;
-struct xWindowLifeCycleListNode : xListNode {
-	bool Active = false;
+struct xWindowStateNode : xListNode {
+	eWindowState State = WS_INIT;
 };
-using xWindowLifeCycleList = xList<xWindowLifeCycleListNode>;
-using xWindowActiveList    = xWindowLifeCycleList;
-using xWindowDestroyList   = xWindowLifeCycleList;
+using xWindowStateList = xList<xWindowStateNode>;
+
+struct xNativeWindowHandle : xWindowStateNode {
+	uint64_t  WindowId     = {};
+	xVariable NativeHandle = {};
+};
+
+X_PRIVATE void UpdateWindows(uint64_t TimestampMS);
 
 X_API bool InitWSI();
 X_API void CleanWSI();
 
-X_API iWindow * CreateWindow(const xWindowSettings & Settings = {});
-X_API void      DeferDestroyWindow(iWindow * WindowPtr);
+X_API xHandle CreateWindow(const xWindowSettings & Settings = {});
+X_API void    DeferDestroyWindow(xHandle WindowPtr);
 
 X_PRIVATE void WSILoopOnce(uint_fast32_t TimeoutMS = 1);
 X_PRIVATE bool WSIHasDeferredCommands();
