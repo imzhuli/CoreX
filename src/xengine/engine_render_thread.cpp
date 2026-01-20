@@ -30,7 +30,7 @@ xHandle AcquireNoRenderSession() {
 	while (!NoRenderSessionRequestLock.compare_exchange_strong(XR(false), true));
 	NoRenderSessionEnterEvent.Wait();
 	NoSessonIdRandom = RandomEngine() | 0x01;
-	return xHandle{ .Native.U64 = NoSessonIdRandom };
+	return xHandle{ .Native = { .U64 = NoSessonIdRandom } };
 }
 
 void ReleaseNoRenderSession(xHandle && NoRenderSessionHandle) {
