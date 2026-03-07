@@ -36,6 +36,26 @@ void QuickExit(const char * PErrorMessage, int ExitCode){
 	QuickExit(ExitCode);
 }
 
+// no reentry
+xNoReentry::xScope::xScope(xNoReentry * TargetEntry) {
+    Entry = TargetEntry;
+    RuntimeAssert(!Steal(Entry->EntryFlag, true));
+}
+
+xNoReentry::xScope::~xScope() {
+    RuntimeAssert(Steal(Entry->EntryFlag));
+}
+
+xAtomicNoReentry::xScope::xScope(xAtomicNoReentry * TargetEntry) {
+    Entry = TargetEntry;
+    RuntimeAssert(!Entry->EntryFlag.exchange(true));
+}
+
+xAtomicNoReentry::xScope::~xScope() {
+    RuntimeAssert(Entry->EntryFlag.exchange(false));
+}
+
+
 static auto DebugPrintMutex = std::mutex();
 void DebugPrintf(const char * Path, size_t Line, const char * FunctionName, const char * Fmt, ...) {
 	auto SS = std::ostringstream();

@@ -199,8 +199,32 @@ struct xInstantRun final : xNonCopyable {
 template <typename tFuncObj, typename... Args>
 xInstantRun(tFuncObj && Func, Args &&... args) -> xInstantRun<tFuncObj, Args...>;
 
+class xNoReentry final {
+	public:
+		class xScope final: xel::xNonCopyable {
+		public: ~xScope();
+		private: friend class xNoReentry; xScope(xNoReentry * TargetEntry); xNoReentry * Entry = nullptr;
+		};
+	public:
+		[[nodiscard]] xScope Scope() { return xScope(this); };
+	private:
+		bool EntryFlag = false;
+};
+
+class xAtomicNoReentry final {
+	public:
+		class xScope final: xel::xNonCopyable {
+		public: ~xScope();
+		private: friend class xAtomicNoReentry; xScope(xAtomicNoReentry * TargetEntry); xAtomicNoReentry * Entry = nullptr;
+		};
+	public:
+		[[nodiscard]] xScope Scope() { return xScope(this); };
+	private:
+		std::atomic_bool EntryFlag = false;
+};
+
 template <typename T>
-class xValueGuard final : xNonCopyable {
+class xValueGuard final {
 private:
 	static_assert(!std::is_reference_v<T> && !std::is_const_v<T>);
 	using xStorage = std::remove_cvref_t<T>;
@@ -209,13 +233,12 @@ private:
 	xStorage _OldValue;
 	bool     _DismissExit = false;
 
-public:
-	X_INLINE xValueGuard(T & Ref) : _Ref(Ref) { _OldValue = _Ref; }
-	
+public:	
 	X_INLINE xValueGuard(xValueGuard & Other) = delete ;
 	X_INLINE xValueGuard(xValueGuard && Other) = delete ;
 	X_INLINE xValueGuard(const xValueGuard & Other) = delete ;
 
+	X_INLINE xValueGuard(T & Ref) : _Ref(Ref) { _OldValue = _Ref; }
 	X_INLINE ~xValueGuard() { if (_DismissExit) { return; } _Ref = _OldValue; }
 
 	template<typename U>
