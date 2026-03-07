@@ -35,11 +35,11 @@ size_t xBinaryMessage::Deserialize(const void * Src, size_t Size) {
 }
 
 void xBinaryMessage::SerializeMembers() {
-	xBinaryMessageWriter::SetError();
+	Pure();
 }
 
 void xBinaryMessage::DeserializeMembers() {
-	xBinaryMessageReader::SetError();
+	Pure();
 }
 
 /****************/
