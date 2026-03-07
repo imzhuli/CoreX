@@ -40,24 +40,40 @@ public:
 	}
 
 	template <typename... Args>
-	X_INLINE void I(const char * fmt, Args &&... args) {
+	X_INLINE std::enable_if_t<sizeof...(Args)> I(const char * fmt, Args &&... args) {
 		Log(eLogLevel::Info, fmt, std::forward<Args>(args)...);
 	}
 
 	template <typename... Args>
-	X_INLINE void W(const char * fmt, Args &&... args) {
+	X_INLINE std::enable_if_t<sizeof...(Args)> W(const char * fmt, Args &&... args) {
 		Log(eLogLevel::Warning, fmt, std::forward<Args>(args)...);
 	}
 
 	template <typename... Args>
-	X_INLINE void E(const char * fmt, Args &&... args) {
+	X_INLINE std::enable_if_t<sizeof...(Args)> E(const char * fmt, Args &&... args) {
 		Log(eLogLevel::Error, fmt, std::forward<Args>(args)...);
 	}
 
 	template <typename... Args>
-	X_INLINE void F(const char * fmt, Args &&... args) {
+	X_INLINE std::enable_if_t<sizeof...(Args)> F(const char * fmt, Args &&... args) {
 		Log(eLogLevel::Fatal, fmt, std::forward<Args>(args)...);
 		QuickExit();
+	}
+
+	X_INLINE void V(const char * S) {
+		return V("%s", S);
+	}
+	X_INLINE void D(const char * S) {
+		return D("%s", S);
+	}
+	X_INLINE void I(const char * S) {
+		return I("%s", S);
+	}
+	X_INLINE void E(const char * S) {
+		return E("%s", S);
+	}
+	X_INLINE void F(const char * S) {
+		return F("%s", S);
 	}
 };
 

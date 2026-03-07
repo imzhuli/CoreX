@@ -28,7 +28,17 @@ private:
 	bool IsDeserializing = false;
 };
 
-X_API size_t WriteMessage(void * Buffer, size_t BufferSize, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
+class xEmptyBinaryMessage : public xBinaryMessage {
+	void SerializeMembers() {
+		W(XR(true));
+	}
+	void DeserializeMembers() {
+		R(XR(true));
+	}
+};
+
+X_API size_t
+WriteMessage(void * Buffer, size_t BufferSize, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message);
 template <size_t Size>
 X_INLINE size_t WriteMessage(ubyte (&Buffer)[Size], xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
 	return WriteMessage(Buffer, Size, CmdId, RequestId, Message);
