@@ -39,7 +39,7 @@ void QuickExit(const char * PErrorMessage, int ExitCode){
 // no reentry
 xNoReentry::xScope::xScope(xNoReentry * TargetEntry) {
     Entry = TargetEntry;
-    RuntimeAssert(!Steal(Entry->EntryFlag, true));
+    RuntimeAssert(!Steal(Entry->EntryFlag, true), "NoReentry scope entry failure");
 }
 
 xNoReentry::xScope::~xScope() {
@@ -48,7 +48,7 @@ xNoReentry::xScope::~xScope() {
 
 xAtomicNoReentry::xScope::xScope(xAtomicNoReentry * TargetEntry) {
     Entry = TargetEntry;
-    RuntimeAssert(!Entry->EntryFlag.exchange(true));
+    RuntimeAssert(!Entry->EntryFlag.exchange(true), "NoReentry scope exit failure");
 }
 
 xAtomicNoReentry::xScope::~xScope() {
