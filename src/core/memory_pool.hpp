@@ -14,12 +14,14 @@
 X_BEGIN
 
 struct xMemoryPoolOptions {
-	xAllocator * Allocator         = nullptr;
-	size_t       InitSize          = 64;
-	size_t       Addend            = 128;
-	size_t       MultiplierBy100th = 0;
-	size_t       MaxSizeIncrement  = 1024;
-	size_t       MaxPoolSize       = std::numeric_limits<ssize_t>::max();
+	static constexpr const size_t DefaultInitSize    = 4096;
+	static constexpr const size_t DefaultAddend      = 4096;
+	static constexpr const size_t DefaultMaxPoolSize = std::numeric_limits<ssize_t>::max();
+
+	xAllocator * Allocator   = nullptr;
+	size_t       InitSize    = DefaultInitSize;
+	size_t       Addend      = DefaultAddend;
+	size_t       MaxPoolSize = DefaultMaxPoolSize;
 };
 
 template <typename T>
@@ -61,12 +63,10 @@ class xMemoryPool final {
 	};
 
 private:
-	xAllocator * hAlloc             = nullptr;
-	size_t       cInitSize          = 0;
-	size_t       cAddend            = 0;
-	size_t       cMultiplierBy100th = 0;
-	size_t       cMaxSizeIncrement  = 1000;
-	size_t       cMaxPoolSize       = std::numeric_limits<ssize_t>::max();
+	xAllocator * hAlloc       = nullptr;
+	size_t       cInitSize    = 0;
+	size_t       cAddend      = 0;
+	size_t       cMaxPoolSize = std::numeric_limits<ssize_t>::max();
 
 	xList<xBlock>  _BlockList;
 	xTypeWrapper * _NextFreeNode = nullptr;
@@ -76,24 +76,14 @@ private:
 	xAllocator _DefaultAllocator;
 
 public:
-	X_INLINE bool Init(const size_t MaxPoolSize, const size_t Addend = 128) {
-		assert(MaxPoolSize > 0);
-		xMemoryPoolOptions Options = {};
-		Options.MaxPoolSize        = (Options.InitSize >= MaxPoolSize) ? Options.InitSize : MaxPoolSize;
-		Options.Addend             = Addend;
-		return Init(Options);
-	}
-
 	X_INLINE bool Init(const xMemoryPoolOptions & Options) {
-		assert(Options.InitSize == Options.MaxPoolSize || Options.MultiplierBy100th || Options.Addend);
+		assert(Options.InitSize == Options.MaxPoolSize || Options.Addend);
 		assert(Options.InitSize >= 1);
 
-		hAlloc             = Options.Allocator ? Options.Allocator : &_DefaultAllocator;
-		cInitSize          = std::min(Options.InitSize, Options.MaxPoolSize);
-		cAddend            = Options.Addend;
-		cMultiplierBy100th = Options.MultiplierBy100th;
-		cMaxSizeIncrement  = Options.MaxSizeIncrement ? Options.MaxSizeIncrement : std::min(Options.InitSize, Options.Addend);
-		cMaxPoolSize       = Options.MaxPoolSize;
+		hAlloc       = Options.Allocator ? Options.Allocator : &_DefaultAllocator;
+		cInitSize    = std::min(Options.InitSize, Options.MaxPoolSize);
+		cAddend      = Options.Addend;
+		cMaxPoolSize = Options.MaxPoolSize;
 
 		return AllocBlock(cInitSize) != nullptr;
 	}
@@ -166,11 +156,10 @@ public:
 
 private:
 	X_INLINE xBlock * ExtendPool() {
-		size_t maxAddSize = std::min(cMaxSizeIncrement, cMaxPoolSize - _TotalSize);
-		if (!maxAddSize) {
+		size_t addSize = std::min(cAddend, cMaxPoolSize - _TotalSize);
+		if (!addSize) {
 			return nullptr;
 		}
-		size_t addSize = std::min(_TotalSize * cMultiplierBy100th / 100 + cAddend, maxAddSize);
 		return AllocBlock(addSize);
 	}
 

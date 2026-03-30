@@ -1,4 +1,5 @@
 #include <core/core_value_util.hpp>
+#include <core/memory_pool.hpp>
 #include <iostream>
 #include <vector>
 
@@ -7,23 +8,29 @@ using namespace std;
 
 int main(int argc, char ** argv) {
 
-	auto H = xAutoHolder<std::vector<int>>();
-	cout << H->size() << endl;
+	auto P = xMemoryPool<int>();
+	P.Init({
+		.InitSize    = 10,
+		.Addend      = 24,
+		.MaxPoolSize = 66,
+	});
 
-	auto H1 = xAutoHolder<std::vector<int>>(3);
-	cout << H1->size() << endl;
+	int * PA[1024] = {};
 
-	auto H2 = xAutoHolder<std::vector<int>>{ 1, 2, 3, 4, 5 };
-	cout << H2->size() << endl;
+	for (size_t i = 0; i < Length(PA); ++i) {
+		PA[i] = P.CreateValue(i);
+	}
+	size_t S = 0;
+	for (auto & R : PA) {
+		if (!R) {
+			break;
+		}
+		cout << *R << endl;
+		++S;
+	}
+	cout << "total: " << S << endl;
 
-	H2.Reset();
-	cout << H2->size() << endl;
-
-	H2.ResetValue(123);
-	cout << H2->size() << endl;
-
-	H2.ResetValueWithList(1, 2);
-	cout << H2->size() << endl;
+	P.Clean();
 
 	return 0;
 }
