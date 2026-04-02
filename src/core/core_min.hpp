@@ -297,15 +297,12 @@ X_STATIC_INLINE void Dismiss(T0 & Guard0, T & ...Guards) {
 	Dismiss(Guards...);
 }
 
-template <typename T, bool DoThrow = false>
+template <typename T>
 class xResourceGuard final : xNonCopyable {
 public:
 	template <typename... tArgs>
 	X_INLINE constexpr xResourceGuard(T & Resource, tArgs &&... Args)
 		: _Resource(Resource), _Inited(Resource.Init(std::forward<tArgs>(Args)...)) {
-	}
-	X_INLINE constexpr xResourceGuard(T && Other)
-		: _Resource(Other._Resource), _Inited(Steal(Other._Inited)) {
 	}
 	X_INLINE ~xResourceGuard() {
 		if (_Inited) {
@@ -324,26 +321,23 @@ template <typename T, typename... tArgs>
 xResourceGuard(T & Resource, tArgs &&... Args) -> xResourceGuard<T>;
 
 template <typename T>
-class xConditionalResourceGuard final : xNonCopyable {
+class xResourceGuardAsserted final : xNonCopyable {
 public:
-    template <typename... tArgs>
-    X_INLINE constexpr xConditionalResourceGuard(bool Cond, T & Resource, tArgs &&... Args) 
-        : _Resource(Resource)
-        , _Inited(Cond && Resource.Init(std::forward<tArgs>(Args)...)) 
-    {}
-    X_INLINE ~xConditionalResourceGuard() {
-        if (_Inited) {
-            _Resource.Clean();
-        }
-    }
-    X_INLINE operator bool() const { return _Inited; }
+	template <typename... tArgs>
+	X_INLINE constexpr xResourceGuardAsserted(T & Resource, tArgs &&... Args) : _Resource(Resource) {
+		if (!Resource.Init(std::forward<tArgs>(Args)...)) {
+			Fatal("xResourceGuard failed to init target");
+		}
+	}
+	X_INLINE ~xResourceGuardAsserted() {
+		_Resource.Clean();
+	}
 
 private:
-    T &        _Resource;
-    const bool _Inited;
+	T & _Resource;
 };
 template <typename T, typename... tArgs>
-xConditionalResourceGuard(bool Cond, T & Resource, tArgs &&... Args) -> xConditionalResourceGuard<T>;
+xResourceGuardAsserted(T & Resource, tArgs &&... Args) -> xResourceGuardAsserted<T>;
 
 class xRunState final {
 public:
@@ -382,20 +376,15 @@ X_COMMON_END
 #endif
 
 #ifndef X_RESOURCE_GUARD
-#define X_RESOURCE_GUARD(...)                                                                       \
-    auto X_CONCAT_FORCE_EXPAND(__X_ResourceGuard__, __LINE__) = ::xel::xResourceGuard(__VA_ARGS__); \
-    ::xel::RuntimeAssert(X_CONCAT_FORCE_EXPAND(__X_ResourceGuard__, __LINE__))
+#define X_RESOURCE_GUARD(...) auto X_CONCAT_FORCE_EXPAND(__X_ResourceGuard__, __LINE__) = ::xel::xResourceGuard(__VA_ARGS__)
+#endif
+
+#ifndef X_RESOURCE_GUARD_ASSERTED
+#define X_RESOURCE_GUARD_ASSERTED(...) auto X_CONCAT_FORCE_EXPAND(__X_ResourceGuardAsserted__, __LINE__) = ::xel::xResourceGuardAsserted(__VA_ARGS__)
 #endif
 
 #ifndef X_VAR
 #define X_VAR auto X_CONCAT_FORCE_EXPAND(__X_Variable__, __LINE__) =
-#endif
-
-#ifndef X_COND_GUARD
-#define X_COND_GUARD(cond, ...)                                                                                                                             \
-    auto X_CONCAT_FORCE_EXPAND(__X_Cond__, __LINE__)  = (bool)(cond);                                                                                       \
-    auto X_CONCAT_FORCE_EXPAND(__X_ResourceGuard__, __LINE__) = ::xel::xConditionalResourceGuard(X_CONCAT_FORCE_EXPAND(__X_Cond__, __LINE__), __VA_ARGS__); \
-    ::xel::RuntimeAssert(!X_CONCAT_FORCE_EXPAND(__X_Cond__, __LINE__) || X_CONCAT_FORCE_EXPAND(__X_ResourceGuard__, __LINE__))
 #endif
 
 #define X_PDEBUG(fmt, ...) ::xel::DebugPrintf(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
