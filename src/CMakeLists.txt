@@ -86,6 +86,7 @@ set(X_OPTION X_OPTION_EXPORT_API)
 endif()
 
 add_library(${libname} ${X_SRC} ${X_3RD_SRC})
+target_compile_options(${libname} PRIVATE "$<$<COMPILE_LANG_AND_ID:C,GCC,Clang,AppleClang>:-Wno-tautological-compare>")
 target_compile_definitions(${libname} PRIVATE ${X_OPTION} CURL_STATICLIB)
 set_target_properties(${libname} PROPERTIES VERSION 1.0)
 target_link_libraries(${libname} PRIVATE ${shared_lib_dependency_private})
