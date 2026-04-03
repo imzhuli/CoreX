@@ -176,7 +176,6 @@ template <typename T>
 template <typename T, typename TValue>
 [[nodiscard]] X_STATIC_INLINE T Steal(T & ExpiringTarget, TValue && value) { T ret = std::move(ExpiringTarget); Reset(ExpiringTarget, std::forward<TValue>(value)); return ret; }
 
-
 X_STATIC_INLINE constexpr const char * YN(bool y) { return y ? "yes" : "no"; }
 X_STATIC_INLINE constexpr const char * TF(bool t) { return t ? "true" : "false"; }
 template <typename T>
@@ -188,8 +187,8 @@ public:
 	[[nodiscard]] constexpr explicit xRef(T & Ref) noexcept : _Ref(&Ref) {}
 	[[nodiscard]] constexpr xRef(const xRef & RRef) noexcept = default;
 	X_INLINE constexpr T & Get() const noexcept { return *_Ref; }
-private:
-	T * _Ref;
+private: 
+    T * _Ref;
 };
 
 template <typename tFuncObj, typename... Args>
@@ -199,28 +198,27 @@ struct xInstantRun final : xNonCopyable {
 template <typename tFuncObj, typename... Args>
 xInstantRun(tFuncObj && Func, Args &&... args) -> xInstantRun<tFuncObj, Args...>;
 
+class xNoReentryStub final {
+	public: class xScope final: xel::xNonCopyable {};
+	public: [[nodiscard]] xScope Scope() { return xScope(); };
+};
+
 class xNoReentry final {
-	public:
-		class xScope final: xel::xNonCopyable {
-		public: ~xScope();
-		private: friend class xNoReentry; xScope(xNoReentry * TargetEntry); xNoReentry * Entry = nullptr;
-		};
-	public:
-		[[nodiscard]] xScope Scope() { return xScope(this); };
-	private:
-		bool EntryFlag = false;
+    public: class xScope final: xel::xNonCopyable {
+        public: ~xScope();
+        private: friend class xNoReentry; xScope(xNoReentry * TargetEntry); xNoReentry * Entry = nullptr;
+    };
+    public: [[nodiscard]] xScope Scope() { return xScope(this); };
+    private: bool EntryFlag = false;
 };
 
 class xAtomicNoReentry final {
-	public:
-		class xScope final: xel::xNonCopyable {
-		public: ~xScope();
-		private: friend class xAtomicNoReentry; xScope(xAtomicNoReentry * TargetEntry); xAtomicNoReentry * Entry = nullptr;
-		};
-	public:
-		[[nodiscard]] xScope Scope() { return xScope(this); };
-	private:
-		std::atomic_bool EntryFlag = false;
+	public: class xScope final: xel::xNonCopyable {
+        public: ~xScope();
+        private: friend class xAtomicNoReentry; xScope(xAtomicNoReentry * TargetEntry); xAtomicNoReentry * Entry = nullptr;
+    };
+	public: [[nodiscard]] xScope Scope() { return xScope(this); };
+	private: std::atomic_bool EntryFlag = false;
 };
 
 template <typename T>
@@ -312,7 +310,6 @@ public:
 	X_INLINE operator bool() const {
 		return _Inited;
 	}
-
 private:
 	T &        _Resource;
 	const bool _Inited;
