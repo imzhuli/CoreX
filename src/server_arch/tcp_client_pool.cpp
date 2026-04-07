@@ -1,4 +1,4 @@
-#include "./client_pool.hpp"
+#include "./tcp_client_pool.hpp"
 
 #include "../core/string.hpp"
 
@@ -11,7 +11,7 @@ static constexpr const uint64_t AutoReconnectTimeoutMS       = 3'000;
 
 // client connection:
 
-X_MEMBER bool xClientPoolConnection::PostData(const void * DataPtr, size_t DataSize) {
+X_MEMBER bool xTcpClientPoolConnection::PostData(const void * DataPtr, size_t DataSize) {
 	if (IsConnected()) {
 		return false;
 	}
@@ -19,7 +19,7 @@ X_MEMBER bool xClientPoolConnection::PostData(const void * DataPtr, size_t DataS
 	return true;
 }
 
-bool xClientPoolConnection::PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
+bool xTcpClientPoolConnection::PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
 	if (!IsConnected()) {
 		return false;
 	}
@@ -35,23 +35,23 @@ bool xClientPoolConnection::PostMessage(xPacketCommandId CmdId, xPacketRequestId
 
 // client connection handle
 
-xClientPoolConnectionHandle::xClientPoolConnectionHandle(xClientPool * Owner, uint64_t ConnectionId)
+xTcpClientPoolConnectionHandle::xTcpClientPoolConnectionHandle(xTcpClientPool * Owner, uint64_t ConnectionId)
 	: Owner(Owner), Connection(Owner->GetConnection(ConnectionId)), ConnectionId(ConnectionId) {
 	Pass();
 }
 
-bool xClientPoolConnectionHandle::IsValid() const {
+bool xTcpClientPoolConnectionHandle::IsValid() const {
 	return Owner && (Connection == Owner->GetConnection(ConnectionId));
 }
 
 // client pool
 
-bool xClientPool::Init(xIoContext * ICP, size_t MaxConnectionCount) {
+bool xTcpClientPool::Init(xIoContext * ICP, size_t MaxConnectionCount) {
 	this->ICP = ICP;
 	return ConnectionPool.Init(MaxConnectionCount);
 }
 
-void xClientPool::Clean() {
+void xTcpClientPool::Clean() {
 	KillConnectionList.GrabListTail(WaitForConnectionEstablishmentQueue);
 	KillConnectionList.GrabListTail(RequestKeepAliveQueue);
 	KillConnectionList.GrabListTail(WaitForKeepAliveQueue);
@@ -62,11 +62,11 @@ void xClientPool::Clean() {
 	ConnectionPool.Clean();
 }
 
-void xClientPool::Tick() {
+void xTcpClientPool::Tick() {
 	Tick(GetTimestampMS());
 }
 
-void xClientPool::Tick(uint64_t NowMS) {
+void xTcpClientPool::Tick(uint64_t NowMS) {
 	Ticker.Update(NowMS);
 	CheckTimeoutConnections();
 	KillAllConnections();
@@ -75,7 +75,7 @@ void xClientPool::Tick(uint64_t NowMS) {
 	DoAutoReconnect();
 }
 
-uint64_t xClientPool::AddServer(const xNetAddress & Address) {
+uint64_t xTcpClientPool::AddServer(const xNetAddress & Address) {
 	if (!Address) {
 		return 0;
 	}
@@ -93,11 +93,11 @@ uint64_t xClientPool::AddServer(const xNetAddress & Address) {
 	return CID;
 }
 
-xClientPoolConnection * xClientPool::GetConnection(uint64_t ConnectionId) {
+xTcpClientPoolConnection * xTcpClientPool::GetConnection(uint64_t ConnectionId) {
 	return ConnectionPool.CheckAndGet(ConnectionId);
 }
 
-void xClientPool::RemoveServer(uint64_t ConnectionId) {
+void xTcpClientPool::RemoveServer(uint64_t ConnectionId) {
 	auto CCP = ConnectionPool.CheckAndGet(ConnectionId);
 	if (!CCP) {
 		return;
@@ -106,10 +106,10 @@ void xClientPool::RemoveServer(uint64_t ConnectionId) {
 	KillConnectionList.GrabTail(*CCP);
 }
 
-void xClientPool::DoRequestKeepAlive() {
+void xTcpClientPool::DoRequestKeepAlive() {
 	auto NowMS     = Ticker();
 	auto Timepoint = NowMS - MaxRequestKeepAliveTimeoutMS;
-	while (auto PC = static_cast<xClientPoolConnection *>(RequestKeepAliveQueue.PopHead([Timepoint](const xClientPoolConnectionTimeoutNode & N) {
+	while (auto PC = static_cast<xTcpClientPoolConnection *>(RequestKeepAliveQueue.PopHead([Timepoint](const xTcpClientPoolConnectionTimeoutNode & N) {
 			   return N.LastKeepAliveTimestampMS <= Timepoint;
 		   }))) {
 		X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", PC->ConnectionId, PC->TargetAddress.ToString().c_str());
@@ -119,11 +119,11 @@ void xClientPool::DoRequestKeepAlive() {
 	}
 }
 
-void xClientPool::DoAutoReconnect() {
+void xTcpClientPool::DoAutoReconnect() {
 	auto NowMS      = Ticker();
 	auto Timepoint  = NowMS - AutoReconnectTimeoutMS;
-	auto FailedList = xList<xClientPoolConnectionTimeoutNode>();
-	while (auto PC = static_cast<xClientPoolConnection *>(AutoConnectionList.PopHead([Timepoint](const xClientPoolConnectionTimeoutNode & N) {
+	auto FailedList = xList<xTcpClientPoolConnectionTimeoutNode>();
+	while (auto PC = static_cast<xTcpClientPoolConnection *>(AutoConnectionList.PopHead([Timepoint](const xTcpClientPoolConnectionTimeoutNode & N) {
 			   return N.InitTimestampMS <= Timepoint;
 		   }))) {
 		assert(!PC->IsOpen());
@@ -138,17 +138,17 @@ void xClientPool::DoAutoReconnect() {
 	AutoConnectionList.GrabListTail(FailedList);
 }
 
-void xClientPool::CheckTimeoutConnections() {
+void xTcpClientPool::CheckTimeoutConnections() {
 	auto NowMS              = Ticker();
 	auto ConnectTimepoint   = NowMS - MaxConnectTimeoutMS;
 	auto KeepAliveTimepoint = NowMS - MaxKeepAliveTimeoutMS;
 
-	while (auto PC = static_cast<xClientPoolConnection *>(WaitForConnectionEstablishmentQueue.PopHead([Timepoint = ConnectTimepoint](const xClientPoolConnectionTimeoutNode & N
-																									  ) { return N.InitTimestampMS <= Timepoint; }))) {
+	while (auto PC = static_cast<xTcpClientPoolConnection *>(WaitForConnectionEstablishmentQueue.PopHead([Timepoint = ConnectTimepoint](const xTcpClientPoolConnectionTimeoutNode & N
+																										 ) { return N.InitTimestampMS <= Timepoint; }))) {
 		X_DEBUG_PRINTF("Kill connect timeout connection, cid=%" PRIx64 "", PC->ConnectionId);
 		KillConnectionList.GrabTail(*PC);
 	}
-	while (auto PC = static_cast<xClientPoolConnection *>(WaitForKeepAliveQueue.PopHead([Timepoint = KeepAliveTimepoint](const xClientPoolConnectionTimeoutNode & N) {
+	while (auto PC = static_cast<xTcpClientPoolConnection *>(WaitForKeepAliveQueue.PopHead([Timepoint = KeepAliveTimepoint](const xTcpClientPoolConnectionTimeoutNode & N) {
 			   return N.LastRequestKeepAliveTimestampMS <= Timepoint;
 		   }))) {
 		X_DEBUG_PRINTF("Killing timeout connection, ConnectionId=%" PRIx64 "", PC->ConnectionId);
@@ -156,8 +156,8 @@ void xClientPool::CheckTimeoutConnections() {
 	}
 }
 
-void xClientPool::KillAllConnections() {
-	while (auto PC = static_cast<xClientPoolConnection *>(KillConnectionList.PopHead())) {
+void xTcpClientPool::KillAllConnections() {
+	while (auto PC = static_cast<xTcpClientPoolConnection *>(KillConnectionList.PopHead())) {
 		X_DEBUG_PRINTF(
 			"Killing ConnectionId=%" PRIx64 ", TargetAddress=%s, Open=%s, Connected=%s, ReleaseMark=%s", PC->ConnectionId, PC->TargetAddress.ToString().c_str(),
 			YN(PC->IsOpen()), YN(PC->IsConnected()), YN(PC->ReleaseMark)
@@ -178,15 +178,15 @@ void xClientPool::KillAllConnections() {
 	}
 }
 
-void xClientPool::ReleaseConnections() {
-	while (auto PC = static_cast<xClientPoolConnection *>(ReleaseConnectionList.PopHead())) {
+void xTcpClientPool::ReleaseConnections() {
+	while (auto PC = static_cast<xTcpClientPoolConnection *>(ReleaseConnectionList.PopHead())) {
 		assert(PC == ConnectionPool.CheckAndGet(PC->ConnectionId));
 		X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", PC->ConnectionId, PC->TargetAddress.ToString().c_str());
 		ConnectionPool.Release(PC->ConnectionId);
 	}
 }
 
-void xClientPool::DoKeepAlive(xClientPoolConnection * PC) {
+void xTcpClientPool::DoKeepAlive(xTcpClientPoolConnection * PC) {
 	assert(PC->IsOpen());
 	if (PC->ReleaseMark) {
 		return;
@@ -196,16 +196,16 @@ void xClientPool::DoKeepAlive(xClientPoolConnection * PC) {
 	RequestKeepAliveQueue.GrabTail(*PC);
 }
 
-void xClientPool::OnConnected(xTcpConnection * TcpConnectionPtr) {
-	auto PC = static_cast<xClientPoolConnection *>(TcpConnectionPtr);
+void xTcpClientPool::OnConnected(xTcpConnection * TcpConnectionPtr) {
+	auto PC = static_cast<xTcpClientPoolConnection *>(TcpConnectionPtr);
 	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", PC->ConnectionId, PC->TargetAddress.ToString().c_str());
 	DoKeepAlive(PC);
 	EstablishedConnectionList.AddTail(*PC);
 	OnTargetConnected({ this, PC });
 }
 
-void xClientPool::OnPeerClose(xTcpConnection * TcpConnectionPtr) {
-	auto PC = static_cast<xClientPoolConnection *>(TcpConnectionPtr);
+void xTcpClientPool::OnPeerClose(xTcpConnection * TcpConnectionPtr) {
+	auto PC = static_cast<xTcpClientPoolConnection *>(TcpConnectionPtr);
 	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", TargetAddress=%s", PC->ConnectionId, PC->TargetAddress.ToString().c_str());
 	if (PC->IsConnected()) {
 		OnTargetClose({ this, PC });
@@ -214,10 +214,10 @@ void xClientPool::OnPeerClose(xTcpConnection * TcpConnectionPtr) {
 	KillConnectionList.GrabTail(*PC);
 }
 
-size_t xClientPool::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_t DataSize) {
+size_t xTcpClientPool::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, size_t DataSize) {
 
-	auto PC = static_cast<xClientPoolConnection *>(TcpConnectionPtr);
-	assert(PC == static_cast<xClientPoolConnection *>(ConnectionPool.CheckAndGet(PC->ConnectionId)));
+	auto PC = static_cast<xTcpClientPoolConnection *>(TcpConnectionPtr);
+	assert(PC == static_cast<xTcpClientPoolConnection *>(ConnectionPool.CheckAndGet(PC->ConnectionId)));
 	// X_DEBUG_PRINTF("\n%s", HexShow(DataPtr, DataSize).c_str());
 
 	size_t RemainSize = DataSize;
@@ -246,8 +246,8 @@ size_t xClientPool::OnData(xTcpConnection * TcpConnectionPtr, ubyte * DataPtr, s
 	return DataSize - RemainSize;
 }
 
-bool xClientPool::PostData(const void * DataPtr, size_t DataSize) {
-	auto PC = static_cast<xClientPoolConnection *>(EstablishedConnectionList.PopHead());
+bool xTcpClientPool::PostData(const void * DataPtr, size_t DataSize) {
+	auto PC = static_cast<xTcpClientPoolConnection *>(EstablishedConnectionList.PopHead());
 	if (!PC) {
 		return false;
 	}
@@ -255,13 +255,13 @@ bool xClientPool::PostData(const void * DataPtr, size_t DataSize) {
 	return PC->PostData(DataPtr, DataSize);
 }
 
-bool xClientPool::PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize) {
+bool xTcpClientPool::PostData(uint64_t ConnectionId, const void * DataPtr, size_t DataSize) {
 	auto PC = GetConnection(ConnectionId);
 	return PC && PC->PostData(DataPtr, DataSize);
 }
 
-bool xClientPool::PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
-	auto PC = static_cast<xClientPoolConnection *>(EstablishedConnectionList.PopHead());
+bool xTcpClientPool::PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
+	auto PC = static_cast<xTcpClientPoolConnection *>(EstablishedConnectionList.PopHead());
 	if (!PC) {
 		return false;
 	}
@@ -269,7 +269,7 @@ bool xClientPool::PostMessage(xPacketCommandId CmdId, xPacketRequestId RequestId
 	return PC->PostMessage(CmdId, RequestId, Message);
 }
 
-bool xClientPool::PostMessage(uint64_t ConnectionId, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
+bool xTcpClientPool::PostMessage(uint64_t ConnectionId, xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
 	auto PC = GetConnection(ConnectionId);
 	return PC && PC->PostMessage(CmdId, RequestId, Message);
 }

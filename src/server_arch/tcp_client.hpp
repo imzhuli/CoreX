@@ -5,7 +5,7 @@
 
 X_BEGIN
 
-class xClient
+class xTcpClient
 	: public xTcpConnection::iListener
 	, xAbstract {
 public:
