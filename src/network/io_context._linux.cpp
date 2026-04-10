@@ -114,8 +114,7 @@ void xIoContext::Remove(xSocketIoReactor & SocketReactor) {
 }
 
 void xIoContext::LoopOnce(int TimeoutMS) {
-	ProcessEventList();  // process deferred operations after looponce
-	struct epoll_event Events[256];
+	struct epoll_event Events[512];
 	int                Total = epoll_wait(Poller, Events, (int)Length(Events), TimeoutMS < 0 ? -1 : TimeoutMS);
 	for (int i = 0; i < Total; ++i) {
 		auto & EV         = Events[i];

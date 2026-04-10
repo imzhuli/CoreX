@@ -42,9 +42,9 @@ void xIoContext::Remove(xSocketIoReactor & SocketReactor) {
 }
 
 void xIoContext::LoopOnce(int TimeoutMS) {
-	OVERLAPPED_ENTRY EventEntries[256];
+	OVERLAPPED_ENTRY EventEntries[512];
 	ULONG            EventCount = 0;
-	BOOL Result = GetQueuedCompletionStatusEx(Poller, EventEntries, (ULONG)Length(EventEntries), &EventCount, (TimeoutMS < 0 ? INFINITE : (DWORD)TimeoutMS), FALSE);
+	BOOL             Result     = GetQueuedCompletionStatusEx(Poller, EventEntries, (ULONG)Length(EventEntries), &EventCount, (TimeoutMS < 0 ? INFINITE : (DWORD)TimeoutMS), FALSE);
 
 	if (!Result) {
 		if (ERROR_ABANDONED_WAIT_0 == GetLastError()) {
