@@ -99,9 +99,9 @@ constexpr struct xSizeInit final { size_t value; } ZeroSizeInit{};
 constexpr struct xCapacityInit final { size_t value; } ZeroCapacityInit{};
 
 template <typename T> // eXpiring object to Reference to object
-[[nodiscard]] X_STATIC_INLINE std::remove_reference_t<T> & XR(T && ref) { return ref; }
+[[nodiscard]] X_STATIC_INLINE std::remove_reference_t<T> & XR(T && ref) { return *std::launder(&ref); }
 template <typename T> // eXpiring object to Pointer to object
-[[nodiscard]] X_STATIC_INLINE std::remove_reference_t<T> * XP(T && ref) { return &ref; }
+[[nodiscard]] X_STATIC_INLINE std::remove_reference_t<T> * XP(T && ref) { return std::launder(&ref); }
 
 template <typename T, size_t L>
 [[nodiscard]] X_STATIC_INLINE constexpr size_t Length(const T (&)[L]) { return L; }
