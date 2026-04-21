@@ -39,33 +39,35 @@ void xIoContext::DeferError(xIoReactor & Reactor) {
 
 void xIoContext::ProcessEventList() {
 	auto ProcessList = xIoContextEventList();
-	ProcessList.GrabListTail(EventList);
-	while (auto NP = ProcessList.PopHead()) {
-		auto RP = static_cast<xIoReactor *>(X_Entry(NP, __network_detail__::__xIoReactor__, EventNode));
-		if (RP->EventFlags & xIoReactor::IO_EVENT_DISABLED) {
-			continue;
-		}
-		if (RP->EventFlags & xIoReactor::IO_EVENT_ERROR) {
-			RP->OnIoEventError();
-			RP->EventFlags = xIoReactor::IO_EVENT_DISABLED;
-			continue;
-		}
-		if (RP->EventFlags & xIoReactor::IO_EVENT_READ) {
-			if (!RP->OnIoEventInReady()) {
+	do {
+		ProcessList.GrabListTail(EventList);
+		while (auto NP = ProcessList.PopHead()) {
+			auto RP = static_cast<xIoReactor *>(X_Entry(NP, __network_detail__::__xIoReactor__, EventNode));
+			if (RP->EventFlags & xIoReactor::IO_EVENT_DISABLED) {
+				continue;
+			}
+			if (RP->EventFlags & xIoReactor::IO_EVENT_ERROR) {
 				RP->OnIoEventError();
 				RP->EventFlags = xIoReactor::IO_EVENT_DISABLED;
 				continue;
 			}
-		}
-		if (RP->EventFlags & xIoReactor::IO_EVENT_WRITE) {
-			if (!RP->OnIoEventOutReady()) {
-				RP->OnIoEventError();
-				RP->EventFlags = xIoReactor::IO_EVENT_DISABLED;
-				continue;
+			if (RP->EventFlags & xIoReactor::IO_EVENT_READ) {
+				if (!RP->OnIoEventInReady()) {
+					RP->OnIoEventError();
+					RP->EventFlags = xIoReactor::IO_EVENT_DISABLED;
+					continue;
+				}
 			}
+			if (RP->EventFlags & xIoReactor::IO_EVENT_WRITE) {
+				if (!RP->OnIoEventOutReady()) {
+					RP->OnIoEventError();
+					RP->EventFlags = xIoReactor::IO_EVENT_DISABLED;
+					continue;
+				}
+			}
+			RP->EventFlags = xIoReactor::IO_EVENT_NONE;
 		}
-		RP->EventFlags = xIoReactor::IO_EVENT_NONE;
-	}
+	} while (!EventList.IsEmpty());
 }
 
 X_END
