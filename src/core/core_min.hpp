@@ -14,6 +14,7 @@
 #include <new>
 #include <type_traits>
 #include <utility>
+#include <typeinfo>
 
 #define X_BEGIN namespace xel {
 #define X_END }
@@ -323,7 +324,9 @@ public:
 	template <typename... tArgs>
 	X_INLINE constexpr xResourceGuardAsserted(T & Resource, tArgs &&... Args) : _Resource(Resource) {
 		if (!Resource.Init(std::forward<tArgs>(Args)...)) {
-			Fatal("xResourceGuard failed to init target");
+			char MsgBuff[256];
+			snprintf(MsgBuff, Length(MsgBuff), "ResourceGuard init target error: typename=%s", typeid(T).name());			
+			Fatal(MsgBuff);
 		}
 	}
 	X_INLINE ~xResourceGuardAsserted() {
