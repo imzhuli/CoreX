@@ -36,6 +36,14 @@ void QuickExit(const char * PErrorMessage, int ExitCode){
 	QuickExit(ExitCode);
 }
 
+void QuickExit(const char * PErrorMessage, const char * filename, size_t line, int ExitCode) {
+	if (!PErrorMessage) {
+		PErrorMessage = "";
+	}
+	fprintf(stderr, "%s:%zi %s", filename, line, PErrorMessage);
+	QuickExit(ExitCode);
+}
+
 // no reentry
 xNoReentry::xScope::xScope(xNoReentry * TargetEntry) {
     Entry = TargetEntry;

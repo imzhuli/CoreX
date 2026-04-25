@@ -116,11 +116,12 @@ X_STATIC_INLINE std::enable_if_t<std::is_array_v<T>> ZeroFill(T &Array) { ZeroFi
 [[noreturn]] X_API void QuickExit();
 [[noreturn]] X_API void QuickExit(int ExitCode);
 [[noreturn]] X_API void QuickExit(const char * PErrorMessage, int ExitCode = EXIT_FAILURE);
+[[noreturn]] X_API void QuickExit(const char * PErrorMessage, const char * filename, size_t line, int ExitCode = EXIT_FAILURE);
 [[noreturn]] X_STATIC_INLINE void Error(const char * message) { QuickExit(message);}
 [[noreturn]] X_STATIC_INLINE void Fatal(const char * message) { QuickExit(message); }
 [[noreturn]] X_STATIC_INLINE void Todo(const char * info) { QuickExit(info); }
-[[noreturn]] X_STATIC_INLINE void Pure() { QuickExit("Pure funcion placeholder called"); }
-[[noreturn]] X_STATIC_INLINE void Unreachable() { QuickExit("Unreachable code is reached"); }
+[[noreturn]] X_STATIC_INLINE void Pure() { QuickExit("Pure funcion placeholder called", __FILE__, __LINE__); }
+[[noreturn]] X_STATIC_INLINE void Unreachable() { QuickExit("Unreachable code is reached", __FILE__, __LINE__); }
 
 X_API void Breakpoint();
 X_STATIC_INLINE void Pass(const auto &...) {}
