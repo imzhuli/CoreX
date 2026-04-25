@@ -8,7 +8,9 @@
 X_BEGIN
 
 struct xNetAddress final {
-	enum eType : uint16_t { UNSPEC, IPV4, IPV6 };
+	enum eType : uint16_t { UNSPEC,
+							IPV4,
+							IPV6 };
 
 	eType Type = UNSPEC;
 	union {
@@ -23,9 +25,9 @@ struct xNetAddress final {
 	static_assert(sizeof(SA6) <= sizeof(__HOLDER__));
 
 	// methods:
-	X_INLINE bool     Is4() const { return Type == IPV4; }
-	X_INLINE bool     Is6() const { return Type == IPV6; }
-	X_INLINE explicit operator bool() const { return Type != UNSPEC; }
+	X_INLINE bool Is4() const { return Type == IPV4; }
+	X_INLINE bool Is6() const { return Type == IPV6; }
+	X_INLINE      operator bool() const { return Type != UNSPEC; }
 
 	X_INLINE int AddressFamily() const {
 		if (Type == IPV4) {
