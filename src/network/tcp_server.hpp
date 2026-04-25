@@ -6,7 +6,9 @@
 
 X_BEGIN
 
-class xTcpServer : protected xSocketIoReactor {
+class xTcpServer
+	: xSocketIoReactor
+	, xAbstract {
 public:
 	struct iListener {
 		virtual void OnNewConnection(xTcpServer * TcpServerPtr, xSocket && NativeHandle) = 0;
