@@ -393,7 +393,7 @@ X_COMMON_END
 #define X_PFATAL(fmt, ...) ::xel::FatalPrintf(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
 
 #define X_CATCH_NONE catch (const ::xel::xNonCatchable &)
-#define X_RUNTIME_ASSERT(cond) ::xel::RuntimeAssert((cond), "RuntimeAssertionFailure@ " __FILE__ ":" X_STRINGIFY(__LINE__) "  " X_STRINGIFY(cond))
+#define X_RUNTIME_ASSERT(cond) ::xel::RuntimeAssert((cond), "RuntimeAssertionFailure@ " __FILE__ ":" X_STRINGIFY(__LINE__) "  Assertion=(" X_STRINGIFY(cond) ")")
 
 #ifndef NDEBUG
 #define X_DEBUG
