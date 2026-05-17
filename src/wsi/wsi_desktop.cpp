@@ -11,11 +11,16 @@ X_BEGIN
 static bool       Inited = false;
 static std::mutex InitMutex;
 
+static void GlfwErrorCallback(int err, const char * desc) {
+	X_DEBUG_PRINTF("Glfw error, code=%i, desc=%s", err, desc);
+}
+
 bool InitWSI() {
 	auto InitGuard = std::lock_guard(InitMutex);
 #ifdef GLFW_SUPPORT_JOYSTICK_HAT
 	glfwInitHint(GLFW_JOYSTICK_HAT_BUTTONS, GLFW_FALSE);
 #endif
+	glfwSetErrorCallback(GlfwErrorCallback);
 	if (!glfwInit()) {
 		return false;
 	}

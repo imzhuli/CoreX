@@ -363,9 +363,9 @@ namespace __common_detail__ {
 
 /*********************/
 
-X_API void DebugPrintf(const char * Filename, size_t Line, const char * FunctionName, const char * fmt, ...);
-X_API void ErrorPrintf(const char * Filename, size_t Line, const char * FunctionName, const char * fmt, ...);
-X_API void FatalPrintf(const char * Filename, size_t Line, const char * FunctionName, const char * fmt, ...);
+X_API void DebugPrintf(const char * fmt, ...);
+X_API void ErrorPrintf(const char * fmt, ...);
+X_API void FatalPrintf(const char * fmt, ...);
 
 X_COMMON_END
 
@@ -388,9 +388,9 @@ X_COMMON_END
 #define X_VAR auto X_CONCAT_FORCE_EXPAND(__X_Variable__, __LINE__) =
 #endif
 
-#define X_PDEBUG(fmt, ...) ::xel::DebugPrintf(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
-#define X_PERROR(fmt, ...) ::xel::ErrorPrintf(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
-#define X_PFATAL(fmt, ...) ::xel::FatalPrintf(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
+#define X_PDEBUG(fmt, ...) ::xel::DebugPrintf("%s:" X_STRINGIFY(__LINE__) "@%s " fmt "\n", __FILE__, __func__, ##__VA_ARGS__)
+#define X_PERROR(fmt, ...) ::xel::ErrorPrintf("%s:" X_STRINGIFY(__LINE__) "@%s " fmt "\n", __FILE__, __func__, ##__VA_ARGS__)
+#define X_PFATAL(fmt, ...) ::xel::FatalPrintf("%s:" X_STRINGIFY(__LINE__) "@%s " fmt "\n", __FILE__, __func__, ##__VA_ARGS__)
 
 #define X_CATCH_NONE catch (const ::xel::xNonCatchable &)
 #define X_RUNTIME_ASSERT(cond) ::xel::RuntimeAssert((cond), "RuntimeAssertionFailure@ " __FILE__ ":" X_STRINGIFY(__LINE__) "  Assertion=(" X_STRINGIFY(cond) ")")
@@ -399,11 +399,11 @@ X_COMMON_END
 #define X_DEBUG
 #define X_DEBUG_STEAL(Param, ...) ::xel::Steal(Param, ##__VA_ARGS__)
 #define X_DEBUG_RESET(Param, ...) ::xel::Reset(Param, ##__VA_ARGS__)
-#define X_DEBUG_PRINTF(...)  ::xel::DebugPrintf(__FILE__, __LINE__, __func__, "" __VA_ARGS__)
+#define X_DEBUG_PRINTF(...)  X_PDEBUG(__VA_ARGS__)
 #define X_DEBUG_BREAKPOINT(...)   ::xel::Breakpoint()
 #else
 #define X_DEBUG_STEAL(Param, ...) Param
 #define X_DEBUG_RESET(Param, ...)
-#define X_DEBUG_PRINTF(...)  ::xel::Pass()
+#define X_DEBUG_PRINTF(...) ::xel::Pass()
 #define X_DEBUG_BREAKPOINT(...)
 #endif

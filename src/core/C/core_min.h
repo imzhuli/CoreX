@@ -151,16 +151,6 @@
 #define X_CNAME_END   }
 #endif
 
-#define X_MAKE_STRING(s)   #s
-#define X_EXPAND_STRING(s) X_MAKE_STRING(s)
-#define X_EXPECT(x)            \
-	do {                       \
-		bool test = (bool)(x); \
-		if (!test) {           \
-			throw #x;          \
-		}                      \
-	} while (0)
-
 #define X_HAS_ALIGNED_ALLOC 1
 #if defined(_MSC_VER)
 #define XelAlignedAlloc             _aligned_malloc
