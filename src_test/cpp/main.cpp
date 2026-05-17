@@ -8,6 +8,8 @@ using namespace std;
 
 int main(int argc, char ** argv) {
 
+	X_DEBUG_PRINTF();
+
 	auto P = xMemoryPool<int>();
 	P.Init({
 		.InitSize    = 10,
