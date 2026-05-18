@@ -67,7 +67,7 @@ void xRenderer::Render() {
 	return;
 }
 
-uint64_t xRenderer::Spawn(VkSurfaceKHR && Surface) {
+uint64_t xRenderer::Create(VkSurfaceKHR && Surface) {
 	auto RendererId = RendererPool.Acquire();
 	if (!RendererId) {
 		return {};

@@ -175,7 +175,7 @@ bool xDesktopWindow::CreateRenderer() {
 	if (SurfaceResult != VK_SUCCESS) {
 		return false;
 	}
-	if (!(RendererId = xRenderer::Spawn(std::move(SurfaceHandle)))) {
+	if (!(RendererId = xRenderer::Create(std::move(SurfaceHandle)))) {
 		return false;
 	}
 	return true;

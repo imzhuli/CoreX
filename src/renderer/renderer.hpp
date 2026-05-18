@@ -34,7 +34,7 @@ private:
 	X_PRIVATE_MEMBER void DestroyFrameBuffers();
 
 public:
-	X_PRIVATE_STATIC_MEMBER uint64_t Spawn(VkSurfaceKHR && Surface);
+	X_PRIVATE_STATIC_MEMBER uint64_t Create(VkSurfaceKHR && Surface);
 	X_PRIVATE_STATIC_MEMBER void     Destroy(uint64_t RendererId);
 	X_PRIVATE_STATIC_MEMBER void     UpdateAll();
 

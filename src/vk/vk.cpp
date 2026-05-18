@@ -56,7 +56,7 @@ bool InitVulkan(const char * ApplicationName) {
 	Builder.set_engine_name("XEngine");
 	Builder.require_api_version(VK_API_VERSION_1_2);
 	Builder.enable_validation_layers(VulkanEnableValidationLayers);
-	Builder.set_headless(true);
+	Builder.set_headless(false);
 #ifndef NDEBUG
 	Builder.use_default_debug_messenger();
 	Builder.request_validation_layers();
