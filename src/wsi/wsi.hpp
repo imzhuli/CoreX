@@ -10,9 +10,6 @@ X_BEGIN
 constexpr size32_t DefaultInitWindowWidth  = 1440;
 constexpr size32_t DefaultInitWindowHeight = 900;
 
-struct xNativeWindowHandle;
-class xWindow;
-
 enum struct eWindowMode {
 	Normal,
 	FullScreen,
@@ -56,20 +53,19 @@ struct xWindowSettings final {
 	} Size;
 };
 
-enum eWindowState : uint8_t {
+enum struct eWindowState : uint8_t {
 	WS_INIT   = 0,
 	WS_ACTIVE = 1,
 	WS_DYING  = 2,
 };
 
 struct xWindowStateNode : xListNode {
-	eWindowState State = WS_INIT;
+	eWindowState State = eWindowState::WS_INIT;
 };
 using xWindowStateList = xList<xWindowStateNode>;
 
-struct xNativeWindowHandle : xWindowStateNode {
-	uint64_t  WindowId     = {};
-	xVariable NativeHandle = {};
+struct xWindowHandle {
+	uint64_t WindowId = {};
 };
 
 X_PRIVATE void UpdateWindows(uint64_t TimestampMS);
@@ -77,8 +73,8 @@ X_PRIVATE void UpdateWindows(uint64_t TimestampMS);
 X_API bool InitWSI();
 X_API void CleanWSI();
 
-X_API xHandle CreateWindow(const xWindowSettings & Settings = {});
-X_API void    DeferDestroyWindow(xHandle WindowPtr);
+X_API xWindowHandle CreateWindow(const xWindowSettings & Settings = {});
+X_API void          DeferDestroyWindow(xWindowHandle Handle);
 
 X_PRIVATE void WSILoopOnce(uint_fast32_t TimeoutMS = 1);
 X_PRIVATE bool WSIHasDeferredCommands();

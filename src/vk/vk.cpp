@@ -35,6 +35,7 @@ static bool InitGlfwVulkanExtensions() {
 		return false;
 	}
 	for (uint32_t I = 0; I < glfwExtensionCount; ++I) {
+		X_DEBUG_PRINTF("Add extension: %s", glfwExtensions[I]);
 		VulkanExpectedExtensions.push_back(glfwExtensions[I]);
 	}
 	return true;
@@ -56,9 +57,11 @@ bool InitVulkan(const char * ApplicationName) {
 	Builder.require_api_version(VK_API_VERSION_1_2);
 	Builder.enable_validation_layers(VulkanEnableValidationLayers);
 	Builder.set_headless(true);
-	// instance_builder.use_default_debug_messenger();
-	// instance_builder.request_validation_layers();
-	// instance_builder.enable_extensions(VulkanExpectedExtensions);
+#ifndef NDEBUG
+	Builder.use_default_debug_messenger();
+	Builder.request_validation_layers();
+#endif
+	Builder.enable_extensions(VulkanExpectedExtensions);
 	auto instance_ret = Builder.build();
 	if (!instance_ret) {
 		return false;

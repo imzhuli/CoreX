@@ -1,5 +1,6 @@
 #include "./renderer.hpp"
 
+#include "../core/indexed_storage_static.hpp"
 #include "../core/thread.hpp"
 #include "../vk/vk_debug.hpp"
 #include "../vk/vk_init.hpp"
@@ -9,9 +10,9 @@
 
 X_BEGIN
 
+static auto RendererPool       = xIndexedStorageStatic<xRenderer, 256>();
 static auto NewRendererList    = xRendererList();
 static auto UpdateRendererList = xRendererList();
-static auto DeleteRendererList = xRendererList();
 
 bool xRenderer::Init(VkSurfaceKHR && Surface) {
 	NativeSurfaceHandle = Steal(Surface, VK_NULL_HANDLE);
@@ -66,40 +67,32 @@ void xRenderer::Render() {
 	return;
 }
 
-bool xRenderer::Spawn(VkSurfaceKHR && Surface) {
-	auto R = new xRenderer();
-	if (!R->Init(std::move(Surface))) {
-		delete R;
-		return false;
+uint64_t xRenderer::Spawn(VkSurfaceKHR && Surface) {
+	auto RendererId = RendererPool.Acquire();
+	if (!RendererId) {
+		return {};
 	}
+	auto R = &RendererPool[RendererId];
+	if (!R->Init(std::move(Surface))) {
+		RendererPool.Release(RendererId);
+		return {};
+	}
+	R->RendererId = RendererId;
 	NewRendererList.AddTail(*R);
-	return true;
+	return RendererId;
 }
 
 void xRenderer::UpdateAll() {
 	// Process new renderers
 
 	// update renderers:
-
-	// destroy dying renderers
-	DestroyDyingRenderers();
 }
 
-void xRenderer::CleanAll() {
-	DeleteRendererList.GrabListTail(NewRendererList);
-	DeleteRendererList.GrabListTail(UpdateRendererList);
-	DestroyDyingRenderers();
-}
-
-void xRenderer::DeferDestroyRenderer(xRenderer * R) {
-	DeleteRendererList.GrabTail(*R);
-}
-
-void xRenderer::DestroyDyingRenderers() {
-	while (auto P = static_cast<xRenderer *>(DeleteRendererList.PopHead())) {
-		P->Clean();
-		delete P;
-	}
+void xRenderer::Destroy(uint64_t RendererId) {
+	auto R = RendererPool.CheckAndGet(RendererId);
+	assert(R && R->RendererId == RendererId);
+	R->Clean();
+	RendererPool.Release(RendererId);
 }
 
 X_END

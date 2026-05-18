@@ -1,39 +1,34 @@
 #include "./window_desktop.hpp"
 
+#include "../core/indexed_storage_static.hpp"
 #include "../renderer/renderer.hpp"
 #include "../vk/vk.hpp"
 #include "../vk/vk_debug.hpp"
 #include "../xengine/engine.hpp"
 #include "./darwin/osx.h"
+#include "GLFW/glfw3.h"
+#include "wsi.hpp"
 
 #ifdef X_SYSTEM_DESKTOP
 X_BEGIN
 
-static xWindowStateList InitWindowList;
-static xWindowStateList ActiveWindowList;
-static xWindowStateList DyingWindowList;
+static xWindowStateList  ActiveWindowList;
+static xWindowStateList  DyingWindowList;
+static xWindowUpdateList UpdateWindowList;
 
-void UpdateWindows(uint64_t TimeoutMS) {
-	return;
-}
-
-/*
-
-static xWindowActiveList  WindowActiveList;
-static xWindowDestroyList WindowDestroyList;
-static xWindowUpdateList  WindowUpdateList;
+static xIndexedStorageStatic<xDesktopWindow, 128> DesktopWindowPool;
 
 static void window_close_callback(GLFWwindow * window) {
 	auto WindowPtr = (xDesktopWindow *)(glfwGetWindowUserPointer(window));
-	if (!WindowPtr->Active) {
+	if (!WindowPtr->IsActive()) {
 		return;
 	}
-	WindowPtr->Close();
+	WindowPtr->OnClose();
 }
 
 static void window_refresh_callback(GLFWwindow * window) {
 	auto WindowPtr = (xDesktopWindow *)(glfwGetWindowUserPointer(window));
-	if (!WindowPtr->Active) {
+	if (!WindowPtr->IsActive()) {
 		return;
 	}
 	WindowPtr->OnRefresh();
@@ -41,7 +36,7 @@ static void window_refresh_callback(GLFWwindow * window) {
 
 static void window_resize_callback(struct GLFWwindow * window, int w, int h) {
 	auto WindowPtr = (xDesktopWindow *)(glfwGetWindowUserPointer(window));
-	if (!WindowPtr->Active) {
+	if (!WindowPtr->IsActive()) {
 		return;
 	}
 	ssize32_t width  = (ssize32_t)w;
@@ -51,7 +46,7 @@ static void window_resize_callback(struct GLFWwindow * window, int w, int h) {
 
 static void window_content_scale_callback(GLFWwindow * window, float xscale, float yscale) {
 	auto WindowPtr = (xDesktopWindow *)(glfwGetWindowUserPointer(window));
-	if (!WindowPtr->Active) {
+	if (!WindowPtr->IsActive()) {
 		return;
 	}
 	WindowPtr->OnContentScaleUpdated(xscale, yscale);
@@ -59,7 +54,7 @@ static void window_content_scale_callback(GLFWwindow * window, float xscale, flo
 
 static void window_cursor_position_callback(GLFWwindow * window, double xpos, double ypos) {
 	auto WindowPtr = (xDesktopWindow *)(glfwGetWindowUserPointer(window));
-	if (!WindowPtr->Active) {
+	if (!WindowPtr->IsActive()) {
 		return;
 	}
 	WindowPtr->OnCursorMove(xpos, ypos);
@@ -67,7 +62,7 @@ static void window_cursor_position_callback(GLFWwindow * window, double xpos, do
 
 static void window_disabled_cursor_position_callback(GLFWwindow * window, double xpos, double ypos) {
 	auto WindowPtr = (xDesktopWindow *)(glfwGetWindowUserPointer(window));
-	if (!WindowPtr->Active) {
+	if (!WindowPtr->IsActive()) {
 		return;
 	}
 	WindowPtr->OnCursorMove(xpos, ypos);
@@ -76,28 +71,38 @@ static void window_disabled_cursor_position_callback(GLFWwindow * window, double
 
 static void window_key_callback(GLFWwindow * window, int key, int scancode, int action, int mods) {
 	auto WindowPtr = (xDesktopWindow *)(glfwGetWindowUserPointer(window));
-	if (!WindowPtr->Active) {
+	if (!WindowPtr->IsActive()) {
 		return;
 	}
 }
 
-iWindow * CreateWindow(const xWindowSettings & Settings) {
-	auto WindowPtr   = new xDesktopWindow;
-	auto WindowGuard = xScopeGuard([=] { delete WindowPtr; });
+xWindowHandle CreateWindow(const xWindowSettings & Settings) {
+	auto WindowId = DesktopWindowPool.Acquire();
+	if (!WindowId) {
+		return {};
+	}
+	auto WindowPtr      = &DesktopWindowPool[WindowId];
+	WindowPtr->WindowId = WindowId;
+
+	auto WindowGuard = xScopeGuard([&] { DesktopWindowPool.Release(WindowId); });
 
 	if (!WindowPtr->Init(Settings)) {
-		return nullptr;
+		return {};
 	}
-	WindowPtr->OnCreated();
 	WindowGuard.Dismiss();
-	return WindowPtr;
+
+	WindowPtr->OnCreated();
+	return { WindowId };
 }
 
-void DeferDestroyWindow(iWindow * I) {
-	auto W = static_cast<xDesktopWindow *>(I);
-	if (Steal(W->Active)) {
-		WindowDestroyList.GrabTail(*W);
+void DeferDestroyWindow(xWindowHandle Handle) {
+	auto W = DesktopWindowPool.CheckAndGet(Handle.WindowId);
+	if (!W || W->State == eWindowState::WS_DYING) {
+		return;
 	}
+	assert(W->State == eWindowState::WS_ACTIVE);
+	W->State = eWindowState::WS_DYING;
+	DyingWindowList.GrabTail(*W);
 }
 
 bool xDesktopWindow::Init(const xWindowSettings & Settings) {
@@ -119,18 +124,19 @@ bool xDesktopWindow::Init(const xWindowSettings & Settings) {
 		return false;
 	}
 
-	NativeHandle.Value = win;
-
-	WindowActiveList.AddTail(*this);
-	WindowUpdateList.AddTail(*this);
-	auto HandleGuard = xScopeGuard([&] {
+	NativeHandle = win;
+	State        = eWindowState::WS_ACTIVE;
+	ActiveWindowList.AddTail(*this);
+	UpdateWindowList.AddTail(*this);
+	auto HandleGuard = xScopeGuard([&, this] {
 		glfwDestroyWindow(win);
-		xWindowLifeCycleList::Remove(*this);
+		xWindowStateList::Remove(*this);
 		xWindowUpdateList::Remove(*this);
-		Reset(NativeHandle.Value);
+		Reset(State, eWindowState::WS_ACTIVE);
+		Reset(NativeHandle);
 	});
 
-	FullScreen_ = Monitor;
+	FullScreen = Monitor;
 	if (Settings.PositionMode == eWindowPositionMode::Centered) {
 		auto PrimaryMonitor = glfwGetPrimaryMonitor();
 		if (!PrimaryMonitor) {
@@ -163,19 +169,20 @@ bool xDesktopWindow::Init(const xWindowSettings & Settings) {
 }
 
 bool xDesktopWindow::CreateRenderer() {
+	auto Window        = (GLFWwindow *)NativeHandle;
 	auto SurfaceHandle = (VkSurfaceKHR)VK_NULL_HANDLE;
-	auto SurfaceResult = glfwCreateWindowSurface(VulkanInstance, NativeHandle.Value, nullptr, &SurfaceHandle);
+	auto SurfaceResult = glfwCreateWindowSurface(VulkanInstance, Window, nullptr, &SurfaceHandle);
 	if (SurfaceResult != VK_SUCCESS) {
 		return false;
 	}
-	if (!xRenderer::Spawn(std::move(SurfaceHandle))) {
+	if (!(RendererId = xRenderer::Spawn(std::move(SurfaceHandle)))) {
 		return false;
 	}
 	return true;
 }
 
 void xDesktopWindow::OnCreated() {
-	auto win = NativeHandle.Value;
+	auto win = (GLFWwindow *)NativeHandle;
 	int  w, h;
 	glfwGetWindowSize(win, &w, &h);
 	OnResized(w, h);
@@ -184,42 +191,29 @@ void xDesktopWindow::OnCreated() {
 	OnContentScaleUpdated(rx, ry);
 }
 
-void xDesktopWindow::Close() {
-	assert(NativeHandle.Value);
-	xWindowUpdateList::Remove(*this);
-	OnClosed();
-}
-
 void xDesktopWindow::Clean() {
-	if (!IsClosed()) {
-		Close();
-	}
-}
-
-bool xDesktopWindow::IsClosed() {
-	return !NativeHandle.Value;
-}
-
-bool xDesktopWindow::IsFullScreen() {
-	return FullScreen_;
+	auto Window = (GLFWwindow *)Steal(NativeHandle);
+	assert(Window);
+	xRenderer::Destroy(Steal(RendererId));
+	glfwDestroyWindow(Window);
 }
 
 void xDesktopWindow::SetCursorMode(eWindowCursorMode Mode) {
-	auto win = NativeHandle.Value;
+	auto Window = (GLFWwindow *)Steal(NativeHandle);
 	switch (Mode) {
 		case eWindowCursorMode::Native: {
-			glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-			glfwSetCursorPosCallback(win, &window_cursor_position_callback);
+			glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			glfwSetCursorPosCallback(Window, &window_cursor_position_callback);
 		} break;
 
 		case eWindowCursorMode::Hidden: {
-			glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-			glfwSetCursorPosCallback(win, &window_cursor_position_callback);
+			glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+			glfwSetCursorPosCallback(Window, &window_cursor_position_callback);
 		} break;
 
 		case eWindowCursorMode::Offset: {
-			glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-			glfwSetCursorPosCallback(win, &window_disabled_cursor_position_callback);
+			glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			glfwSetCursorPosCallback(Window, &window_disabled_cursor_position_callback);
 		} break;
 	}
 }
@@ -238,20 +232,30 @@ void xDesktopWindow::OnContentScaleUpdated(float xscale, float yscale) {
 void xDesktopWindow::OnCursorMove(double OffsetX, double OffsetY) {
 }
 
-void xDesktopWindow::Update() {
+void xDesktopWindow::OnUpdate() {
 }
 
-void xDesktopWindow::OnClosed() {
-	DeferDestroyWindow(this);
+void xDesktopWindow::OnClose() {
+	DeferDestroyWindow({ WindowId });
 }
 
 void UpdateWindows(uint64_t TimeoutMS) {
 	glfwWaitEventsTimeout(TimeoutMS / 1000.);
 }
 
-void CleanupDyingWindows() {
+void DeferKillAllActiveWindows() {
+	DyingWindowList.GrabListTail(ActiveWindowList);
 }
-*/
+
+void CleanupDyingWindows() {
+	while (auto P = (xDesktopWindow *)DyingWindowList.PopHead()) {
+		P->Clean();
+		DesktopWindowPool.Release(P->WindowId);
+	}
+	if (ActiveWindowList.IsEmpty()) {
+		StopXEngine();
+	}
+}
 
 X_END
 #endif

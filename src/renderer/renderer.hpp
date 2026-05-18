@@ -34,16 +34,13 @@ private:
 	X_PRIVATE_MEMBER void DestroyFrameBuffers();
 
 public:
-	X_PRIVATE_STATIC_MEMBER bool Spawn(VkSurfaceKHR && Surface);
-	X_PRIVATE_STATIC_MEMBER void UpdateAll();
-	X_PRIVATE_STATIC_MEMBER void CleanAll();
+	X_PRIVATE_STATIC_MEMBER uint64_t Spawn(VkSurfaceKHR && Surface);
+	X_PRIVATE_STATIC_MEMBER void     Destroy(uint64_t RendererId);
+	X_PRIVATE_STATIC_MEMBER void     UpdateAll();
 
 private:
-	X_PRIVATE_STATIC_MEMBER void DeferDestroyRenderer(xRenderer * R);
-	X_PRIVATE_STATIC_MEMBER void DestroyDyingRenderers();
-
-private:
-	VkSurfaceKHR NativeSurfaceHandle;
+	uint64_t     RendererId          = {};
+	VkSurfaceKHR NativeSurfaceHandle = {};
 };
 
 X_END

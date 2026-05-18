@@ -31,6 +31,7 @@ bool InitWSI() {
 
 void WSILoopOnce(uint_fast32_t TimeoutMS) {
 	UpdateWindows(TimeoutMS);
+	CleanupDyingWindows();
 }
 
 bool WSIHasDeferredCommands() {
@@ -41,6 +42,9 @@ void WSIProcessedCommandQueue() {
 }
 
 void CleanWSI() {
+	DeferKillAllActiveWindows();
+	CleanupDyingWindows();
+
 	auto InitGuard = std::lock_guard(InitMutex);
 	glfwTerminate();
 	Inited = false;

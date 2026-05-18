@@ -26,15 +26,15 @@ static X_VAR xScopeGuard{
 	[] { RenderThreadChecker.Clean(); }
 };
 
-xHandle AcquireNoRenderSession() {
+xNoRenderSession AcquireNoRenderSession() {
 	while (!NoRenderSessionRequestLock.compare_exchange_strong(XR(false), true));
 	NoRenderSessionEnterEvent.Wait();
 	NoSessonIdRandom = RandomEngine() | 0x01;
-	return xHandle{ .Native = { .U64 = NoSessonIdRandom } };
+	return NoSessonIdRandom;
 }
 
-void ReleaseNoRenderSession(xHandle && NoRenderSessionHandle) {
-	assert(NoSessonIdRandom == X_DEBUG_STEAL(NoRenderSessionHandle.Native.U64));
+void ReleaseNoRenderSession(xNoRenderSession && NoRenderSessionHandle) {
+	assert(NoSessonIdRandom == X_DEBUG_STEAL(NoRenderSessionHandle));
 	NoRenderSessionLeaveEvent.Notify();
 }
 
@@ -68,7 +68,7 @@ void RenderThreadLoop() {
 	// loop
 	while (RenderThreadRunState) {
 		// FreeRender options
-		X_DEBUG_PRINTF();
+		// X_DEBUG_PRINTF();
 		NoRenderSection();
 	}
 }
