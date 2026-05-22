@@ -324,10 +324,8 @@ class xResourceGuardAsserted final : xNonCopyable {
 public:
 	template <typename... tArgs>
 	X_INLINE constexpr xResourceGuardAsserted(T & Resource, tArgs &&... Args) : _Resource(Resource) {
-		if (!Resource.Init(std::forward<tArgs>(Args)...)) {
-			char MsgBuff[256];
-			snprintf(MsgBuff, Length(MsgBuff), "ResourceGuard init target error: typename=%s", typeid(T).name());			
-			Fatal(MsgBuff);
+		if (!Resource.Init(std::forward<tArgs>(Args)...)) {		
+			Fatal(typeid(T).name());
 		}
 	}
 	X_INLINE ~xResourceGuardAsserted() {

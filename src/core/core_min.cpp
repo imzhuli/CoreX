@@ -1,7 +1,7 @@
-// clang-format off
 #include "./core_min.hpp"
 
 #include <cstdarg>
+#include <cstdio>
 #include <cstdlib>
 #include <filesystem>
 #include <mutex>
@@ -11,6 +11,8 @@
 #ifdef X_SYSTEM_ANDROID
 #include <android/log.h>
 #endif
+
+// clang-format off
 
 X_COMMON_BEGIN
 
