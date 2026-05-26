@@ -399,9 +399,11 @@ X_COMMON_END
 #define X_DEBUG_RESET(Param, ...) ::xel::Reset(Param, ##__VA_ARGS__)
 #define X_DEBUG_PRINTF(...)  X_PDEBUG(__VA_ARGS__)
 #define X_DEBUG_BREAKPOINT(...)   ::xel::Breakpoint()
+#define X_PASS_ASSERT assert
 #else
 #define X_DEBUG_STEAL(Param, ...) Param
 #define X_DEBUG_RESET(Param, ...)
 #define X_DEBUG_PRINTF(...) ::xel::Pass()
 #define X_DEBUG_BREAKPOINT(...)
+#define X_PASS_ASSERT ::xel::Pass
 #endif
