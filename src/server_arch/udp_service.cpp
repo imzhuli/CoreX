@@ -26,13 +26,11 @@ void xUdpService::OnData(xUdpChannel * ChannelPtr, ubyte * DataPtr, size_t DataS
 	if (!Header) { /* header error */
 		return;
 	}
-	auto PacketSize = Header.PacketSize;  // make a copy, so Header can be reused
-	if (DataSize != PacketSize) {         // wait for data
+	auto PacketSize = Header.PacketSize;
+	if (DataSize != PacketSize) {
 		return;
 	}
-
-	if (Header.IsRequestKeepAlive()) {
-		ChannelPtr->PostKeepAlive(RemoteAddress);
+	if (Header.IsInternalRequest()) {  // ignore all internal request
 		return;
 	}
 
