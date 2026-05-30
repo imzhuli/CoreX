@@ -38,7 +38,7 @@ void xUdpService::OnData(xUdpChannel * ChannelPtr, ubyte * DataPtr, size_t DataS
 
 	auto PayloadPtr  = xPacket::GetPayloadPtr(DataPtr);
 	auto PayloadSize = Header.GetPayloadSize();
-	OnPacketCallback(
+	OnPacket(
 		{
 			this,
 			RemoteAddress,
