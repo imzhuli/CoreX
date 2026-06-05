@@ -43,5 +43,9 @@ template <size_t Size>
 X_INLINE size_t WriteMessage(ubyte (&Buffer)[Size], xPacketCommandId CmdId, xPacketRequestId RequestId, xBinaryMessage & Message) {
 	return WriteMessage(Buffer, Size, CmdId, RequestId, Message);
 }
+template <size_t Size>
+X_INLINE size_t WriteMessage(ubyte (&Buffer)[Size], xPacketCommandId CmdId, xBinaryMessage & Message) {
+	return WriteMessage(Buffer, Size, CmdId, 0, Message);
+}
 
 X_END
