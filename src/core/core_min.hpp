@@ -3,6 +3,7 @@
 
 #include "./C/core_min.h"
 
+#include <array>
 #include <atomic>
 #include <cassert>
 #include <cinttypes>
