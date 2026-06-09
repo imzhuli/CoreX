@@ -64,9 +64,6 @@ bool xServerIdClient::OnServerPacket(xPacketCommandId CommandId, xPacketRequestI
 		LocalServerIdDirty = true;
 	}
 	if (Steal(LocalServerIdDirty)) {
-		if (!LocalServerIdFilename.empty()) {
-			DumpLocalServerId(LocalServerIdFilename, LocalServerId);
-		}
 		OnServerIdUpdated(LocalServerId);
 	}
 	return true;

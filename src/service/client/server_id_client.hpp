@@ -4,9 +4,6 @@
 
 X_SERVICE_BEGIN
 
-extern uint64_t LoadLocalServerId(const std::string & LocalServerIdFilename);
-extern void		DumpLocalServerId(const std::string & LocalServerIdFilename, uint64_t LocalServerId);
-
 struct xServerIdClientOptions final {
 	xServerType ServerType		 = 0;
 	uint64_t	PreviousServerId = 0;
@@ -33,7 +30,6 @@ private:
 	xNetAddress		  ExportAddress		 = {};
 	uint64_t		  LocalServerId		 = 0;
 	bool			  LocalServerIdDirty = false;
-	std::string		  LocalServerIdFilename;
 };
 
 X_SERVICE_END
