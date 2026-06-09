@@ -1,6 +1,6 @@
 #pragma once
 #include "../../../server_arch/message.hpp"
-#include "../../base/_.hpp"
+#include "../../base/def.hpp"
 
 X_SERVICE_BEGIN
 

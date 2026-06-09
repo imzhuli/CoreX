@@ -2,6 +2,32 @@
 
 X_SERVICE_BEGIN
 
+namespace {
+
+	struct xServerIdComponent {
+		uint32_t Id;
+		uint16_t Random16;
+		uint16_t Checksum;
+	};
+
+}  // namespace
+
+static xServerIdInternal ExtractServerIdInternalFromPureId(uint32_t Id) {
+	return {
+		.Type	  = (xServerType)(Id >> 19),
+		.ObjectId = Id & 0x07FFFF,
+	};
+}
+
+static xServerIdComponent ExtractServerIdComponent(uint64_t ServerId) {
+	ServerId &= 0x0FFFFFFF'FFFFFFFFu;
+	return {
+		.Id		  = (uint32_t)(ServerId >> 32),
+		.Random16 = (uint16_t)(ServerId >> 16),
+		.Checksum = (uint16_t)(ServerId),
+	};
+}
+
 static uint32_t MakeId(const xServerIdInternal & Internal) {
 	return (static_cast<uint32_t>(Internal.Type) << 19) | Internal.ObjectId;
 }

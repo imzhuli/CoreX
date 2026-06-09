@@ -1,7 +1,7 @@
 #include "./server_id_client.hpp"
 
 #include "../../core/string.hpp"
-#include "../internal/id.hpp"
+#include "../internal/command.hpp"
 #include "../internal/protocol/register_server.hpp"
 
 X_SERVICE_BEGIN

@@ -14,22 +14,22 @@ X_SERVICE_BEGIN
 using xServerType = uint8_t;
 using xServerId	  = uint64_t;
 
-struct xServerIdComponent {
-	uint32_t Id;
-	uint16_t Random16;
-	uint16_t Checksum;
-};
-
 struct xServerIdInternal {
 	xServerType Type;
 	uint32_t	ObjectId;
 };
 
-X_PRIVATE xServerIdComponent ExtractServerIdComponent(uint64_t ServerId);
-X_PRIVATE xServerIdInternal	 ExtractServerIdInternalFromPureId(uint32_t Id);
+X_INLINE xServerType ExtractServerType(uint64_t ServerId) {
+	assert(ServerId);
+	return (xServerType)(ServerId >> 51);
+}
 
-X_API xServerType		ExtractServerType(uint64_t ServerId);
-X_API uint32_t			ExtractServerObjectId(uint64_t ServerId);
-X_API xServerIdInternal ExtractServerIdInternal(uint64_t ServerId);
+X_INLINE xServerIdInternal ExtractServerIdInternal(uint64_t ServerId) {
+	auto Id = uint32_t(ServerId >> 32);
+	return {
+		.Type	  = (xServerType)(Id >> 19),
+		.ObjectId = Id & 0x07FFFF,
+	};
+}
 
 X_SERVICE_END

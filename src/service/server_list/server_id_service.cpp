@@ -1,6 +1,6 @@
 #include "./server_id_service.hpp"
 
-#include "../internal/id.hpp"
+#include "../internal/command.hpp"
 #include "../internal/protocol/register_server.hpp"
 
 static constexpr const uint64_t INIT_REGISTER_SERVER_ID_TIMEOUT = 3'000;
