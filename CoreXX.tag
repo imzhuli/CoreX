@@ -4,6 +4,7 @@ alias build_all_release='python3 _script/build_dependency.py -r;python3 _script/
 alias qb='cmake --build _corex_build'
 alias qi='python3 _script/clean_install.py; cmake --install _corex_build'
 alias rb='rebuild -j 24'
+alias mf='touch -c ./src/CMakeLists.txt'
 
 # windows:
 # function rb3() { python3 _script/build_dependency.py }

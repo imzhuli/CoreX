@@ -30,11 +30,8 @@ void xUdpService::OnData(xUdpChannel * ChannelPtr, ubyte * DataPtr, size_t DataS
 	if (DataSize != PacketSize) {
 		return;
 	}
-	if (Header.IsInternalRequest()) {  // ignore all internal request
-		return;
-	}
 
-	auto PayloadPtr  = xPacket::GetPayloadPtr(DataPtr);
+	auto PayloadPtr	 = xPacket::GetPayloadPtr(DataPtr);
 	auto PayloadSize = Header.GetPayloadSize();
 	OnPacket(
 		{

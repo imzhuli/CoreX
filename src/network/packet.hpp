@@ -9,20 +9,20 @@
 
 X_BEGIN
 
-using xPacketSize      = uint32_t;
+using xPacketSize	   = uint32_t;
 using xPacketCommandId = uint32_t;
 using xPacketRequestId = uint64_t;
 
-static constexpr const size_t   PacketHeaderSize = 16u;
-static constexpr const uint32_t PacketMagicMask  = 0xFF'000000u;
+static constexpr const size_t	PacketHeaderSize = 16u;
+static constexpr const uint32_t PacketMagicMask	 = 0xFF'000000u;
 static constexpr const uint32_t PacketMagicValue = 0xCD'000000u;
-static constexpr const uint32_t PacketSizeMask   = 0x00'FFFFFFu;
+static constexpr const uint32_t PacketSizeMask	 = 0x00'FFFFFFu;
 
-static constexpr const size_t MaxPacketSize        = 4400 & PacketSizeMask;
+static constexpr const size_t MaxPacketSize		   = 4400 & PacketSizeMask;
 static constexpr const size_t MaxPacketPayloadSize = MaxPacketSize - PacketHeaderSize;
 
-static constexpr const xPacketCommandId MaxDispatchableCommandId      = 0x0'FFFu;
-static constexpr const size_t           MaxDispatchableCommandIdCount = 1 + MaxDispatchableCommandId;
+static constexpr const xPacketCommandId MaxDispatchableCommandId	  = 0x0'FFFu;
+static constexpr const size_t			MaxDispatchableCommandIdCount = 1 + MaxDispatchableCommandId;
 
 /***
 	@brief Such class is a 'almost' direct mapping to stream data header.
@@ -30,14 +30,14 @@ static constexpr const size_t           MaxDispatchableCommandIdCount = 1 + MaxD
 */
 struct xPacketHeader final {
 
-	static constexpr const size_t           Size                             = 2 * sizeof(uint32_t) + sizeof(uint64_t);
-	static constexpr const xPacketCommandId CmdId_InnernalRequest            = xPacketCommandId(-1);
-	static constexpr const xPacketRequestId InternalRequest_KeepAlive        = xPacketRequestId(-0);
+	static constexpr const size_t			Size							 = 2 * sizeof(uint32_t) + sizeof(uint64_t);
+	static constexpr const xPacketCommandId CmdId_InnernalRequest			 = xPacketCommandId(-1);
+	static constexpr const xPacketRequestId InternalRequest_KeepAlive		 = xPacketRequestId(-0);
 	static constexpr const xPacketRequestId InternalRequest_RequestKeepAlive = xPacketRequestId(-1);
 
-	xPacketSize      PacketSize = 0;  // header size included, lower 24 bits as length, higher 8 bits as a magic check
-	xPacketCommandId CommandId  = 0;
-	xPacketRequestId RequestId  = 0;
+	xPacketSize		 PacketSize = 0;  // header size included, lower 24 bits as length, higher 8 bits as a magic check
+	xPacketCommandId CommandId	= 0;
+	xPacketRequestId RequestId	= 0;
 
 	X_INLINE void Serialize(void * DestPtr) const {
 		xStreamWriter S(DestPtr);
@@ -87,9 +87,9 @@ struct xPacketHeader final {
 		return PacketHeaderSize;
 	}
 
-	X_INLINE bool IsInternalRequest() const { return CommandId == CmdId_InnernalRequest; }
-	X_INLINE bool IsKeepAlive() const { return IsInternalRequest() && RequestId == InternalRequest_KeepAlive; }
-	X_INLINE bool IsRequestKeepAlive() const { return IsInternalRequest() && RequestId == InternalRequest_RequestKeepAlive; }
+	X_STATIC_INLINE bool IsInternalRequest(xPacketCommandId CommandId) { return CommandId == CmdId_InnernalRequest; }
+	X_INLINE bool		 IsKeepAlive() const { return IsInternalRequest(CommandId) && RequestId == InternalRequest_KeepAlive; }
+	X_INLINE bool		 IsRequestKeepAlive() const { return IsInternalRequest(CommandId) && RequestId == InternalRequest_RequestKeepAlive; }
 
 private:
 	X_STATIC_INLINE uint32_t MakeHeaderLength(uint32_t PacketSize) {
@@ -104,13 +104,13 @@ private:
 
 struct xPacket final {
 
-	X_STATIC_INLINE ubyte *       GetPayloadPtr(void * PacketPtr) { return (ubyte *)PacketPtr + xPacketHeader::Size; }
+	X_STATIC_INLINE ubyte *		  GetPayloadPtr(void * PacketPtr) { return (ubyte *)PacketPtr + xPacketHeader::Size; }
 	X_STATIC_INLINE const ubyte * GetPayloadPtr(const void * PacketPtr) { return (const ubyte *)PacketPtr + xPacketHeader::Size; }
-	X_STATIC_INLINE size_t        GetPayloadSize(size_t PacketSize) { return PacketSize - PacketHeaderSize; }
+	X_STATIC_INLINE size_t		  GetPayloadSize(size_t PacketSize) { return PacketSize - PacketHeaderSize; }
 
-	X_STATIC_INLINE ubyte *       GetPacketPtr(void * PayloedPtr) { return (ubyte *)PayloedPtr - xPacketHeader::Size; }
+	X_STATIC_INLINE ubyte *		  GetPacketPtr(void * PayloedPtr) { return (ubyte *)PayloedPtr - xPacketHeader::Size; }
 	X_STATIC_INLINE const ubyte * GetPacketPtr(const void * PayloedPtr) { return (const ubyte *)PayloedPtr - xPacketHeader::Size; }
-	X_STATIC_INLINE size_t        GetPacketSize(size_t PayloadSize) { return PayloadSize + PacketHeaderSize; }
+	X_STATIC_INLINE size_t		  GetPacketSize(size_t PayloadSize) { return PayloadSize + PacketHeaderSize; }
 
 	//
 };
