@@ -4,7 +4,7 @@
 
 X_SERVICE_BEGIN
 
-struct xPP_RegisterServer : public xBinaryMessage {	 // from proxy_access to relay server
+struct xMsg_RegisterServer : public xBinaryMessage {  // from proxy_access to relay server
 public:
 	void SerializeMembers() override {
 		W(ServerType);		  //
@@ -23,7 +23,7 @@ public:
 	xNetAddress ExportAddress;
 };
 
-struct xPP_RegisterServerResp : public xBinaryMessage {	 // from proxy_access to relay server
+struct xMsg_RegisterServerResp : public xBinaryMessage {  // from proxy_access to relay server
 public:
 	void SerializeMembers() override {
 		W(NewServerId);	 //

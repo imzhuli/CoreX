@@ -87,7 +87,7 @@ void xServerIdService::KillUnregisteredClientConnections() {
 }
 
 void xServerIdService::OnNewClientConnection(const xTcpServiceClientConnectionHandle & Handle) {
-	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 "", Handle.GetConnectionId());
+	// X_DEBUG_PRINTF("ConnectionId=%" PRIx64 "", Handle.GetConnectionId());
 	auto Context = ConnectionContextPool.Create();
 	if (!Context) {
 		Handle.Kill();
@@ -105,7 +105,7 @@ void xServerIdService::OnCleanClientConnection(const xTcpServiceClientConnection
 	if (!Context) {
 		return;
 	}
-	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", ServerId=%" PRIx64 "", Handle.GetConnectionId(), Context->ServerId);
+	// X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", ServerId=%" PRIx64 "", Handle.GetConnectionId(), Context->ServerId);
 	if (auto ServerId = Context->ServerId) {
 		X_PASS_ASSERT(GetServerIdManagerByServerId(ServerId)->ReleaseServerId(ServerId));
 		OnRemoveServerId(ServerId);
@@ -114,27 +114,27 @@ void xServerIdService::OnCleanClientConnection(const xTcpServiceClientConnection
 }
 
 bool xServerIdService::OnClientConnectionPacket(const xTcpServiceClientConnectionHandle & Handle, xPacketCommandId CommandId, xPacketRequestId RequestId, ubyte * Payload, size_t PayloadSize) {
-	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 "", Handle.GetConnectionId());
+	// X_DEBUG_PRINTF("ConnectionId=%" PRIx64 "", Handle.GetConnectionId());
 	if (!xPacketHeader::IsInternalRequest(CommandId) || RequestId != InternalRequest_RegisterServer) {
-		X_DEBUG_PRINTF("Invalid command id");
+		// X_DEBUG_PRINTF("Invalid command id");
 		return false;
 	}
 	auto Context = static_cast<xConnectionContext *>(Handle->UserContext.P);
 	if (Context->ServerId) {  // multiple register
-		X_DEBUG_PRINTF("multiple registration");
+		// X_DEBUG_PRINTF("multiple registration");
 		return false;
 	}
 
-	auto Req = xPP_RegisterServer();
+	auto Req = xMsg_RegisterServer();
 	if (!Req.Deserialize(Payload, PayloadSize)) {
-		X_DEBUG_PRINTF("invalid protocol");
+		// X_DEBUG_PRINTF("invalid protocol");
 		return false;
 	}
 
 	if (Req.PreviousServerId) {
 		auto OldType = ExtractServerType(Req.PreviousServerId);
 		if (OldType != Req.ServerType) {
-			X_DEBUG_PRINTF("server type conflict with old server id");
+			// X_DEBUG_PRINTF("server type conflict with old server id");
 			return false;
 		}
 	}
@@ -143,23 +143,23 @@ bool xServerIdService::OnClientConnectionPacket(const xTcpServiceClientConnectio
 	auto NewServerId = uint64_t(0);
 	if (IdManager) {
 		if (Req.PreviousServerId) {
-			X_DEBUG_PRINTF("Try regain old serverId: %" PRIx64 "", Req.PreviousServerId);
+			// X_DEBUG_PRINTF("Try regain old serverId: %" PRIx64 "", Req.PreviousServerId);
 			NewServerId = IdManager->RegainServerId(Req.PreviousServerId);
 		}
 		if (!NewServerId) {
-			X_DEBUG_PRINTF("Try acquire new serverId");
+			// X_DEBUG_PRINTF("Try acquire new serverId");
 			NewServerId = IdManager->AcquireServerId(Req.ServerType);
 		}
 	} else {
-		X_DEBUG_PRINTF("NoIdManager found");
+		// X_DEBUG_PRINTF("NoIdManager found");
 	}
 	if ((Context->ServerId = NewServerId)) {
 		xConnectionContextList::Remove(*Context);
 		OnNewServerId(NewServerId, Req.ExportAddress);
 	}
-	X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", ServerId=%" PRIx64 "", Handle.GetConnectionId(), Context->ServerId);
+	// X_DEBUG_PRINTF("ConnectionId=%" PRIx64 ", ServerId=%" PRIx64 "", Handle.GetConnectionId(), Context->ServerId);
 
-	auto Resp		 = xPP_RegisterServerResp();
+	auto Resp		 = xMsg_RegisterServerResp();
 	Resp.NewServerId = NewServerId;
 	Handle.PostMessage(xPacketHeader::CmdId_InnernalRequest, InternalRequest_RegisterServerResp, Resp);
 

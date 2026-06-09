@@ -2,54 +2,12 @@
 
 X_SERVICE_BEGIN
 
-namespace {
-
-	struct xServerIdComponent {
-		uint32_t Id;
-		uint16_t Random16;
-		uint16_t Checksum;
-	};
-
-	xServerIdComponent ExtractServerIdComponent(uint64_t ServerId) {
-		ServerId &= 0x0FFFFFFF'FFFFFFFFu;
-		return {
-			.Id		  = (uint32_t)(ServerId >> 32),
-			.Random16 = (uint16_t)(ServerId >> 16),
-			.Checksum = (uint16_t)(ServerId),
-		};
-	}
-
-	xServerIdInternal ExtractServerIdInternalFromPureId(uint32_t Id) {
-		return {
-			.Type	  = (xServerType)(Id >> 19),
-			.ObjectId = Id & 0x07FFFF,
-		};
-	}
-
-	uint32_t MakeId(const xServerIdInternal & Internal) {
-		return (static_cast<uint32_t>(Internal.Type) << 19) | Internal.ObjectId;
-	}
-
-	xServerId CombineServerId(xServerType Type, uint32_t ObjectId, uint16_t Random16, uint16_t Checksum) {
-		return (static_cast<uint64_t>(0x08) << 60) | (static_cast<uint64_t>(Type) << 51) | (static_cast<uint64_t>(ObjectId) << 32) | (static_cast<uint64_t>(Random16) << 16) | static_cast<uint64_t>(Checksum);
-	}
-
-};	// namespace
-
-xServerType ExtractServerType(uint64_t ServerId) {
-	assert(ServerId);
-	return (xServerType)(ServerId >> 51);
+static uint32_t MakeId(const xServerIdInternal & Internal) {
+	return (static_cast<uint32_t>(Internal.Type) << 19) | Internal.ObjectId;
 }
 
-uint32_t ExtractServerObjectId(uint64_t ServerId) {
-	assert(ServerId);
-	auto ObjectId = (ServerId >> 32) & 0x0007FFFF;
-	return uint32_t(ObjectId);
-}
-
-xServerIdInternal ExtractServerIdInternal(uint64_t ServerId) {
-	assert(ServerId);
-	return ExtractServerIdInternalFromPureId(uint32_t(ServerId >> 32));
+static xServerId CombineServerId(xServerType Type, uint32_t ObjectId, uint16_t Random16, uint16_t Checksum) {
+	return (static_cast<uint64_t>(0x08) << 60) | (static_cast<uint64_t>(Type) << 51) | (static_cast<uint64_t>(ObjectId) << 32) | (static_cast<uint64_t>(Random16) << 16) | static_cast<uint64_t>(Checksum);
 }
 
 bool xServerIdManager::Init() {

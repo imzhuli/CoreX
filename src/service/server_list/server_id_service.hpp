@@ -19,12 +19,12 @@ private:
 	using xConnectionContextList = xList<xConnectionContext>;
 
 public:
-	bool Init(xIoContext * ICP, const xNetAddress & BindAddress);
-	void Clean();
-	void Tick(uint64_t NowMS);
+	X_API_MEMBER bool Init(xIoContext * ICP, const xNetAddress & BindAddress);
+	X_API_MEMBER void Clean();
+	X_API_MEMBER void Tick(uint64_t NowMS);
 
-	bool EnableServerType(xServerType Type);
-	void DisableServerType(xServerType Type);
+	X_API_MEMBER bool EnableServerType(xServerType Type);
+	X_API_MEMBER void DisableServerType(xServerType Type);
 
 	using xOnNewServerId	= std::function<void(xServerId Id, const xNetAddress & ExportAddress)>;
 	using xOnRemoveServerId = std::function<void(xServerId Id)>;
@@ -33,11 +33,11 @@ public:
 	xOnRemoveServerId OnRemoveServerId = Noop<>;
 
 private:
-	auto GetServerIdManagerByServerId(uint64_t Serverid) -> xServerIdManager *;
-	void KillUnregisteredClientConnections();
-	void OnNewClientConnection(const xTcpServiceClientConnectionHandle & Handle);
-	void OnCleanClientConnection(const xTcpServiceClientConnectionHandle & Handle);
-	bool OnClientConnectionPacket(const xTcpServiceClientConnectionHandle & Handle, xPacketCommandId CommandId, xPacketRequestId, ubyte * Payload, size_t PayloadSize);
+	X_API_MEMBER auto GetServerIdManagerByServerId(uint64_t Serverid) -> xServerIdManager *;
+	X_API_MEMBER void KillUnregisteredClientConnections();
+	X_API_MEMBER void OnNewClientConnection(const xTcpServiceClientConnectionHandle & Handle);
+	X_API_MEMBER void OnCleanClientConnection(const xTcpServiceClientConnectionHandle & Handle);
+	X_API_MEMBER bool OnClientConnectionPacket(const xTcpServiceClientConnectionHandle & Handle, xPacketCommandId CommandId, xPacketRequestId, ubyte * Payload, size_t PayloadSize);
 
 private:
 	xTicker							LocalTicker;
