@@ -14,7 +14,7 @@ namespace {
 
 static xServerIdInternal ExtractServerIdInternalFromPureId(uint32_t Id) {
 	return {
-		.Type	  = (xServerType)(Id >> 19),
+		.Type	  = (xServerGroup)(Id >> 19),
 		.ObjectId = Id & 0x07FFFF,
 	};
 }
@@ -32,7 +32,7 @@ static uint32_t MakeId(const xServerIdInternal & Internal) {
 	return (static_cast<uint32_t>(Internal.Type) << 19) | Internal.ObjectId;
 }
 
-static xServerId CombineServerId(xServerType Type, uint32_t ObjectId, uint16_t Random16, uint16_t Checksum) {
+static xServerId CombineServerId(xServerGroup Type, uint32_t ObjectId, uint16_t Random16, uint16_t Checksum) {
 	return (static_cast<uint64_t>(0x08) << 60) | (static_cast<uint64_t>(Type) << 51) | (static_cast<uint64_t>(ObjectId) << 32) | (static_cast<uint64_t>(Random16) << 16) | static_cast<uint64_t>(Checksum);
 }
 
@@ -81,7 +81,7 @@ uint16_t xServerIdManager::GenerateCheckSum(uint32_t IdIndex, uint16_t IdRandom)
 	return Sum;
 }
 
-uint64_t xServerIdManager::AcquireServerId(xServerType Type) {
+uint64_t xServerIdManager::AcquireServerId(xServerGroup Type) {
 	auto ObjectId = IdManager.Acquire();
 	if (!ObjectId) {
 		return 0;

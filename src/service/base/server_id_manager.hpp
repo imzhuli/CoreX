@@ -12,7 +12,7 @@ public:
 	X_API_MEMBER bool Init();
 	X_API_MEMBER void Clean();
 
-	X_API_MEMBER uint64_t AcquireServerId(xServerType Type = 0);
+	X_API_MEMBER uint64_t AcquireServerId(xServerGroup Type = 0);
 	X_API_MEMBER uint64_t RegainServerId(uint64_t ServerId);
 	X_API_MEMBER bool	  ReleaseServerId(uint64_t ServerId);
 

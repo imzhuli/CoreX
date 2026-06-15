@@ -44,7 +44,7 @@ void xServerIdService::Clean() {
 	delete Steal(IdManagerList);
 }
 
-bool xServerIdService::EnableServerType(xServerType Type) {
+bool xServerIdService::EnableServerGroup(xServerGroup Type) {
 	auto & IdManager = (*IdManagerList)[Type];
 	assert(!IdManager);
 	IdManager = new xServerIdManager();
@@ -55,7 +55,7 @@ bool xServerIdService::EnableServerType(xServerType Type) {
 	return true;
 }
 
-void xServerIdService::DisableServerType(xServerType Type) {
+void xServerIdService::DisableServerGroup(xServerGroup Type) {
 	auto & IdManager = (*IdManagerList)[Type];
 	assert(IdManager);
 	IdManager->Clean();
@@ -71,7 +71,7 @@ void xServerIdService::Tick(uint64_t NowMS) {
 }
 
 xServerIdManager * xServerIdService::GetServerIdManagerByServerId(uint64_t ServerId) {
-	auto Type = ExtractServerType(ServerId);
+	auto Type = ExtractServerGroup(ServerId);
 	return (*IdManagerList)[Type];
 }
 
@@ -132,14 +132,14 @@ bool xServerIdService::OnClientConnectionPacket(const xTcpServiceClientConnectio
 	}
 
 	if (Req.PreviousServerId) {
-		auto OldType = ExtractServerType(Req.PreviousServerId);
-		if (OldType != Req.ServerType) {
+		auto OldType = ExtractServerGroup(Req.PreviousServerId);
+		if (OldType != Req.ServerGroup) {
 			// X_DEBUG_PRINTF("server type conflict with old server id");
 			return false;
 		}
 	}
 
-	auto IdManager	 = (*IdManagerList)[Req.ServerType];
+	auto IdManager	 = (*IdManagerList)[Req.ServerGroup];
 	auto NewServerId = uint64_t(0);
 	if (IdManager) {
 		if (Req.PreviousServerId) {
@@ -148,7 +148,7 @@ bool xServerIdService::OnClientConnectionPacket(const xTcpServiceClientConnectio
 		}
 		if (!NewServerId) {
 			// X_DEBUG_PRINTF("Try acquire new serverId");
-			NewServerId = IdManager->AcquireServerId(Req.ServerType);
+			NewServerId = IdManager->AcquireServerId(Req.ServerGroup);
 		}
 	} else {
 		// X_DEBUG_PRINTF("NoIdManager found");

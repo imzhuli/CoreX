@@ -15,11 +15,11 @@ bool xServerIdClient::Init(xIoContext * ICP, const xServerIdClientOptions & Opti
 	ClientWrapper.OnServerConnected = Delegate(&xServerIdClient::OnServerConnected, this);
 	ClientWrapper.OnServerPacket	= Delegate(&xServerIdClient::OnServerPacket, this);
 
-	ServerType	  = Options.ServerType;
+	ServerGroup	  = Options.ServerGroup;
 	ExportAddress = Options.ExportAddress;
 	if ((LocalServerId = Options.PreviousServerId)) {
-		auto CheckType = ExtractServerType(LocalServerId);
-		if (CheckType != ServerType) {
+		auto CheckGroup = ExtractServerGroup(LocalServerId);
+		if (CheckGroup != ServerGroup) {
 			Reset(LocalServerId);
 		}
 	}
@@ -28,7 +28,7 @@ bool xServerIdClient::Init(xIoContext * ICP, const xServerIdClientOptions & Opti
 }
 
 void xServerIdClient::Clean() {
-	Reset(ServerType);
+	Reset(ServerGroup);
 	Reset(ExportAddress);
 	Reset(LocalServerId);
 	ClientWrapper.Clean();
@@ -41,7 +41,7 @@ void xServerIdClient::Tick(uint64_t NowMS) {
 
 void xServerIdClient::OnServerConnected() {
 	auto Req			 = xMsg_RegisterServer();
-	Req.ServerType		 = ServerType;
+	Req.ServerGroup		 = ServerGroup;
 	Req.PreviousServerId = LocalServerId;
 	Req.ExportAddress	 = ExportAddress;
 	ClientWrapper.PostMessage(xPacketHeader::CmdId_InnernalRequest, InternalRequest_RegisterServer, Req);

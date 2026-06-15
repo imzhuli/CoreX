@@ -11,23 +11,23 @@
 
 X_SERVICE_BEGIN
 
-using xServerType = uint8_t;
-using xServerId	  = uint64_t;
+using xServerGroup = uint8_t;
+using xServerId	   = uint64_t;
 
 struct xServerIdInternal {
-	xServerType Type;
-	uint32_t	ObjectId;
+	xServerGroup Type;
+	uint32_t	 ObjectId;
 };
 
-X_INLINE xServerType ExtractServerType(uint64_t ServerId) {
+X_INLINE xServerGroup ExtractServerGroup(uint64_t ServerId) {
 	assert(ServerId);
-	return (xServerType)(ServerId >> 51);
+	return (xServerGroup)(ServerId >> 51);
 }
 
 X_INLINE xServerIdInternal ExtractServerIdInternal(uint64_t ServerId) {
 	auto Id = uint32_t(ServerId >> 32);
 	return {
-		.Type	  = (xServerType)(Id >> 19),
+		.Type	  = (xServerGroup)(Id >> 19),
 		.ObjectId = Id & 0x07FFFF,
 	};
 }

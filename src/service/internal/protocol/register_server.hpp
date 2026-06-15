@@ -7,20 +7,20 @@ X_SERVICE_BEGIN
 struct xMsg_RegisterServer : public xBinaryMessage {  // from proxy_access to relay server
 public:
 	void SerializeMembers() override {
-		W(ServerType);		  //
+		W(ServerGroup);		  //
 		W(PreviousServerId);  //
 		W(ExportAddress);	  //
 	}
 
 	void DeserializeMembers() override {
-		R(ServerType);		  //
+		R(ServerGroup);		  //
 		R(PreviousServerId);  //
 		R(ExportAddress);	  //
 	}
 
-	xServerType ServerType;
-	xServerId	PreviousServerId;
-	xNetAddress ExportAddress;
+	xServerGroup ServerGroup;
+	xServerId	 PreviousServerId;
+	xNetAddress	 ExportAddress;
 };
 
 struct xMsg_RegisterServerResp : public xBinaryMessage {  // from proxy_access to relay server

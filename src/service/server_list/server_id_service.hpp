@@ -10,7 +10,7 @@ X_SERVICE_BEGIN
 
 class xServerIdService final {
 private:
-	using xIdManagerList = std::array<xServerIdManager *, size_t(std::numeric_limits<xServerType>::max()) + 1>;
+	using xIdManagerList = std::array<xServerIdManager *, size_t(std::numeric_limits<xServerGroup>::max()) + 1>;
 	struct xConnectionContext : xListNode {
 		uint64_t						  StartupTimestampMS = 0;
 		uint64_t						  ServerId			 = 0;
@@ -23,8 +23,8 @@ public:
 	X_API_MEMBER void Clean();
 	X_API_MEMBER void Tick(uint64_t NowMS);
 
-	X_API_MEMBER bool EnableServerType(xServerType Type);
-	X_API_MEMBER void DisableServerType(xServerType Type);
+	X_API_MEMBER bool EnableServerGroup(xServerGroup Type);
+	X_API_MEMBER void DisableServerGroup(xServerGroup Type);
 
 	using xOnNewServerId	= std::function<void(xServerId Id, const xNetAddress & ExportAddress)>;
 	using xOnRemoveServerId = std::function<void(xServerId Id)>;

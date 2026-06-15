@@ -5,9 +5,9 @@
 X_SERVICE_BEGIN
 
 struct xServerIdClientOptions final {
-	xServerType ServerType		 = 0;
-	uint64_t	PreviousServerId = 0;
-	xNetAddress ExportAddress	 = {};
+	xServerGroup ServerGroup	  = 0;
+	uint64_t	 PreviousServerId = 0;
+	xNetAddress	 ExportAddress	  = {};
 };
 
 class xServerIdClient final {
@@ -26,7 +26,7 @@ private:
 
 private:
 	xTcpClientWrapper ClientWrapper;
-	xServerType		  ServerType		 = 0;
+	xServerGroup	  ServerGroup		 = 0;
 	xNetAddress		  ExportAddress		 = {};
 	uint64_t		  LocalServerId		 = 0;
 	bool			  LocalServerIdDirty = false;
