@@ -38,7 +38,7 @@ static xServerId CombineServerId(xServerGroup Type, uint32_t ObjectId, uint16_t 
 
 bool xServerIdManager::Init() {
 
-	auto PoolSize = MaxServerIdCount();
+	auto PoolSize = MAX_SERVER_ID_COUNT;
 
 	if (!IdManager.Init()) {
 		return false;

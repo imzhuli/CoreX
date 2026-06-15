@@ -9,8 +9,14 @@
 X_SERVICE_BEGIN
 
 class xServerIdService final {
+public:
+	static constexpr const size_t MAX_GROUP_INDEX	  = size_t(std::numeric_limits<xServerGroup>::max());
+	static constexpr const size_t MAX_GROUP_COUNT	  = MAX_GROUP_INDEX + 1;
+	static constexpr const size_t MAX_SERVER_ID_COUNT = xServerIdManager::MAX_SERVER_ID_COUNT;
+	static constexpr const size_t MAX_SERVER_ID_INDEX = xServerIdManager::MAX_SERVER_ID_INDEX;
+
 private:
-	using xIdManagerList = std::array<xServerIdManager *, size_t(std::numeric_limits<xServerGroup>::max()) + 1>;
+	using xIdManagerList = std::array<xServerIdManager *, MAX_GROUP_COUNT>;
 	struct xConnectionContext : xListNode {
 		uint64_t						  StartupTimestampMS = 0;
 		uint64_t						  ServerId			 = 0;
