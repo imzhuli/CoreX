@@ -25,6 +25,7 @@ bool xCryptoKey::Init(const char * PemFile, const char * Pass) {
 		delete pk;
 		return false;
 	}
+	Key = pk;
 	return true;
 }
 
