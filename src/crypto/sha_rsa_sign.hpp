@@ -1,26 +1,24 @@
 #pragma once
 #include "../core/core_min.hpp"
-#include "../core/view.hpp"
-
-#include <mbedtls/ctr_drbg.h>
-#include <mbedtls/pk.h>
 
 #include <filesystem>
+#include <memory>
 
 X_BEGIN
+
+struct xSha256WithRsaContext;
+struct xSha256WithRsaValidatorContext;
 
 class xSha256WithRsa {
 public:
 	X_API_MEMBER bool Init(const std::filesystem::path & PriKeyPath);
 	X_API_MEMBER void Clean();
 
-	X_API_MEMBER xView<ubyte> operator()(const void * Data, size_t Size);
-	X_API_MEMBER bool         Validate(const void * Data, size_t Size, const void * Signature);
+	X_API_MEMBER bool Sign(void * Output, const void * Data, size_t Size);
+	X_API_MEMBER bool Validate(const void * Data, size_t Size, const void * Signature);
 
 private:
-	ubyte                    _SignResult[128];
-	mbedtls_pk_context       _PriKeyContext = {};
-	mbedtls_ctr_drbg_context _CtrDrbg       = {};
+	std::unique_ptr<xSha256WithRsaContext> _Context;
 };
 
 class xSha256WithRsaValidator {
@@ -31,8 +29,7 @@ public:
 	X_API_MEMBER bool operator()(const void * Data, size_t Size, const void * Signature);
 
 private:
-	mbedtls_pk_context       _PubKeyContext = {};
-	mbedtls_ctr_drbg_context _CtrDrbg       = {};
+	std::unique_ptr<xSha256WithRsaValidatorContext> _Context;
 };
 
 X_END
