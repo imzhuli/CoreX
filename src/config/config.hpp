@@ -18,7 +18,7 @@ public:
 
 	X_INLINE void Reload(const char * filename) { ReaderOpt.ResetValue(filename); }
 	X_INLINE void Reload(const std::string & filename) { ReaderOpt.ResetValue(filename.c_str()); }
-	X_INLINE      operator bool() const { return ReaderOpt && *ReaderOpt; }
+	X_INLINE	  operator bool() const { return ReaderOpt && *ReaderOpt; }
 
 	void Require(std::string & Dst, const char * Key);
 	void Require(xNetAddress & Dst, const char * Key);
@@ -35,8 +35,8 @@ public:
 	void Optional(xNetAddress & Dst, const char * Key, const xNetAddress & DefaultValue = {});
 	void Optional(int64_t & Dst, const char * Key, int64_t DefaultValue = 0);
 	void Optional(bool & Dst, const char * Key, bool DefaultValue = false);
-	template <typename T, typename U>
-	std::enable_if_t<std::is_integral_v<T> && !std::is_same_v<int64_t, T> && !std::is_same_v<bool, T>> Optional(T & Dst, const char * Key, U DefaultValue = {}) {
+	template <typename T>
+	std::enable_if_t<std::is_integral_v<T> && !std::is_same_v<int64_t, T> && !std::is_same_v<bool, T>> Optional(T & Dst, const char * Key, int64_t DefaultValue = {}) {
 		int64_t Temp;
 		Optional(Temp, Key, DefaultValue);
 		Dst = (T)Temp;
