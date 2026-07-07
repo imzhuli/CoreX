@@ -12,13 +12,13 @@ struct xNetAddress final {
 							IPV4,
 							IPV6 };
 
-	eType Type = UNSPEC;
-	union {
-		ubyte SA4[4];
-		ubyte SA6[16];
-		ubyte __HOLDER__[16] = {};  // used for zero init
-	};
+	eType	 Type = UNSPEC;
 	uint16_t Port = 0;
+	union {
+		alignas(decltype(sockaddr_in::sin_addr)) /*  */ ubyte SA4[4];
+		alignas(decltype(sockaddr_in6::sin6_addr)) /**/ ubyte SA6[16];
+		ubyte __HOLDER__[16] = {};	// used for zero init
+	};
 
 	// asserts
 	static_assert(sizeof(SA4) <= sizeof(__HOLDER__));
@@ -27,7 +27,7 @@ struct xNetAddress final {
 	// methods:
 	X_INLINE bool Is4() const { return Type == IPV4; }
 	X_INLINE bool Is6() const { return Type == IPV6; }
-	X_INLINE      operator bool() const { return Type != UNSPEC; }
+	X_INLINE	  operator bool() const { return Type != UNSPEC; }
 
 	X_INLINE int AddressFamily() const {
 		if (Type == IPV4) {
@@ -49,19 +49,19 @@ struct xNetAddress final {
 	X_INLINE void Dump(sockaddr_in * Addr4Ptr) const {
 		assert(Is4());
 		memset(Addr4Ptr, 0, sizeof(*Addr4Ptr));
-		auto & Addr4     = *Addr4Ptr;
+		auto & Addr4	 = *Addr4Ptr;
 		Addr4.sin_family = AF_INET;
-		Addr4.sin_addr   = reinterpret_cast<const decltype(sockaddr_in::sin_addr) &>(SA4);
-		Addr4.sin_port   = htons(Port);
+		Addr4.sin_addr	 = reinterpret_cast<const decltype(sockaddr_in::sin_addr) &>(SA4);
+		Addr4.sin_port	 = htons(Port);
 	}
 
 	X_INLINE void Dump(sockaddr_in6 * Addr6Ptr) const {
 		assert(Is6());
 		memset(Addr6Ptr, 0, sizeof(*Addr6Ptr));
-		auto & Addr6      = *Addr6Ptr;
+		auto & Addr6	  = *Addr6Ptr;
 		Addr6.sin6_family = AF_INET6;
-		Addr6.sin6_addr   = reinterpret_cast<const decltype(sockaddr_in6::sin6_addr) &>(SA6);
-		Addr6.sin6_port   = htons(Port);
+		Addr6.sin6_addr	  = reinterpret_cast<const decltype(sockaddr_in6::sin6_addr) &>(SA6);
+		Addr6.sin6_port	  = htons(Port);
 	}
 
 	X_INLINE size_t Dump(sockaddr_storage * AddrStoragePtr) const {
@@ -74,7 +74,7 @@ struct xNetAddress final {
 			return sizeof(sockaddr_in6);
 		}
 		X_PFATAL("invalid address type");
-		*AddrStoragePtr           = sockaddr_storage{};
+		*AddrStoragePtr			  = sockaddr_storage{};
 		AddrStoragePtr->ss_family = AF_UNSPEC;
 		return 0;
 	}
