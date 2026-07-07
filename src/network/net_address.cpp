@@ -175,4 +175,48 @@ std::string xNetAddress::ToString() const {
 			 ) };
 }
 
+bool xNetAddress::IsPrivate() const {
+	if (Is4()) {
+		if (SA4[0] == 10) {
+			return true;
+		}
+		if (SA4[0] == 172 && SA4[1] >= 16 && SA4[1] <= 31) {
+			return true;
+		}
+		if (SA4[0] == 192 && SA4[1] == 168) {
+			return true;
+		}
+		if (SA4[0] == 169 && SA4[1] == 254) {
+			return true;
+		}
+	} else if (Is6()) {
+		if (SA6[0] == 0xFDu) {
+			return true;
+		}
+		if (SA6[0] == 0xFEu && (SA6[1] & 0xC0) == 0x80u) {
+			return true;
+		}
+	} else {
+		Pass();
+	}
+	return false;
+}
+
+static constexpr const ubyte IPV6_LOOPBACK[16] = {
+	0, 0, 0, 0,	 //
+	0, 0, 0, 0,	 //
+	0, 0, 0, 0,	 //
+	0, 0, 0, 1,	 //
+};
+bool xNetAddress::IsLoopback() const {
+	if (Is4()) {
+		return SA4[0] == 127;
+	} else if (Is6()) {
+		return 0 == memcmp(SA6, IPV6_LOOPBACK, 16);
+	} else {
+		Pass();
+	}
+	return false;
+}
+
 X_END

@@ -90,6 +90,9 @@ struct xNetAddress final {
 	X_API_STATIC_MEMBER xNetAddress Parse(const sockaddr_in * SockAddr4Ptr);
 	X_API_STATIC_MEMBER xNetAddress Parse(const sockaddr_in6 * SockAddr6Ptr);
 	X_API_STATIC_MEMBER xNetAddress Parse(const sockaddr_storage * SockAddrStoragePtr);
+
+	X_API_MEMBER bool IsPrivate() const;
+	X_API_MEMBER bool IsLoopback() const;
 };
 
 X_API std::strong_ordering operator<=>(const xNetAddress & lhs, const xNetAddress & rhs);
