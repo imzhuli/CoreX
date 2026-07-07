@@ -4,6 +4,9 @@
 
 X_BEGIN
 
+static_assert(alignof(xNetAddress) == 4);
+static_assert(sizeof(xNetAddress) == 20);
+
 std::strong_ordering operator<=>(const xNetAddress & lhs, const xNetAddress & rhs) {
 	if (lhs.Type != rhs.Type) {
 		return lhs.Type <=> rhs.Type;
@@ -55,16 +58,16 @@ xNetAddress xNetAddress::Parse(const std::string_view & AddressStr) {
 		return {};
 	}
 
-	char     IpBuffer[48] = {};
-	uint16_t Port         = 0;
+	char	 IpBuffer[48] = {};
+	uint16_t Port		  = 0;
 
 	if (AddressStr.front() == '[') {
-		if (AddressStr.back() == ']') {  // ipv6 w/o port
+		if (AddressStr.back() == ']') {	 // ipv6 w/o port
 			memcpy(IpBuffer, AddressStr.data() + 1, AddressStr.size() - 2);
 			return InternalParse6(IpBuffer, 0);
 		}
 		auto PortIndex = AddressStr.find_last_of(':');
-		if (PortIndex == AddressStr.npos || AddressStr[PortIndex - 1] != ']') {  // invalid ipv6
+		if (PortIndex == AddressStr.npos || AddressStr[PortIndex - 1] != ']') {	 // invalid ipv6
 			return {};
 		}
 		auto TestPort = MakeUnsigned(atoll(AddressStr.data() + PortIndex + 1));
@@ -78,7 +81,7 @@ xNetAddress xNetAddress::Parse(const std::string_view & AddressStr) {
 
 	// try ipv4 now:
 	auto PortIndex = AddressStr.find_last_of(':');
-	if (PortIndex == AddressStr.npos) {  // no port
+	if (PortIndex == AddressStr.npos) {	 // no port
 		memcpy(IpBuffer, AddressStr.data(), AddressStr.size());
 		return InternalParse4(IpBuffer, 0);
 	}
@@ -96,13 +99,13 @@ xNetAddress xNetAddress::Parse(const sockaddr * SockAddrPtr) {
 	auto Result = xNetAddress();
 	if (SockAddrPtr->sa_family == AF_INET) {
 		auto Addr4Ptr = (const sockaddr_in *)SockAddrPtr;
-		Result.Type   = xNetAddress::IPV4;
-		Result.Port   = ntohs(Addr4Ptr->sin_port);
+		Result.Type	  = xNetAddress::IPV4;
+		Result.Port	  = ntohs(Addr4Ptr->sin_port);
 		memcpy(Result.SA4, &Addr4Ptr->sin_addr, sizeof(Result.SA4));
 	} else if (SockAddrPtr->sa_family == AF_INET6) {
 		auto Addr6Ptr = (const sockaddr_in6 *)SockAddrPtr;
-		Result.Type   = xNetAddress::IPV6;
-		Result.Port   = ntohs(Addr6Ptr->sin6_port);
+		Result.Type	  = xNetAddress::IPV6;
+		Result.Port	  = ntohs(Addr6Ptr->sin6_port);
 		memcpy(Result.SA6, &Addr6Ptr->sin6_addr, sizeof(Result.SA6));
 	}
 	return Result;
